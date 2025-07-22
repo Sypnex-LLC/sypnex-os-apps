@@ -11,7 +11,7 @@ import base64
 from pathlib import Path
 from datetime import datetime
 
-def pack_app(app_name, source_dir="user_apps_dev"):
+def pack_app(app_name, source_dir="."):
     """Pack an existing user app into a distributable format"""
     
     # Validate app name
@@ -304,16 +304,16 @@ def main():
         print("Usage: python pack_app.py <app_name> [--source <dir>]")
         print("\nExamples:")
         print("  python pack_app.py llm_chat")
-        print("  python pack_app.py flow_editor --source user_apps_dev")
+        print("  python pack_app.py flow_editor --source .")
         print("\nOptions:")
-        print("  --source <dir>  # Source directory (default: user_apps_dev)")
+        print("  --source <dir>  # Source directory (default: .)")
         print("\n💡 Make sure the app exists in the source directory")
         return
     
     app_name = sys.argv[1]
     
     # Parse options
-    source_dir = "user_apps_dev"
+    source_dir = "."
     
     i = 2
     while i < len(sys.argv):

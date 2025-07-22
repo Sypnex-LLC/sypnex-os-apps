@@ -12,7 +12,7 @@ import time
 import base64
 from datetime import datetime
 
-def pack_app_local(app_name, source_dir="user_apps_dev"):
+def pack_app_local(app_name, source_dir="."):
     """Pack an app locally (no API needed)"""
     
     print(f"📦 Packing app: {app_name}")
@@ -231,7 +231,7 @@ def pack_app_local(app_name, source_dir="user_apps_dev"):
         print(f"❌ Error packing app: {e}")
         return None
 
-def dev_deploy(app_name, source_dir="user_apps_dev", server_url="http://localhost:5000", watch=False):
+def dev_deploy(app_name, source_dir=".", server_url="http://localhost:5000", watch=False):
     """Quick pack and deploy an app for development"""
     
     print(f"🚀 Dev Deploy: {app_name}")
@@ -295,7 +295,7 @@ def dev_deploy(app_name, source_dir="user_apps_dev", server_url="http://localhos
         print(f"❌ Error during deployment: {e}")
         return False
 
-def deploy_all_apps(source_dir="user_apps_dev", server_url="http://localhost:5000"):
+def deploy_all_apps(source_dir=".", server_url="http://localhost:5000"):
     """Deploy all apps in the source directory"""
     if not os.path.exists(source_dir):
         print(f"❌ Error: Source directory '{source_dir}' not found")
@@ -335,7 +335,7 @@ def deploy_all_apps(source_dir="user_apps_dev", server_url="http://localhost:500
     print(f"🎉 Deployed {success_count}/{len(apps)} apps successfully!")
     return success_count == len(apps)
 
-def watch_and_deploy(app_name, source_dir="user_apps_dev", server_url="http://localhost:5000"):
+def watch_and_deploy(app_name, source_dir=".", server_url="http://localhost:5000"):
     """Watch for file changes and auto-deploy"""
     print(f" Watching {app_name} for changes...")
     print(f"💡 Press Ctrl+C to stop watching")
@@ -373,18 +373,18 @@ def main():
         print("Usage: python dev_deploy.py <app_name> [options]")
         print("\nExamples:")
         print("  python dev_deploy.py flow_editor")
-        print("  python dev_deploy.py flow_editor --source user_apps_dev")
+        print("  python dev_deploy.py flow_editor --source .")
         print("  python dev_deploy.py flow_editor --watch")
         print("  python dev_deploy.py all")
         print("\nOptions:")
-        print("  --source <dir>  # Source directory (default: user_apps_dev)")
+        print("  --source <dir>  # Source directory (default: .)")
         print("  --server <url>  # Server URL (default: http://localhost:5000)")
         print("  --watch         # Watch for changes and auto-redeploy")
         print("  all             # Deploy all apps in source directory")
         return
     
     app_name = sys.argv[1]
-    source_dir = "user_apps_dev"
+    source_dir = "."
     server_url = "http://localhost:5000"
     watch = "--watch" in sys.argv
     

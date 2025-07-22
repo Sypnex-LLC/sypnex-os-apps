@@ -29,8 +29,7 @@ def create_app(app_name):
     
     # Define paths - get script directory and build paths relative to it
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    user_apps_dir = os.path.join(script_dir, "user_apps_dev")
-    app_dir = os.path.join(user_apps_dir, app_name)
+    app_dir = os.path.join(script_dir, app_name)
     src_dir = os.path.join(app_dir, "src")
     app_file = os.path.join(app_dir, f"{app_name}.app")
     
