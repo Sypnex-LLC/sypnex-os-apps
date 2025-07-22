@@ -142,25 +142,42 @@ async function sendMessage() {
     sendButton.disabled = true;
 
     try {
-        // Call Ollama API directly
-        const response = await fetch(`${OLLAMA_ENDPOINT}/chat/completions`, {
+        // Use OS proxy to bypass CORS
+        const proxyRequest = {
+            url: `${OLLAMA_ENDPOINT}/chat/completions`,
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
+            body: {
                 model: MODEL_NAME,
                 messages: conversationHistory,
                 temperature: 0.7,
                 stream: false
-            })
+            },
+            timeout: 30
+        };
+
+        const proxyResponse = await fetch('/api/proxy/http', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(proxyRequest)
         });
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        if (!proxyResponse.ok) {
+            throw new Error(`Proxy request failed: ${proxyResponse.status}`);
         }
 
-        const data = await response.json();
+        const proxyData = await proxyResponse.json();
+
+        if (proxyData.error) {
+            throw new Error(`LLM request failed: ${proxyData.error}`);
+        }
+
+        // Parse the response content
+        const data = JSON.parse(proxyData.content);
         console.log('AI response received:', data);
 
         const aiResponse = data.choices[0].message.content;
@@ -342,26 +359,48 @@ async function speakText(text) {
         // Stop any currently playing audio
         stopTTS();
 
-        // Call external TTS service directly
+        // Use OS proxy to bypass CORS for TTS service
         const personaData = PERSONAS[currentPersona];
-        const response = await fetch(TTS_ENDPOINT, {
+        const proxyRequest = {
+            url: TTS_ENDPOINT,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: {
+                text: text,
+                voice: personaData.voice  // Use persona-specific voice
+            },
+            timeout: 30
+        };
+
+        const proxyResponse = await fetch('/api/proxy/http', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                text: text,
-                voice: personaData.voice  // Use persona-specific voice
-            })
+            body: JSON.stringify(proxyRequest)
         });
 
-        if (!response.ok) {
-            throw new Error(`TTS error: ${response.status}`);
+        if (!proxyResponse.ok) {
+            throw new Error(`TTS proxy error: ${proxyResponse.status}`);
         }
 
-        // Create audio blob and play
-        const audioBlob = await response.blob();
-        const audioUrl = URL.createObjectURL(audioBlob);
+        const proxyData = await proxyResponse.json();
+
+        if (proxyData.error) {
+            throw new Error(`TTS error: ${proxyData.error}`);
+        }
+
+        // Handle binary audio response
+        let audioUrl;
+        if (proxyData.is_binary) {
+            audioUrl = `data:audio/wav;base64,${proxyData.content}`;
+        } else {
+            // If not binary, create blob from response
+            const audioBlob = new Blob([proxyData.content], { type: 'audio/wav' });
+            audioUrl = URL.createObjectURL(audioBlob);
+        }
         
         currentAudio = new Audio(audioUrl);
         
