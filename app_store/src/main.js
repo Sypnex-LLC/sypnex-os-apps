@@ -7,7 +7,7 @@ class AppStore {
         this.installedApps = new Map(); // Changed to Map to store version info
         this.filteredApps = new Map();
         this.isLoading = false;
-        
+
         this.init();
     }
 
@@ -25,8 +25,21 @@ class AppStore {
 
     setupEventListeners() {
         // Refresh button
-        document.getElementById('refresh-apps').addEventListener('click', () => {
-            this.loadApps();
+        document.getElementById('refresh-apps').addEventListener('click', async () => {
+            // Call the SypnexAPI method to refresh the OS-level cache
+            const refreshSuccess = await sypnexAPI.refreshAppVersionsCache();
+
+            if (refreshSuccess) {
+                // Cache was refreshed successfully, now reload the app's UI
+                this.loadApps();
+                // Optionally show a success message
+                sypnexAPI.showNotification('App versions refreshed!', 'success');
+            } else {
+                // Cache refresh failed, but still try to reload UI with existing data
+                this.loadApps();
+                // Optionally show a warning
+                sypnexAPI.showNotification('Failed to refresh versions, showing cached data', 'error');
+            }
         });
 
         // Search functionality
@@ -43,9 +56,9 @@ class AppStore {
 
     async loadApps(showLoading = true) {
         if (this.isLoading) return;
-        
+
         this.isLoading = true;
-        
+
         if (showLoading) {
             this.showLoading();
         }
@@ -84,7 +97,7 @@ class AppStore {
 
             const data = await response.json();
             console.log('Raw available apps response:', data); // Debug log
-            
+
             if (!data.success || !data.apps) {
                 throw new Error('Invalid response format');
             }
@@ -119,9 +132,9 @@ class AppStore {
 
             const apps = await response.json();
             console.log('Raw installed apps response:', apps); // Debug log
-            
+
             const installedMap = new Map();
-            
+
             apps.forEach(app => {
                 if (app.type === 'user_app') {
                     console.log(`Processing installed app: ${app.id}, version: ${app.version}, full app data:`, app); // Debug log
@@ -142,7 +155,7 @@ class AppStore {
     }
 
     formatAppName(appId) {
-        return appId.split('_').map(word => 
+        return appId.split('_').map(word =>
             word.charAt(0).toUpperCase() + word.slice(1)
         ).join(' ');
     }
@@ -154,7 +167,7 @@ class AppStore {
             text_editor: 'Simple and efficient text editor with syntax highlighting support',
             threejs_example: 'Interactive 3D graphics demonstration using Three.js library'
         };
-        
+
         return descriptions[appId] || `${this.formatAppName(appId)} - A useful application for Sypnex OS`;
     }
 
@@ -164,7 +177,7 @@ class AppStore {
         } else {
             const term = searchTerm.toLowerCase();
             this.filteredApps = new Map();
-            
+
             this.apps.forEach((app, appId) => {
                 if (app.name.toLowerCase().includes(term) ||
                     app.description.toLowerCase().includes(term) ||
@@ -184,7 +197,7 @@ class AppStore {
     renderApps() {
         const appsGrid = document.getElementById('apps-grid');
         appsGrid.innerHTML = '';
-        
+
         this.filteredApps.forEach((app, appId) => {
             const appCard = this.createAppCard(app);
             appsGrid.appendChild(appCard);
@@ -197,7 +210,7 @@ class AppStore {
         const installedApp = this.installedApps.get(app.id);
         const isInstalled = installedApp !== undefined;
         const needsUpdate = isInstalled && installedApp.version !== app.version;
-        
+
         // Debug logging for version comparison
         if (isInstalled) {
             console.log(`Version comparison for ${app.id}:`, {
@@ -206,9 +219,9 @@ class AppStore {
                 needsUpdate: needsUpdate
             });
         }
-        
+
         let statusText, statusClass, buttonText, buttonClass, buttonIcon;
-        
+
         if (!isInstalled) {
             statusText = 'Not Installed';
             statusClass = 'not-installed';
@@ -228,7 +241,7 @@ class AppStore {
             buttonClass = 'btn-secondary';
             buttonIcon = 'fa-check';
         }
-        
+
         const card = document.createElement('div');
         card.className = 'app-card';
         card.innerHTML = `
@@ -277,7 +290,7 @@ class AppStore {
             text_editor: 'fa-edit',
             threejs_example: 'fa-cube'
         };
-        
+
         return `fas ${icons[appId] || 'fa-puzzle-piece'}`;
     }
 
@@ -305,26 +318,26 @@ class AppStore {
             if (response.ok) {
                 const successText = isUpdate ? 'updated' : 'installed';
                 showNotification(`${result.app_name || appId} ${successText} successfully!`, 'success');
-                
+
                 // Update the local state to reflect the installation/update
                 this.installedApps.set(appId, {
                     version: this.apps.get(appId).version,
                     id: appId
                 });
-                
+
                 // Update button state
                 button.innerHTML = '<i class="fas fa-check"></i> Installed';
                 button.className = 'btn btn-sm btn-secondary';
                 button.disabled = true;
-                
+
                 // Update status indicator
                 const statusElement = button.closest('.app-card').querySelector('.app-status');
                 statusElement.className = 'app-status installed';
                 statusElement.innerHTML = '<i class="fas fa-check-circle"></i> Installed';
-                
+
                 // Refresh the app registry
                 await fetch('/api/user-apps/refresh', { method: 'POST' });
-                
+
             } else {
                 throw new Error(result.error || `${isUpdate ? 'Update' : 'Installation'} failed`);
             }
@@ -332,7 +345,7 @@ class AppStore {
         } catch (error) {
             console.error(`${isUpdate ? 'Update' : 'Installation'} error:`, error);
             showNotification(`${isUpdate ? 'Update' : 'Installation'} failed: ${error.message}`, 'error');
-            
+
             // Restore button state
             const actionText = isUpdate ? 'Update' : 'Install';
             const iconClass = isUpdate ? 'fa-arrow-up' : 'fa-download';
