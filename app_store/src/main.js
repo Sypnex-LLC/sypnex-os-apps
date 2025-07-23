@@ -104,14 +104,16 @@ class AppStore {
 
             const appsMap = new Map();
             Object.entries(data.apps).forEach(([appId, appData]) => {
-                console.log(`Processing available app: ${appId}, version: ${appData.version}, full data:`, appData); // Debug log
+                console.log(`Processing available app: ${appId}, version: ${appData.app_info?.version}, full data:`, appData); // Debug log
                 appsMap.set(appId, {
                     id: appId,
-                    name: this.formatAppName(appId),
-                    version: appData.version,
+                    name: appData.app_info?.name || appId,
+                    version: appData.app_info?.version || '1.0.0',
                     download_url: appData.download_url,
                     filename: appData.filename,
-                    description: this.generateDescription(appId)
+                    description: appData.app_info?.description || 'No description available',
+                    author: appData.app_info?.author || 'Unknown',
+                    icon: appData.app_info?.icon || 'fa-puzzle-piece'
                 });
             });
 
@@ -152,23 +154,6 @@ class AppStore {
             // Don't throw here, just return empty map so we can still show available apps
             return new Map();
         }
-    }
-
-    formatAppName(appId) {
-        return appId.split('_').map(word =>
-            word.charAt(0).toUpperCase() + word.slice(1)
-        ).join(' ');
-    }
-
-    generateDescription(appId) {
-        const descriptions = {
-            flow_editor: 'Visual node-based workflow editor for creating and executing data processing pipelines',
-            llm_chat: 'Interactive chat interface for communicating with large language models',
-            text_editor: 'Simple and efficient text editor with syntax highlighting support',
-            threejs_example: 'Interactive 3D graphics demonstration using Three.js library'
-        };
-
-        return descriptions[appId] || `${this.formatAppName(appId)} - A useful application for Sypnex OS`;
     }
 
     filterApps(searchTerm) {
@@ -284,14 +269,8 @@ class AppStore {
     }
 
     getAppIcon(appId) {
-        const icons = {
-            flow_editor: 'fa-project-diagram',
-            llm_chat: 'fa-comments',
-            text_editor: 'fa-edit',
-            threejs_example: 'fa-cube'
-        };
-
-        return `fas ${icons[appId] || 'fa-puzzle-piece'}`;
+        const app = this.apps.get(appId);
+        return `fas ${app?.icon || 'fa-puzzle-piece'}`;
     }
 
     async installApp(appId, downloadUrl, button, isUpdate = false) {
