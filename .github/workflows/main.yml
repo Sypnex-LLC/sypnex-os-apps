@@ -92,7 +92,7 @@ jobs:
                     name: .name,
                     version: .version,
                     author: .author,
-                    description: .description
+                    description: .description,
                     icon: .icon
                   }
                 }
