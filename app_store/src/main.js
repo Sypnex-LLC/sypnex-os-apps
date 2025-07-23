@@ -237,6 +237,7 @@ class AppStore {
                 <div class="app-info">
                     <h3>${app.name}</h3>
                     <span class="app-version">v${app.version}</span>
+                    <span class="app-version">${app.author}</span>
                 </div>
             </div>
             <div class="app-description">

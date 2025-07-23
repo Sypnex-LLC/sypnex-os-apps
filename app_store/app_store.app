@@ -5,7 +5,7 @@
   "icon": "fas fa-store",
   "keywords": ["store", "apps", "install", "download", "browse"],
   "author": "Sypnex OS",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "type": "user_app",
   "scripts": ["main.js"],
   "styles": ["style.css"]
