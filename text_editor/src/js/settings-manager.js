@@ -29,18 +29,3 @@ async function loadSettings() {
 }
 
 
-
-// Load terminal state
-async function loadTerminalState() {
-    try {
-        const terminalEnabled = await sypnexAPI.getSetting('TERMINAL_ENABLED', false);
-        if (terminalEnabled && integratedTerminal) {
-            integratedTerminal.classList.remove('hidden');
-            if (terminalToggle) {
-                terminalToggle.classList.add('active');
-            }
-        }
-    } catch (error) {
-        console.error('Failed to load terminal state:', error);
-    }
-}

@@ -1,9 +1,4 @@
 <div class="app-container">
-    <div class="app-header">
-        <h2><i class="fas fa-edit"></i> Text Editor - <span id="current-filename">untitled.txt</span></h2>
-        <p>Create and edit text files in the virtual file system</p>
-    </div>
-
     <div class="app-content">
         <div class="app-toolbar">
             <div class="app-btn-group">
@@ -36,9 +31,6 @@
                 <button id="validation-toggle" class="app-btn secondary">
                     <i class="fas fa-check-circle"></i> Code Validation
                 </button>
-                <button id="terminal-toggle" class="app-btn secondary">
-                    <i class="fas fa-terminal"></i> Terminal
-                </button>
             </div>
         </div>
 
@@ -49,36 +41,10 @@
             </div>
         </div>
 
-        <!-- Integrated Terminal -->
-        <div id="integrated-terminal" class="integrated-terminal hidden">
-            <div class="terminal-header">
-                <span class="terminal-title">Integrated Terminal</span>
-                <button id="terminal-resize" class="terminal-resize-btn">
-                    <i class="fas fa-grip-lines"></i>
-                </button>
-            </div>
-            <div class="terminal-output" id="terminalOutput">
-                <div class="terminal-line terminal-info">
-                    Integrated Terminal - Type commands to execute
-                </div>
-                <div class="terminal-line"></div>
-            </div>
-            <div class="terminal-input-container">
-                <div class="terminal-input-line">
-                    <span class="terminal-prompt">$</span>
-                    <input type="text" class="terminal-input" id="terminalInput" placeholder="Enter command..." autocomplete="off">
-                </div>
-            </div>
-        </div>
-
         <div class="editor-status">
-            <div class="status-item">
-                <span class="status-label">Modified:</span>
-                <span class="status-value" id="modified-status">No</span>
-            </div>
-            <div class="status-item">
-                <span class="status-label">Errors:</span>
-                <span class="status-value" id="error-count">0</span>
+            <div class="status-left">
+                <span class="status-item">Modified: <span id="modified-status">No</span></span>
+                <span class="status-item">Errors: <span id="error-count">0</span></span>
             </div>
         </div>
     </div>

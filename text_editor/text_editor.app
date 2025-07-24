@@ -5,7 +5,7 @@
     "icon": "fas fa-edit",
     "keywords": ["text", "editor", "file", "edit", "write"],
     "author": "Sypnex OS",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "type": "user_app",
     "scripts": [
         "js/utils.js",
@@ -14,7 +14,6 @@
         "js/editor-manager.js",
         "js/syntax-highlighting.js",
         "js/code-validation.js", 
-        "js/terminal-manager.js",
         "js/ui-manager.js",
         "js/main.js"
     ],
@@ -39,13 +38,6 @@
             "type": "number",
             "value": 4,
             "description": "Number of spaces for tab indentation"
-        },
-        {
-            "key": "TERMINAL_ENABLED",
-            "name": "Integrated Terminal",
-            "type": "boolean",
-            "value": false,
-            "description": "Show integrated terminal by default"
         }
     ]
 } 

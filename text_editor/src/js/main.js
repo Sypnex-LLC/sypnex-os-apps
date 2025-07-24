@@ -80,9 +80,6 @@ function initTextEditor() {
     // Load settings
     loadSettings();
     
-    // Load terminal state
-    loadTerminalState();
-    
     // Set up event handlers
     setupEventHandlers();
     
@@ -108,8 +105,8 @@ function initTextEditor() {
 
 // Replace the original initTextEditor call
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initTextEditorWithTerminal);
+    document.addEventListener('DOMContentLoaded', initTextEditor);
 } else {
     // DOM is already loaded
-    initTextEditorWithTerminal();
+    initTextEditor();
 } 
