@@ -23,10 +23,10 @@
                 <div class="flow-toolbar">
                     <div class="toolbar-left">
                         <button id="run-workflow" class="btn btn-success">
-                            <i class="fas fa-play"></i> Run Workflow
+                            <i class="fas fa-play"></i> <span class="btn-text">Run Workflow</span>
                         </button>
                         <button id="stop-workflow" class="btn btn-danger" style="display: none;">
-                            <i class="fas fa-stop"></i> Stop
+                            <i class="fas fa-stop"></i> <span class="btn-text">Stop</span>
                         </button>
                         <div class="current-file-info">
                             <span id="current-filename" class="current-filename">untitled.flow</span>
@@ -34,12 +34,7 @@
                     </div>
                     
                     <div class="toolbar-right">
-                        <button id="add-tag" class="btn btn-outline-success" title="Add Area Tag">
-                            <i class="fas fa-tag"></i> Tag
-                        </button>
-                        <button id="reset-pan" class="btn btn-outline-secondary" title="Reset View (Pan & Zoom)">
-                            <i class="fas fa-crosshairs"></i> Reset View
-                        </button>
+                        <!-- Zoom controls stay visible -->
                         <div class="zoom-controls">
                             <button id="zoom-out" class="btn btn-outline-secondary" title="Zoom Out">
                                 <i class="fas fa-search-minus"></i>
@@ -52,19 +47,45 @@
                                 <i class="fas fa-expand-arrows-alt"></i>
                             </button>
                         </div>
-                        <button id="save-flow" class="btn btn-primary">
+                        
+                        <!-- Hamburger Menu Button -->
+                        <button id="hamburger-menu" class="btn btn-outline-secondary hamburger-btn" title="Menu">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Dropdown Menu - Only file operations and delete/clear actions -->
+                <div id="dropdown-menu" class="dropdown-menu">
+                    <div class="menu-section">
+                        <div class="menu-section-title">File Actions</div>
+                        <button class="menu-item" data-action="save-flow">
                             <i class="fas fa-save"></i> Save
                         </button>
-                        <button id="save-flow-as" class="btn btn-outline-primary">
+                        <button class="menu-item" data-action="save-flow-as">
                             <i class="fas fa-save"></i> Save As
                         </button>
-                        <button id="load-flow" class="btn btn-secondary">
+                        <button class="menu-item" data-action="load-flow">
                             <i class="fas fa-folder-open"></i> Load
                         </button>
-                        <button id="delete-selected" class="btn btn-outline-danger">
-                            <i class="fas fa-trash"></i> Delete
+                    </div>
+                    
+                    <div class="menu-section">
+                        <div class="menu-section-title">View Actions</div>
+                        <button class="menu-item" data-action="add-tag">
+                            <i class="fas fa-tag"></i> Add Tag
                         </button>
-                        <button id="clear-canvas" class="btn btn-outline-secondary">
+                        <button class="menu-item" data-action="reset-view">
+                            <i class="fas fa-crosshairs"></i> Reset View
+                        </button>
+                    </div>
+                    
+                    <div class="menu-section">
+                        <div class="menu-section-title">Edit Actions</div>
+                        <button class="menu-item danger" data-action="delete-selected">
+                            <i class="fas fa-trash"></i> Delete Selected
+                        </button>
+                        <button class="menu-item danger" data-action="clear-canvas">
                             <i class="fas fa-trash-alt"></i> Clear All
                         </button>
                     </div>

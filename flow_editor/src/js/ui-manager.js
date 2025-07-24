@@ -67,21 +67,18 @@ function setupEventHandlers() {
     // Workflow actions
     document.getElementById('run-workflow')?.addEventListener('click', runWorkflow);
     document.getElementById('stop-workflow')?.addEventListener('click', stopWorkflow);
-    document.getElementById('delete-selected')?.addEventListener('click', deleteSelectedNode);
-    document.getElementById('clear-canvas')?.addEventListener('click', clearCanvas);
-    document.getElementById('add-tag')?.addEventListener('click', window.tagManager.addTag);
-    document.getElementById('reset-pan')?.addEventListener('click', window.canvasManager.resetCanvasPan);
+    // Note: delete-selected, clear-canvas, reset-view, and add-tag are now handled by hamburger menu
     
     // Zoom controls
     document.getElementById('zoom-in')?.addEventListener('click', window.canvasManager.zoomIn);
     document.getElementById('zoom-out')?.addEventListener('click', window.canvasManager.zoomOut);
     document.getElementById('zoom-fit')?.addEventListener('click', window.canvasManager.zoomToFit);
     
-    // File operations
-    document.getElementById('save-flow')?.addEventListener('click', window.fileManager.saveFlow);
-    document.getElementById('save-flow-as')?.addEventListener('click', window.fileManager.saveFlowAs);
-    document.getElementById('load-flow')?.addEventListener('click', window.fileManager.loadFlow);
+    // Note: File operations (save, save-as, load) are now handled by hamburger menu
     document.getElementById('clear-output')?.addEventListener('click', clearOutput);
+    
+    // Hamburger menu
+    setupHamburgerMenu();
     
     // Config panel toggle
     document.getElementById('toggle-config')?.addEventListener('click', toggleConfigPanel);
@@ -186,6 +183,102 @@ function toggleToolbox() {
         icon.className = 'fas fa-chevron-right';
         toggleBtn.title = 'Expand Toolbox';
     }
+}
+
+// Setup hamburger menu functionality
+function setupHamburgerMenu() {
+    const hamburgerBtn = document.getElementById('hamburger-menu');
+    const dropdownMenu = document.getElementById('dropdown-menu');
+    
+    if (!hamburgerBtn || !dropdownMenu) {
+        console.error('Hamburger menu elements not found');
+        return;
+    }
+    
+    // Toggle menu on hamburger click
+    hamburgerBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        
+        // Position the dropdown relative to the hamburger button
+        if (!dropdownMenu.classList.contains('show')) {
+            // Use scaled mouse coordinates for more intuitive positioning
+            const mouseCoords = window.flowEditorUtils ? 
+                window.flowEditorUtils.getScaledMouseCoords(e) :
+                { x: e.clientX, y: e.clientY };
+            
+            const container = hamburgerBtn.closest('.flow-editor, .app-container');
+            const containerRect = window.flowEditorUtils && container ?
+                window.flowEditorUtils.getScaledBoundingClientRect(container) :
+                (container ? container.getBoundingClientRect() : { top: 0, left: 0 });
+            
+            // Position relative to mouse click, offset slightly to avoid covering the button
+            const relativeTop = mouseCoords.y - containerRect.top + 5;
+            const relativeLeft = mouseCoords.x - containerRect.left - 180 - 10 + 20; // Menu width + small gap, then 20px more to the right
+            
+            dropdownMenu.style.top = relativeTop + 'px';
+            dropdownMenu.style.left = relativeLeft + 'px';
+        }
+        
+        dropdownMenu.classList.toggle('show');
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!dropdownMenu.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+            dropdownMenu.classList.remove('show');
+        }
+    });
+    
+    // Handle menu item clicks - ONLY the specific actions requested
+    dropdownMenu.addEventListener('click', (e) => {
+        const menuItem = e.target.closest('.menu-item');
+        if (!menuItem) return;
+        
+        const action = menuItem.dataset.action;
+        if (!action) return;
+        
+        // Close the menu
+        dropdownMenu.classList.remove('show');
+        
+        // Execute ONLY the requested actions: save, save-as, load, delete, clear-all, reset-view, add-tag
+        switch (action) {
+            case 'save-flow':
+                if (window.fileManager && window.fileManager.saveFlow) {
+                    window.fileManager.saveFlow();
+                }
+                break;
+            case 'save-flow-as':
+                if (window.fileManager && window.fileManager.saveFlowAs) {
+                    window.fileManager.saveFlowAs();
+                }
+                break;
+            case 'load-flow':
+                if (window.fileManager && window.fileManager.loadFlow) {
+                    window.fileManager.loadFlow();
+                }
+                break;
+            case 'add-tag':
+                if (window.tagManager && window.tagManager.addTag) {
+                    window.tagManager.addTag();
+                }
+                break;
+            case 'reset-view':
+                if (window.canvasManager && window.canvasManager.resetCanvasPan) {
+                    window.canvasManager.resetCanvasPan();
+                }
+                break;
+            case 'delete-selected':
+                if (typeof deleteSelectedNode === 'function') {
+                    deleteSelectedNode();
+                }
+                break;
+            case 'clear-canvas':
+                if (typeof clearCanvas === 'function') {
+                    clearCanvas();
+                }
+                break;
+        }
+    });
 }
 
 // Example: ui-manager.js
