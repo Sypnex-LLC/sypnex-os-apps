@@ -507,6 +507,11 @@ function clearCanvasSilent() {
         }
         flowEditor.tags.clear();
         
+        // Update tag panel to reflect cleared tags
+        if (typeof window.tagManager.updateTagPanel === 'function') {
+            window.tagManager.updateTagPanel();
+        }
+        
         // Reset counters
         flowEditor.nodeCounter = 0;
         flowEditor.tagCounter = 0;
