@@ -187,14 +187,14 @@
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    padding: 4px 15px;
+    padding: 8px 20px;
     background: var(--glass-bg);
     border-top: 1px solid var(--border-color);
-    font-size: 11px;
+    font-size: 14px;
     color: var(--text-secondary);
     flex-shrink: 0;
-    height: 22px;
-    min-height: 22px;
+    height: 32px;
+    min-height: 32px;
 }
 
 .status-left {
@@ -212,13 +212,14 @@
     text-align: left !important;
     display: inline !important;
     color: var(--text-secondary);
-    font-size: 11px;
-    line-height: 1;
+    font-size: 14px;
+    line-height: 1.4;
+    font-weight: 500;
 }
 
 .editor-status .status-item span {
     color: var(--accent-color);
-    font-weight: 500;
+    font-weight: 600;
 }
 
 /* File Path Display */
@@ -247,7 +248,9 @@
     
     .editor-status {
         flex-wrap: wrap;
-        gap: 10px;
+        gap: 15px;
+        padding: 8px 15px;
+        font-size: 13px;
     }
     
     .line-numbers {
