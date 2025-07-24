@@ -1,0 +1,382 @@
+/* Flow Editor - SypnexOS Theme Integration */
+/* This file ensures the flow editor matches the OS aesthetic perfectly */
+
+:root {
+    /* Override flow editor variables with OS variables */
+    --surface-color: var(--glass-bg);
+    --border-color: var(--glass-border);
+    --text-color: var(--text-primary);
+    --text-muted: var(--text-secondary);
+    --primary-color: var(--accent-color);
+    --primary-color-rgb: 0, 212, 255;
+    --error-color: #ff4757;
+    --success-color: #2ed573;
+    --warning-color: #ffa502;
+}
+
+/* Enhanced glass morphism for flow editor */
+.flow-editor {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Toolbox with better glass effect */
+.flow-toolbox {
+    background: rgba(26, 26, 26, 0.9);
+    border-right: 1px solid var(--glass-border);
+    backdrop-filter: blur(15px);
+}
+
+.toolbox-header {
+    background: rgba(10, 10, 10, 0.8);
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.toolbox-header h4 {
+    color: var(--accent-color);
+    text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+}
+
+/* Enhanced node styling with glass morphism */
+.flow-node {
+    background: var(--glass-bg);
+    border: 2px solid var(--glass-border);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.flow-node:hover {
+    box-shadow: 0 8px 32px rgba(0, 212, 255, 0.2);
+    transform: translateY(-2px);
+    border-color: var(--accent-color);
+}
+
+.flow-node.selected {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.3);
+    background: rgba(0, 212, 255, 0.05);
+}
+
+/* Node ports with neon glow */
+.flow-node-port {
+    background: var(--glass-bg);
+    border: 2px solid var(--glass-border);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+}
+
+.flow-node-port:hover {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
+    transform: scale(1.3);
+}
+
+/* Connection lines with neon effect */
+.flow-connection-line {
+    stroke: var(--glass-border);
+    stroke-width: 3;
+    filter: drop-shadow(0 0 3px rgba(0, 212, 255, 0.3));
+    transition: all 0.3s ease;
+}
+
+.flow-connection-line:hover,
+.flow-connection-line.connected {
+    stroke: var(--accent-color);
+    stroke-width: 4;
+    filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.8));
+}
+
+/* Toolbar with glass effect */
+.flow-toolbar {
+    background: rgba(10, 10, 10, 0.9);
+    border-bottom: 1px solid var(--glass-border);
+    backdrop-filter: blur(15px);
+}
+
+/* Enhanced button styling */
+.toolbox-node-btn {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    color: var(--text-primary);
+}
+
+.toolbox-node-btn:hover {
+    background: rgba(0, 212, 255, 0.1);
+    border-color: var(--accent-color);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+    color: var(--accent-color);
+}
+
+/* Flow toolbar buttons */
+.flow-toolbar .btn {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+.flow-toolbar .btn:hover {
+    background: rgba(0, 212, 255, 0.1);
+    border-color: var(--accent-color);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+}
+
+.flow-toolbar .btn-success {
+    background: var(--accent-color);
+    color: var(--primary-bg);
+    border-color: var(--accent-color);
+}
+
+.flow-toolbar .btn-success:hover {
+    background: var(--accent-hover);
+    box-shadow: 0 4px 20px rgba(0, 212, 255, 0.4);
+}
+
+.flow-toolbar .btn-danger {
+    background: var(--error-color);
+    color: white;
+    border-color: var(--error-color);
+}
+
+.flow-toolbar .btn-danger:hover {
+    background: #ff3742;
+    box-shadow: 0 4px 20px rgba(255, 71, 87, 0.4);
+}
+
+/* Node type styling */
+.flow-node-type {
+    background: var(--accent-color);
+    color: var(--primary-bg);
+    font-weight: 600;
+    text-shadow: none;
+    border-radius: 6px;
+}
+
+/* Node delete button */
+.node-delete-btn {
+    background: var(--error-color);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 10px rgba(255, 71, 87, 0.3);
+    transition: all 0.3s ease;
+}
+
+.node-delete-btn:hover {
+    background: #ff3742;
+    transform: scale(1.1);
+    box-shadow: 0 4px 15px rgba(255, 71, 87, 0.5);
+}
+
+/* Current filename styling */
+.current-filename {
+    color: var(--accent-color);
+    font-weight: 600;
+    text-shadow: 0 0 5px rgba(0, 212, 255, 0.3);
+}
+
+/* Zoom controls */
+.zoom-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 4px;
+    backdrop-filter: blur(10px);
+}
+
+.zoom-level {
+    color: var(--accent-color);
+    font-weight: 600;
+    min-width: 45px;
+    text-align: center;
+    font-size: 12px;
+}
+
+/* Loading state */
+.loading-nodes {
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+}
+
+/* Node categories */
+.node-category h5 {
+    color: var(--accent-color);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    font-size: 11px;
+}
+
+/* Canvas tags and configuration list tags */
+.flow-tag,
+.area-tag,
+.tag-item,
+.canvas-tag {
+    background: var(--accent-color) !important;
+    color: var(--primary-bg) !important;
+    border: 2px solid var(--accent-color) !important;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 212, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.flow-tag:hover,
+.area-tag:hover,
+.tag-item:hover,
+.canvas-tag:hover {
+    background: var(--accent-hover) !important;
+    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.5);
+    transform: translateY(-1px);
+}
+
+/* Tag text and icons */
+.flow-tag .tag-text,
+.area-tag .tag-text,
+.tag-item .tag-text,
+.canvas-tag .tag-text,
+.flow-tag i,
+.area-tag i,
+.tag-item i,
+.canvas-tag i {
+    color: var(--primary-bg) !important;
+}
+
+/* Tag indicator circles/dots in configuration area */
+.tag-indicator,
+.tag-color-indicator,
+.tag-circle,
+.tag-dot,
+.area-tag-indicator,
+.tag-color {
+    background-color: var(--accent-color) !important;
+    background: var(--accent-color) !important;
+    border-color: var(--accent-color) !important;
+}
+
+/* Tag items in configuration list - match node list styling */
+.tag-item {
+    background: var(--glass-bg) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    color: var(--text-primary) !important;
+}
+
+.tag-item:hover {
+    background: rgba(0, 212, 255, 0.1) !important;
+    border-color: var(--accent-color) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+}
+
+.tag-item .tag-name {
+    color: var(--text-primary) !important;
+}
+
+.tag-item .tag-info {
+    color: var(--text-primary) !important;
+}
+
+/* Tag delete button styling */
+.tag-delete,
+.tag-item .tag-delete {
+    color: var(--text-primary) !important;
+    background: transparent !important;
+    border: none !important;
+}
+
+.tag-delete:hover,
+.tag-item .tag-delete:hover {
+    color: var(--accent-color) !important;
+}
+
+.tag-delete i,
+.tag-item .tag-delete i {
+    color: var(--text-primary) !important;
+}
+
+.tag-delete:hover i,
+.tag-item .tag-delete:hover i {
+    color: var(--accent-color) !important;
+}
+
+/* Configuration area header text */
+.config-header,
+.configuration-header,
+.flow-config-header,
+.config-placeholder,
+.configuration-placeholder,
+.flow-config-area p,
+.flow-config-area .placeholder,
+.flow-config-area .config-message,
+.config-area p,
+.config-area .placeholder,
+.config-area .config-message,
+.flow-configuration p,
+.flow-configuration .placeholder,
+.text-muted {
+    color: var(--text-secondary) !important;
+}
+
+/* Running state with pulsing effect */
+.flow-node.running {
+    animation: pulse-neon 2s infinite;
+    border-color: var(--success-color);
+}
+
+@keyframes pulse-neon {
+    0%, 100% { 
+        box-shadow: 0 0 5px rgba(46, 213, 115, 0.5);
+    }
+    50% { 
+        box-shadow: 0 0 20px rgba(46, 213, 115, 0.8), 0 0 30px rgba(46, 213, 115, 0.4);
+    }
+}
+
+/* Error state */
+.flow-node.error {
+    border-color: var(--error-color);
+    animation: pulse-error-neon 1s infinite;
+}
+
+@keyframes pulse-error-neon {
+    0%, 100% { 
+        box-shadow: 0 0 5px rgba(255, 71, 87, 0.5);
+    }
+    50% { 
+        box-shadow: 0 0 20px rgba(255, 71, 87, 0.8), 0 0 30px rgba(255, 71, 87, 0.4);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .flow-toolbox {
+        width: 200px;
+    }
+    
+    .flow-node {
+        min-width: 120px;
+        font-size: 12px;
+    }
+    
+    .toolbox-node-btn {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+}
