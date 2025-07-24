@@ -90,12 +90,7 @@ class AppStore {
 
     async fetchAvailableApps() {
         try {
-            const response = await fetch('/api/updates/latest');
-            if (!response.ok) {
-                throw new Error(`Failed to fetch apps: ${response.status}`);
-            }
-
-            const data = await response.json();
+            const data = await sypnexAPI.getAvailableApps();
             console.log('Raw available apps response:', data); // Debug log
 
             if (!data.success || !data.apps) {
@@ -127,12 +122,7 @@ class AppStore {
 
     async fetchInstalledApps() {
         try {
-            const response = await fetch('/api/apps');
-            if (!response.ok) {
-                throw new Error(`Failed to fetch installed apps: ${response.status}`);
-            }
-
-            const apps = await response.json();
+            const apps = await sypnexAPI.getInstalledApps();
             console.log('Raw installed apps response:', apps); // Debug log
 
             const installedMap = new Map();
@@ -282,22 +272,11 @@ class AppStore {
             button.innerHTML = `<i class="fas fa-spinner fa-spin"></i> ${actionText}...`;
             button.disabled = true;
 
-            // Use the update endpoint to install the app (it handles downloads from URLs)
-            const response = await fetch(`/api/user-apps/update/${appId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    download_url: downloadUrl
-                })
-            });
+            // Use the SypnexAPI to update/install the app
+            const result = await sypnexAPI.updateApp(appId, downloadUrl);
 
-            const result = await response.json();
-
-            if (response.ok) {
-                const successText = isUpdate ? 'updated' : 'installed';
-                showNotification(`${result.app_name || appId} ${successText} successfully!`, 'success');
+            const successText = isUpdate ? 'updated' : 'installed';
+            showNotification(`${result.app_name || appId} ${successText} successfully!`, 'success');
 
                 // Update the local state to reflect the installation/update
                 this.installedApps.set(appId, {
@@ -316,11 +295,7 @@ class AppStore {
                 statusElement.innerHTML = '<i class="fas fa-check-circle"></i> Installed';
 
                 // Refresh the app registry
-                await fetch('/api/user-apps/refresh', { method: 'POST' });
-
-            } else {
-                throw new Error(result.error || `${isUpdate ? 'Update' : 'Installation'} failed`);
-            }
+                await sypnexAPI.refreshAppRegistry();
 
         } catch (error) {
             console.error(`${isUpdate ? 'Update' : 'Installation'} error:`, error);

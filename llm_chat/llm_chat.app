@@ -5,7 +5,7 @@
     "icon": "fas fa-comments",
     "keywords": ["chat", "ai", "llm", "assistant", "persona"],
     "author": "Sypnex OS",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "type": "user_app",
    "settings": [
     {

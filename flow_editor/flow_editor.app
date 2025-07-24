@@ -5,7 +5,7 @@
   "icon": "fas fa-project-diagram",
   "keywords": ["flow", "workflow", "nodes", "pipeline", "visual", "editor"],
   "author": "Sypnex OS",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "type": "user_app",
   "scripts": [
     "js/utils.js",

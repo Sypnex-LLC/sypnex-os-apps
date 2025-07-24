@@ -158,19 +158,13 @@ async function sendMessage() {
             timeout: 30
         };
 
-        const proxyResponse = await fetch('/api/proxy/http', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(proxyRequest)
-        });
+        const proxyResponse = await sypnexAPI.proxyHTTP(proxyRequest);
 
-        if (!proxyResponse.ok) {
-            throw new Error(`Proxy request failed: ${proxyResponse.status}`);
+        if (!proxyResponse || proxyResponse.status < 200 || proxyResponse.status >= 300) {
+            throw new Error(`Proxy request failed: ${proxyResponse?.status || 'Unknown error'}`);
         }
 
-        const proxyData = await proxyResponse.json();
+        const proxyData = proxyResponse;
 
         if (proxyData.error) {
             throw new Error(`LLM request failed: ${proxyData.error}`);
@@ -374,19 +368,13 @@ async function speakText(text) {
             timeout: 30
         };
 
-        const proxyResponse = await fetch('/api/proxy/http', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(proxyRequest)
-        });
+        const proxyResponse = await sypnexAPI.proxyHTTP(proxyRequest);
 
-        if (!proxyResponse.ok) {
-            throw new Error(`TTS proxy error: ${proxyResponse.status}`);
+        if (!proxyResponse || proxyResponse.status < 200 || proxyResponse.status >= 300) {
+            throw new Error(`TTS proxy error: ${proxyResponse?.status || 'Unknown error'}`);
         }
 
-        const proxyData = await proxyResponse.json();
+        const proxyData = proxyResponse;
 
         if (proxyData.error) {
             throw new Error(`TTS error: ${proxyData.error}`);

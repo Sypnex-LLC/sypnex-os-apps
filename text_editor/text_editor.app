@@ -5,7 +5,7 @@
     "icon": "fas fa-edit",
     "keywords": ["text", "editor", "file", "edit", "write"],
     "author": "Sypnex OS",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "type": "user_app",
     "scripts": [
         "js/utils.js",
