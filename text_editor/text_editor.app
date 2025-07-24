@@ -3,9 +3,9 @@
     "name": "Text Editor",
     "description": "A simple text editor for creating and editing text files in the virtual file system",
     "icon": "fas fa-edit",
-    "keywords": ["text", "editor", "file", "edit", "write"],
+    "keywords": ["text_editor", "editor", "file", "edit", "write"],
     "author": "Sypnex OS",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "type": "user_app",
     "scripts": [
         "js/utils.js",

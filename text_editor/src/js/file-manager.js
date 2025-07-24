@@ -21,41 +21,54 @@ async function loadFile() {
             onCancel: () => {
             }
         });
-        
+
         if (!filePath) {
             return; // User cancelled
         }
-        
+
+        // Use the helper function to load the file
+        await loadFileByPath(filePath);
+
+    } catch (error) {
+        console.error('Failed to load file:', error);
+        sypnexAPI.showNotification(`Failed to load file: ${error.message}`, 'error');
+    }
+}
+
+// Helper function to load a file by path (used by both interactive load and intent system)
+async function loadFileByPath(filePath) {
+    try {
         // Check if file exists and load it
         const content = await sypnexAPI.readVirtualFileText(filePath);
-        
+
         // Load content into editor
         textEditor.textarea.value = content;
         textEditor.filePath = filePath;
         textEditor.originalContent = content;
-        
+
         // Update UI
         updateFilenameDisplay();
         updateLineNumbers();
         updateStatus();
         markAsSaved();
-        
+
         // Enable syntax highlighting for loaded file
         await enableSyntaxHighlighting();
-        
+
         // Force update highlighted content if highlighting is enabled
         if (textEditor.syntaxHighlightingEnabled && textEditor.highlightedEditor) {
             updateHighlightedContent();
         }
-        
+
         // Schedule validation for Python files
         scheduleValidation();
-        
+
         sypnexAPI.showNotification(`File loaded: ${filePath}`, 'success');
-        
+
     } catch (error) {
-        console.error('Failed to load file:', error);
+        console.error('Failed to load file by path:', error);
         sypnexAPI.showNotification(`Failed to load file: ${error.message}`, 'error');
+        throw error;
     }
 }
 
@@ -63,10 +76,10 @@ async function loadFile() {
 // Save file to VFS
 async function saveFile() {
     const content = textEditor.textarea.value;
-    
+
     try {
         let filePath = textEditor.filePath;
-        
+
         // If it's a new file (untitled) or we want to save as, show file explorer
         if (textEditor.filePath === '/untitled.txt') {
             filePath = await sypnexAPI.showFileExplorer({
@@ -79,28 +92,28 @@ async function saveFile() {
                 onCancel: () => {
                 }
             });
-            
+
             if (!filePath) {
                 return; // User cancelled
             }
         }
-        
+
         await sypnexAPI.writeVirtualFile(filePath, content);
-        
+
         textEditor.filePath = filePath;
         updateFilenameDisplay();
         markAsSaved();
-        
+
         // Enable syntax highlighting for saved file
         await enableSyntaxHighlighting();
-        
+
         // Force update highlighted content if highlighting is enabled
         if (textEditor.syntaxHighlightingEnabled && textEditor.highlightedEditor) {
             updateHighlightedContent();
         }
-        
+
         sypnexAPI.showNotification(`File saved: ${filePath}`, 'success');
-        
+
     } catch (error) {
         console.error('Failed to save file:', error);
         sypnexAPI.showNotification(`Failed to save file: ${error.message}`, 'error');
@@ -110,7 +123,7 @@ async function saveFile() {
 // Save file as (always show file explorer)
 async function saveAsFile() {
     const content = textEditor.textarea.value;
-    
+
     try {
         const filePath = await sypnexAPI.showFileExplorer({
             mode: 'save',
@@ -122,27 +135,27 @@ async function saveAsFile() {
             onCancel: () => {
             }
         });
-        
+
         if (!filePath) {
             return; // User cancelled
         }
-        
+
         await sypnexAPI.writeVirtualFile(filePath, content);
-        
+
         textEditor.filePath = filePath;
         updateFilenameDisplay();
         markAsSaved();
-        
+
         // Enable syntax highlighting for saved file
         await enableSyntaxHighlighting();
-        
+
         // Force update highlighted content if highlighting is enabled
         if (textEditor.syntaxHighlightingEnabled && textEditor.highlightedEditor) {
             updateHighlightedContent();
         }
-        
+
         sypnexAPI.showNotification(`File saved as: ${filePath}`, 'success');
-        
+
     } catch (error) {
         console.error('Failed to save file as:', error);
         sypnexAPI.showNotification(`Failed to save file as: ${error.message}`, 'error');
