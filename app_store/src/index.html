@@ -1,20 +1,23 @@
 <div class="app-container">
     <div class="app-header">
-        <h2><i class="fas fa-store"></i> App Store</h2>
-        <p>Browse and install available user applications</p>
+        <div class="header-content">
+            <div class="header-text">
+                <h2><i class="fas fa-store"></i> App Store</h2>
+                <p>Browse and install available user applications</p>
+            </div>
+            <div class="header-controls">
+                <div class="search-container">
+                    <input type="text" id="search-input" placeholder="Search apps..." class="form-control">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+                <button id="refresh-apps" class="btn btn-primary">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+        </div>
     </div>
 
     <div class="app-content">
-        <!-- Toolbar -->
-        <div class="store-toolbar">
-            <button id="refresh-apps" class="btn btn-primary">
-                <i class="fas fa-sync-alt"></i> Refresh
-            </button>
-            <div class="search-container">
-                <input type="text" id="search-input" placeholder="Search apps..." class="form-control">
-                <i class="fas fa-search search-icon"></i>
-            </div>
-        </div>
 
         <!-- Loading State -->
         <div id="loading-state" class="loading-state">
