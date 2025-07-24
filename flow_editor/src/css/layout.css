@@ -1,14 +1,33 @@
 /* Flow Editor Layout & Structure */
 
+/* Ensure app-container uses full height */
+.app-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.app-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    gap: 10px;
+    padding: 10px;
+    min-height: 0;
+}
+
 /* Flow Editor Layout */
 .flow-editor {
     display: flex;
-    height: 70vh;
+    flex: 1;
     gap: 0;
     background: var(--surface-color);
     border-radius: 8px;
     border: 1px solid var(--border-color);
     overflow: hidden;
+    min-height: 0;
 }
 
 /* Left Toolbox */
@@ -251,11 +270,12 @@
 
 /* Output Panel */
 .flow-output-panel {
-    margin-top: 10px;
     background: var(--surface-color);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     overflow: hidden;
+    flex-shrink: 0;
+    max-height: 300px;
 }
 
 .output-header {
@@ -279,8 +299,9 @@
 
 .output-content {
     padding: 15px;
-    max-height: 200px;
+    max-height: 250px;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .flow-output-panel.collapsed .output-content {
