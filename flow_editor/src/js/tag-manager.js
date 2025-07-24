@@ -1,7 +1,17 @@
 
 // Add a new tag at current viewport center
-function addTag() {
-    const tagName = prompt('Enter tag name:');
+async function addTag() {
+    const tagName = await sypnexAPI.showInputModal(
+        'Create New Tag',
+        'Tag Name:',
+        {
+            placeholder: 'Enter tag name',
+            confirmText: 'Create Tag',
+            cancelText: 'Cancel',
+            icon: 'fas fa-tag'
+        }
+    );
+    
     if (!tagName || tagName.trim() === '') return;
 
     const tagId = `tag_${++flowEditor.tagCounter}`;
