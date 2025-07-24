@@ -113,6 +113,4 @@ class NodeRenderer {
 }
 
 // Global node renderer instance
-console.log('Creating global nodeRenderer instance...');
 const nodeRenderer = new NodeRenderer();
-console.log('Global nodeRenderer created:', nodeRenderer); 

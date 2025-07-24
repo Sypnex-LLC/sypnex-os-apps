@@ -8,7 +8,6 @@ let terminalSocket = null;
 
 // Initialize terminal functionality
 function initIntegratedTerminal() {
-    console.log('Initializing integrated terminal...');
     
     // Get terminal DOM elements
     terminalToggle = document.getElementById('terminal-toggle');
@@ -28,7 +27,6 @@ function initIntegratedTerminal() {
     // Connect to WebSocket for real-time output
     connectTerminalWebSocket();
     
-    console.log('Integrated terminal initialized');
 }
 
 // Set up terminal event handlers
@@ -213,7 +211,6 @@ async function connectTerminalWebSocket() {
             handleTerminalWebSocketOutput(data);
         });
         
-        console.log('Terminal WebSocket connected');
     } catch (error) {
         console.error('Failed to connect terminal WebSocket:', error);
     }

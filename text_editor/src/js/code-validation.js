@@ -1,28 +1,23 @@
 // Load Pyodide for Python syntax validation
 async function loadPyodide() {
-    console.log('📦 loadPyodide called, current state:', textEditor.pyodideLoaded);
     
     if (textEditor.pyodideLoaded && window.pyodide) {
-        console.log('✅ Pyodide already loaded, returning existing instance');
         return window.pyodide;
     }
     
     try {
-        console.log('🚀 Starting Pyodide loading process...');
         
         // Load Pyodide script
         await sypnexAPI.loadLibrary('https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js', {
             localName: 'loadPyodide'
         });
         
-        console.log('📚 Pyodide library loaded, initializing instance...');
         
         // Initialize Pyodide - use the global loadPyodide function
         window.pyodide = await window.loadPyodide({
             indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"
         });
         
-        console.log('🐍 Pyodide initialized, installing Python validation function...');
         
         // Install validation function
         window.pyodide.runPython(`
@@ -53,7 +48,6 @@ def validate_python_syntax(code):
         `);
         
         textEditor.pyodideLoaded = true;
-        console.log('✅ Pyodide loaded and configured successfully!');
         
         // Show notification
         sypnexAPI.showNotification('Python validation ready!', 'success');
@@ -69,31 +63,24 @@ def validate_python_syntax(code):
 
 // Validate Python syntax using Pyodide
 async function validatePythonSyntax(code) {
-    console.log('🔬 validatePythonSyntax called');
-    console.log('Validation enabled:', textEditor.validationEnabled);
     
     if (!textEditor.validationEnabled) {
-        console.log('❌ Validation disabled - returning valid');
         return {"valid": true, "errors": []};
     }
     
     try {
-        console.log('📦 Loading Pyodide...');
         const pyodide = await loadPyodide();
-        console.log('✅ Pyodide loaded, validating code...');
         
         // Call the Python validation function
         pyodide.globals.set("code_to_validate", code);
         const result = pyodide.runPython("validate_python_syntax(code_to_validate)");
         
         const jsResult = result.toJs({dict_converter: Object.fromEntries});
-        console.log('🎯 Python validation result:', jsResult);
         
         return jsResult;
         
     } catch (error) {
         console.error('❌ Pyodide validation error:', error);
-        console.log('🔄 Falling back to basic syntax validation...');
         
         // Fallback to basic client-side validation
         return validatePythonBasic(code);
@@ -102,7 +89,6 @@ async function validatePythonSyntax(code) {
 
 // Basic Python syntax validation (fallback)
 function validatePythonBasic(code) {
-    console.log('🔧 Using basic Python validation fallback');
     const errors = [];
     const lines = code.split('\n');
     
@@ -181,7 +167,6 @@ function validatePythonBasic(code) {
         }
     });
     
-    console.log(`🎯 Basic validation found ${errors.length} errors`);
     return {
         valid: errors.length === 0,
         errors: errors
@@ -191,10 +176,6 @@ function validatePythonBasic(code) {
 
 // Schedule validation with debouncing
 function scheduleValidation() {
-    console.log('🔍 scheduleValidation called');
-    console.log('Current file path:', textEditor.filePath);
-    console.log('Is Python file:', isPythonFile(textEditor.filePath));
-    console.log('Validation enabled:', textEditor.validationEnabled);
     
     // Clear existing timer
     if (textEditor.validationDebounceTimer) {
@@ -203,31 +184,25 @@ function scheduleValidation() {
     
     // Only validate Python files
     if (!isPythonFile(textEditor.filePath) || !textEditor.validationEnabled) {
-        console.log('❌ Skipping validation - not Python file or validation disabled');
         clearErrorMarkers();
         updateErrorCount(0);
         return;
     }
     
-    console.log('✅ Scheduling Python validation...');
     
     // Debounce validation to avoid too frequent calls and interference with typing
     textEditor.validationDebounceTimer = setTimeout(async () => {
         const code = textEditor.textarea.value;
-        console.log('🐍 About to validate Python code:', code.substring(0, 100) + '...');
         
         // Don't validate empty files
         if (!code.trim()) {
-            console.log('📝 Empty code - clearing errors');
             clearErrorMarkers();
             updateErrorCount(0);
             return;
         }
         
         try {
-            console.log('🚀 Calling validatePythonSyntax...');
             const result = await validatePythonSyntax(code);
-            console.log('📊 Validation result:', result);
             displayValidationErrors(result.errors || []);
         } catch (error) {
             console.error('❌ Validation scheduling error:', error);
@@ -251,7 +226,6 @@ function displayValidationErrors(errors) {
         addErrorMarker(error.line, error.message, error.type);
     });
     
-    console.log(`Validation complete: ${errors.length} errors found`);
 }
 
 
@@ -284,7 +258,6 @@ function addErrorMarker(lineNumber, message, type = 'syntax') {
 function addErrorUnderline(lineNumber, message) {
     // This is a simplified version - we could make it more sophisticated
     // For now, we'll rely on the line number highlighting
-    console.log(`Error on line ${lineNumber}: ${message}`);
 }
 
 // Clear all error markers

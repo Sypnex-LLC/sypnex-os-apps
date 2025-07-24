@@ -1,5 +1,4 @@
 // LLM Chat functionality - Standalone User App Version
-console.log('LLM Chat script loading...');
 
 // Global variables
 let chatMessages, chatInput, sendButton, clearButton, personaSelect, currentPersonaName;
@@ -47,7 +46,6 @@ const PERSONAS = {
 
 // Initialize function
 function initChat() {
-    console.log('Initializing LLM Chat...');
 
     chatMessages = document.getElementById('chat-messages');
     chatInput = document.getElementById('chat-input');
@@ -58,40 +56,26 @@ function initChat() {
     ttsToggle = document.getElementById('tts-toggle');
     stopTtsButton = document.getElementById('stop-tts');
 
-    console.log('Chat elements found:', {
-        chatMessages: !!chatMessages,
-        chatInput: !!chatInput,
-        sendButton: !!sendButton,
-        clearButton: !!clearButton,
-        personaSelect: !!personaSelect,
-        ttsToggle: !!ttsToggle,
-        stopTtsButton: !!stopTtsButton
-    });
 
     // Set up event handlers
     if (sendButton) {
         sendButton.onclick = sendMessage;
-        console.log('Send button onclick set');
     }
 
     if (clearButton) {
         clearButton.onclick = clearChat;
-        console.log('Clear button onclick set');
     }
 
     if (personaSelect) {
         personaSelect.onchange = switchPersona;
-        console.log('Persona select onchange set');
     }
 
     if (ttsToggle) {
         ttsToggle.onclick = toggleTTS;
-        console.log('TTS toggle onclick set');
     }
 
     if (stopTtsButton) {
         stopTtsButton.onclick = stopTTS;
-        console.log('Stop TTS button onclick set');
     }
 
     // Enter key handler
@@ -107,7 +91,6 @@ function initChat() {
     // Initialize conversation with current persona
     initializeConversation();
 
-    console.log('LLM Chat initialization complete');
 }
 
 // Initialize conversation with current persona
@@ -127,7 +110,6 @@ async function sendMessage() {
     const message = chatInput.value.trim();
     if (!message) return;
 
-    console.log('Sending message:', message);
 
     // Add user message to chat
     addMessage(message, 'user');
@@ -172,7 +154,6 @@ async function sendMessage() {
 
         // Parse the response content
         const data = JSON.parse(proxyData.content);
-        console.log('AI response received:', data);
 
         const aiResponse = data.choices[0].message.content;
         
@@ -201,12 +182,10 @@ async function sendMessage() {
 
 // Clear chat function
 function clearChat() {
-    console.log('Clearing chat...');
     
     // Reset conversation history with current persona
     initializeConversation();
     
-    console.log('Chat cleared successfully');
 }
 
 // Switch persona function
@@ -214,13 +193,11 @@ function switchPersona() {
     const newPersona = personaSelect.value;
     if (newPersona === currentPersona) return;
 
-    console.log('Switching persona to:', newPersona);
     currentPersona = newPersona;
     
     // Reinitialize conversation with new persona
     initializeConversation();
     
-    console.log('Persona switched successfully');
 }
 
 // Update persona display
@@ -405,7 +382,6 @@ async function speakText(text) {
 
     } catch (error) {
         console.error('TTS Error:', error);
-        console.log('Note: TTS requires an external TTS service running at:', TTS_ENDPOINT);
     }
 }
 

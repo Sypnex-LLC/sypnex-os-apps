@@ -14,7 +14,6 @@ async function loadSettings() {
         textEditor.textarea.style.tabSize = textEditor.settings.tabSize;
         textEditor.validationEnabled = textEditor.settings.codeValidation;
         
-        console.log('Settings loaded:', textEditor.settings);
     } catch (error) {
         console.error('Failed to load settings:', error);
         // Use defaults

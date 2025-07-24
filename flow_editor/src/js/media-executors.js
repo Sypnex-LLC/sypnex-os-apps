@@ -64,10 +64,6 @@ async function executeAudioNode(engine, node, inputData, executed) {
 
     let audioData = inputData.audio_data;
 
-    console.log('Audio node execution - inputData:', inputData);
-    console.log('Audio node execution - audioData:', audioData);
-    console.log('Audio data type:', typeof audioData);
-    console.log('Audio data instanceof Blob:', audioData instanceof Blob);
 
     if (!audioData) {
         throw new Error('No audio data provided');
@@ -88,28 +84,20 @@ async function executeAudioNode(engine, node, inputData, executed) {
     // Set audio source (like old system)
     if (audioData instanceof Blob) {
         node.audioElement.src = URL.createObjectURL(audioData);
-        console.log('Set audio source from Blob');
-        console.log('Audio element src:', node.audioElement.src);
     } else if (typeof audioData === 'string') {
         if (audioData.startsWith('data:audio/') || audioData.startsWith('data:application/')) {
             // Already a data URL
             node.audioElement.src = audioData;
-            console.log('Set audio source from data URL');
         } else if (audioData.match(/^[A-Za-z0-9+/]*={0,2}$/)) {
             // Looks like base64 data, convert to data URL
             const audioType = 'audio/mpeg'; // Default to MP3, could be enhanced to detect type
             const dataUrl = `data:${audioType};base64,${audioData}`;
             node.audioElement.src = dataUrl;
-            console.log('Set audio source from base64 data');
         } else {
             // Assume it's a regular URL
             node.audioElement.src = audioData;
-            console.log('Set audio source from URL');
         }
-        console.log('Audio element src:', node.audioElement.src);
-        console.log('Audio data received:', audioData);
     } else {
-        console.log('Set audio source from unknown data type:', typeof audioData);
         node.audioElement.src = audioData;
     }
 
@@ -124,7 +112,6 @@ async function executeAudioNode(engine, node, inputData, executed) {
     if (autoPlay) {
         try {
             await node.audioElement.play();
-            console.log('Auto-play started');
         } catch (error) {
             console.error('Auto-play failed:', error);
         }
@@ -141,7 +128,6 @@ async function executeAudioNode(engine, node, inputData, executed) {
             reader.onerror = reject;
             reader.readAsDataURL(audioData);
         });
-        console.log('Converted Blob to data URL for save:', dataUrlForSave.substring(0, 50) + '...');
     } else if (typeof audioData === 'string') {
         if (audioData.startsWith('data:audio/') || audioData.startsWith('data:application/')) {
             // Already a data URL

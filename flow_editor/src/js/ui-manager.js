@@ -1,9 +1,7 @@
 
 // Populate toolbox with loaded nodes
 function populateToolbox() {
-    console.log('populateToolbox called');
     const toolbox = document.querySelector('.flow-toolbox');
-    console.log('Toolbox element:', toolbox);
     if (!toolbox) {
         console.error('Toolbox not found');
         return;
@@ -19,7 +17,6 @@ function populateToolbox() {
     const categories = {};
     const allNodes = nodeRegistry.getAllNodeTypes();
     
-    console.log('All loaded nodes:', allNodes);
     
     allNodes.forEach(nodeDef => {
         const category = nodeDef.category || 'other';
@@ -29,7 +26,6 @@ function populateToolbox() {
         categories[category].push(nodeDef);
     });
     
-    console.log('Node categories:', categories);
     
     // Create toolbox sections for each category
     Object.entries(categories).forEach(([category, nodes]) => {
@@ -61,7 +57,6 @@ function populateToolbox() {
         });
     });
     
-    console.log('Toolbox populated with', allNodes.length, 'nodes');
 }
 
 // Set up event handlers

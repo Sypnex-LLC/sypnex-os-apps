@@ -68,7 +68,6 @@ class ExecutionEngine {
             clearInterval(node.repeaterState.interval);
             node.repeaterState.interval = null;
             node.repeaterState.isRunning = false;
-            console.log('Repeater stopped:', node.id);
         }
     }
 
@@ -78,6 +77,4 @@ class ExecutionEngine {
 }
 
 // Global execution engine instance
-console.log('Creating global executionEngine instance...');
 const executionEngine = new ExecutionEngine(nodeRegistry);
-console.log('Global executionEngine created:', executionEngine); 

@@ -17,10 +17,8 @@ async function loadFile() {
             title: 'Open Text File',
             initialPath: '/',
             onSelect: (selectedPath) => {
-                console.log('File selected for loading:', selectedPath);
             },
             onCancel: () => {
-                console.log('File selection cancelled');
             }
         });
         
@@ -77,10 +75,8 @@ async function saveFile() {
                 initialPath: '/',
                 fileName: 'untitled.txt',
                 onSelect: (selectedPath) => {
-                    console.log('File selected for saving:', selectedPath);
                 },
                 onCancel: () => {
-                    console.log('File selection cancelled');
                 }
             });
             
@@ -122,10 +118,8 @@ async function saveAsFile() {
             initialPath: '/',
             fileName: textEditor.filePath === '/untitled.txt' ? 'untitled.txt' : textEditor.filePath.split('/').pop(),
             onSelect: (selectedPath) => {
-                console.log('File selected for saving as:', selectedPath);
             },
             onCancel: () => {
-                console.log('File selection cancelled');
             }
         });
         

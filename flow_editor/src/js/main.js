@@ -1,5 +1,4 @@
 // main.js - Entry point for Flow Editor
-console.log('Flow Editor app loading...');
 
 // Global variables (scoped to avoid global pollution)
 let flowEditor = {
@@ -33,7 +32,6 @@ let flowEditor = {
 
 // Initialize when DOM is ready
 async function initFlowEditor() {
-    console.log('Flow Editor initializing...');
     
     // Check if SypnexAPI is available (local variable in sandboxed environment)
     if (typeof sypnexAPI === 'undefined' || !sypnexAPI) {
@@ -41,21 +39,15 @@ async function initFlowEditor() {
         return;
     }
 
-    console.log('SypnexAPI available:', sypnexAPI);
-    console.log('App ID:', sypnexAPI.getAppId());
-    console.log('Initialized:', sypnexAPI.isInitialized());
     
     // Initialize scale detection for app scaling compensation
     if (window.flowEditorUtils) {
         window.flowEditorUtils.initScaleDetection();
-        console.log('Scale detection initialized');
     }
     
     // Test VFS API
     try {
-        console.log('Testing VFS API...');
         const testResult = await sypnexAPI.listVirtualFiles('/');
-        console.log('VFS test result:', testResult);
     } catch (error) {
         console.error('VFS API test failed:', error);
     }
@@ -97,14 +89,10 @@ async function initFlowEditor() {
     window.canvasManager.updateCanvasTransform();
     
     // Load nodes from VFS
-    console.log('About to load nodes from VFS...');
     await nodeRegistry.loadNodesFromVFS();
-    console.log('Finished loading nodes from VFS');
     
     // Populate toolbox with loaded nodes
-    console.log('About to populate toolbox...');
     window.uiManager.populateToolbox();
-    console.log('Finished populating toolbox');
     
     // Set up event handlers
     window.uiManager.setupEventHandlers();
@@ -127,7 +115,6 @@ async function initFlowEditor() {
     // Update filename display
     window.fileManager.updateFilenameDisplay();
     
-    console.log('Flow Editor initialization complete');
 }
 
 // Cleanup function to remove tooltips and event listeners
@@ -162,7 +149,6 @@ function cleanupFlowEditor() {
         }
     });
     
-    console.log('Flow Editor cleanup completed');
 }
 
 // Connect to WebSocket server
@@ -170,14 +156,12 @@ async function connectWebSocket() {
     try {
         const connected = await sypnexAPI.connectSocket();
         if (connected) {
-            console.log('Connected to WebSocket server');
             
             // Join flow editor room
             sypnexAPI.joinRoom('flow-editor');
             
             // Listen for messages
             sypnexAPI.on('flow_update', (data) => {
-                console.log('Received flow update:', data);
                 handleFlowUpdate(data);
             });
             
@@ -247,12 +231,10 @@ function addNode(type) {
         }, 'flow-editor');
     }
     
-    console.log('Added node:', nodeId, type);
 }
 
 // Handle flow updates from WebSocket
 function handleFlowUpdate(data) {
-    console.log('Handling flow update:', data);
     // Handle real-time updates from other instances
 }
 
@@ -265,4 +247,3 @@ if (document.readyState === 'loading') {
 }
 
 
-console.log('Flow Editor script loaded'); 

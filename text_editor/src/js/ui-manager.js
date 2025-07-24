@@ -52,7 +52,6 @@ function handleKeyDown(e) {
     // Ctrl/Cmd + Shift + V: Force validation
     if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'V') {
         e.preventDefault();
-        console.log('🔍 Manual validation triggered');
         if (isPythonFile(textEditor.filePath)) {
             scheduleValidation();
             sypnexAPI.showNotification('Validation triggered manually', 'info');

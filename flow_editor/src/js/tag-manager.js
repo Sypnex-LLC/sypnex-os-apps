@@ -25,7 +25,6 @@ function addTag() {
     createTagElement(tag);
     updateTagPanel();
 
-    console.log('Added tag:', tag);
 }
 
 // Create tag element on canvas

@@ -140,7 +140,6 @@ function startAutoSave() {
         }
     }, textEditor.settings.autoSaveInterval * 1000);
     
-    console.log(`Auto-save enabled every ${textEditor.settings.autoSaveInterval} seconds`);
 }
 
 // Stop auto-save

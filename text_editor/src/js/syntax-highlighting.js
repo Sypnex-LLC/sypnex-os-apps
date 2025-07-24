@@ -3,7 +3,6 @@ async function loadPrismJS() {
     if (textEditor.prismLoaded) return;
     
     try {
-        console.log('Loading Prism.js for syntax highlighting...');
         
         // Load Prism.js library
         await sypnexAPI.loadLibrary('https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js', {
@@ -41,7 +40,6 @@ async function loadPrismJS() {
         document.head.appendChild(customStyle);
         
         textEditor.prismLoaded = true;
-        console.log('✅ Prism.js with all language grammars loaded successfully');
         
     } catch (error) {
         console.error('Failed to load Prism.js:', error);
@@ -135,7 +133,6 @@ function createHighlightedEditor() {
     textarea.addEventListener('click', handleHighlightClick);
     textarea.addEventListener('focus', handleHighlightFocus);
     
-    console.log('✅ Highlighted backdrop created (overlay method)');
 }
 
 
@@ -159,7 +156,6 @@ function updateHighlightedContent() {
     // Sync scroll position
     syncBackdropScroll();
     
-    console.log('✅ Backdrop highlighting updated');
 }
 
 // Enable syntax highlighting for supported files
@@ -182,7 +178,6 @@ async function enableSyntaxHighlighting() {
         }
         
         textEditor.syntaxHighlightingEnabled = true;
-        console.log(`✅ Syntax highlighting enabled for ${language} file`);
     } else {
         // Disable highlighting for unsupported files
         cleanupHighlightedEditor();

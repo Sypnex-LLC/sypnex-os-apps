@@ -29,9 +29,6 @@ async function executeJsonExtractNode(engine, node, inputData, executed) {
         jsonData = firstInput;
     }
 
-    console.log('JSON Extract input data:', inputData);
-    console.log('JSON Extract selected jsonData:', jsonData);
-    console.log('JSON Extract jsonData type:', typeof jsonData);
 
     let extractedValue = null;
 
@@ -57,16 +54,6 @@ async function executeJsonExtractNode(engine, node, inputData, executed) {
         node.lastFieldPath = fieldPath;
 
         // Debug logging
-        console.log('JSON Extract debug:');
-        console.log('  Field path:', fieldPath);
-        console.log('  Raw extracted value:', extractedValue, 'Type:', typeof extractedValue);
-        console.log('  Default value:', defaultValue);
-        console.log('  Formatted value:', formattedValue, 'Type:', typeof formattedValue);
-        console.log('  Returning:', {
-            original_data: jsonData,
-            extracted_value: formattedValue,
-            processed_data: formattedValue
-        });
 
         return {
             data: formattedValue,
@@ -97,50 +84,35 @@ async function executeRandomQuoteNode(engine, node, inputData, executed) {
     const trimWhitespace = node.config.trim_whitespace.value === 'true';
     const maxLength = parseInt(node.config.max_length.value);
 
-    console.log('Random Line inputData:', inputData);
-    console.log('Random Line inputData.text:', inputData.text);
-    console.log('Random Line inputData.text type:', typeof inputData.text);
 
     let text = inputData.text;
     if (typeof text !== 'string') {
         text = JSON.stringify(text);
     }
 
-    console.log('Random Line processed text:', text);
-    console.log('Random Line text length:', text.length);
 
     const lines = text.split('\n');
-    console.log('Random Line split lines:', lines.length, 'lines');
 
     let validLines = lines;
 
     if (skipEmpty) {
         validLines = lines.filter(line => line.trim().length > 0);
-        console.log('Random Line after skipEmpty:', validLines.length, 'lines');
     }
 
     if (trimWhitespace) {
         validLines = validLines.map(line => line.trim());
-        console.log('Random Line after trimWhitespace:', validLines.length, 'lines');
     }
 
     if (validLines.length === 0) {
-        console.log('Random Line: No valid lines found');
         return { random_line: null, line_number: 0, total_lines: 0 };
     }
 
     const randomIndex = Math.floor(Math.random() * validLines.length);
     let randomLine = validLines[randomIndex];
 
-    console.log('Random Line Math.random():', Math.random());
-    console.log('Random Line validLines.length:', validLines.length);
-    console.log('Random Line calculated index:', randomIndex, 'out of', validLines.length);
-    console.log('Random Line selected line:', randomLine);
-    console.log('Random Line all valid lines:', validLines);
 
     if (maxLength > 0 && randomLine.length > maxLength) {
         randomLine = randomLine.substring(0, maxLength) + '...';
-        console.log('Random Line truncated to:', randomLine);
     }
 
     const result = {
@@ -149,7 +121,6 @@ async function executeRandomQuoteNode(engine, node, inputData, executed) {
         total_lines: validLines.length
     };
 
-    console.log('Random Line returning:', result);
     return result;
 }
 

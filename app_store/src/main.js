@@ -1,4 +1,3 @@
-console.log('App Store script loaded');
 
 // App Store functionality
 class AppStore {
@@ -14,7 +13,6 @@ class AppStore {
     async init() {
         // Check if SypnexAPI is available
         if (typeof sypnexAPI !== 'undefined' && sypnexAPI) {
-            console.log('App Store initialized with SypnexAPI');
             this.setupEventListeners();
             this.loadApps();
         } else {
@@ -91,7 +89,6 @@ class AppStore {
     async fetchAvailableApps() {
         try {
             const data = await sypnexAPI.getAvailableApps();
-            console.log('Raw available apps response:', data); // Debug log
 
             if (!data.success || !data.apps) {
                 throw new Error('Invalid response format');
@@ -99,7 +96,6 @@ class AppStore {
 
             const appsMap = new Map();
             Object.entries(data.apps).forEach(([appId, appData]) => {
-                console.log(`Processing available app: ${appId}, version: ${appData.app_info?.version}, full data:`, appData); // Debug log
                 appsMap.set(appId, {
                     id: appId,
                     name: appData.app_info?.name || appId,
@@ -112,7 +108,6 @@ class AppStore {
                 });
             });
 
-            console.log('Final available apps map:', appsMap); // Debug log
             return appsMap;
         } catch (error) {
             console.error('Error fetching available apps:', error);
@@ -123,13 +118,11 @@ class AppStore {
     async fetchInstalledApps() {
         try {
             const apps = await sypnexAPI.getInstalledApps();
-            console.log('Raw installed apps response:', apps); // Debug log
 
             const installedMap = new Map();
 
             apps.forEach(app => {
                 if (app.type === 'user_app') {
-                    console.log(`Processing installed app: ${app.id}, version: ${app.version}, full app data:`, app); // Debug log
                     installedMap.set(app.id, {
                         version: app.version || '1.0.0', // Default version if not specified
                         id: app.id
@@ -137,7 +130,6 @@ class AppStore {
                 }
             });
 
-            console.log('Final installed apps map:', installedMap); // Debug log
             return installedMap;
         } catch (error) {
             console.error('Error fetching installed apps:', error);
@@ -188,11 +180,6 @@ class AppStore {
 
         // Debug logging for version comparison
         if (isInstalled) {
-            console.log(`Version comparison for ${app.id}:`, {
-                availableVersion: app.version,
-                installedVersion: installedApp.version,
-                needsUpdate: needsUpdate
-            });
         }
 
         let statusText, statusClass, buttonText, buttonClass, buttonIcon;

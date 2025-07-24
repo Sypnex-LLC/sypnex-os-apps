@@ -31,10 +31,6 @@ async function executeHttpNode(engine, node, inputData, executed) {
         timeout: 30
     };
 
-    console.log('HTTP node: Sending proxy request:', proxyRequest);
-    console.log('HTTP node: Body type:', typeof processedBody);
-    console.log('HTTP node: Body content:', processedBody);
-    console.log('HTTP node: JSON stringified body:', JSON.stringify(proxyRequest));
 
     const proxyResponse = await sypnexAPI.proxyHTTP(proxyRequest);
 
@@ -50,9 +46,6 @@ async function executeHttpNode(engine, node, inputData, executed) {
 
     // Check if response is binary (audio, image, etc.)
     if (proxyData.is_binary) {
-        console.log('HTTP node: Processing binary response');
-        console.log('HTTP node: Content type:', proxyData.headers['content-type'] || proxyData.headers['Content-Type']);
-        console.log('HTTP node: Content length:', proxyData.content.length);
 
         // Convert base64 content to blob for binary data
         const binaryData = atob(proxyData.content);
@@ -62,9 +55,6 @@ async function executeHttpNode(engine, node, inputData, executed) {
         }
         const contentType = proxyData.headers['content-type'] || proxyData.headers['Content-Type'] || 'application/octet-stream';
         const blob = new Blob([bytes], { type: contentType });
-        console.log('HTTP node: Created Blob:', blob);
-        console.log('HTTP node: Blob size:', blob.size);
-        console.log('HTTP node: Blob type:', blob.type);
 
         // Return blob directly for backward compatibility with image/audio nodes
         // The workflow execution will handle mapping to the correct ports
@@ -72,17 +62,12 @@ async function executeHttpNode(engine, node, inputData, executed) {
     }
 
     // For text responses, try to parse as JSON and return structured output
-    console.log('HTTP node: Processing text response');
-    console.log('HTTP node: Status code:', proxyData.status || 200);
-    console.log('HTTP node: Content preview:', proxyData.content.substring(0, 200));
 
     let parsedJson = null;
     try {
         // Try to parse as JSON
         parsedJson = JSON.parse(proxyData.content);
-        console.log('HTTP node: Successfully parsed JSON response');
     } catch (e) {
-        console.log('HTTP node: Response is not valid JSON, parsed_json will be null');
     }
 
     // Return structured output for text responses matching new node architecture
@@ -107,23 +92,17 @@ async function executeVfsLoadNode(engine, node, inputData, executed) {
     const filePath = node.config.file_path.value;
     const format = node.config.format.value;
 
-    console.log('VFS Load executing:', filePath, 'format:', format);
 
     try {
         let data = null;
 
         if (format === 'json') {
             data = await sypnexAPI.readVirtualFileJSON(filePath);
-            console.log('VFS Load JSON data:', data);
         } else if (format === 'text') {
             data = await sypnexAPI.readVirtualFileText(filePath);
-            console.log('VFS Load text data length:', data ? data.length : 0);
-            console.log('VFS Load text data preview:', data ? data.substring(0, 100) + '...' : 'null');
         } else {
             // For binary files, use the direct URL method
-            console.log('VFS Load binary file, using direct URL method');
             const fileUrl = sypnexAPI.getVirtualFileUrl(filePath);
-            console.log('VFS Load binary file URL:', fileUrl);
 
             // Check file extension to determine if it's audio
             const extension = filePath.split('.').pop()?.toLowerCase();
@@ -131,11 +110,8 @@ async function executeVfsLoadNode(engine, node, inputData, executed) {
             const isImageFile = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(extension);
 
             if (isAudioFile) {
-                console.log('VFS Load detected audio file:', extension);
             } else if (isImageFile) {
-                console.log('VFS Load detected image file:', extension);
             } else {
-                console.log('VFS Load detected binary file:', extension);
             }
 
             // Fetch the binary data as a Blob
@@ -145,9 +121,6 @@ async function executeVfsLoadNode(engine, node, inputData, executed) {
             }
 
             data = await response.blob();
-            console.log('VFS Load binary data as Blob:', data);
-            console.log('VFS Load binary data type:', data.type);
-            console.log('VFS Load binary data size:', data.size);
         }
 
         // Store the loaded data for display in config panel
@@ -160,7 +133,6 @@ async function executeVfsLoadNode(engine, node, inputData, executed) {
             file_path: filePath,  // Return the actual file path string
             json_data: format === 'json' ? data : null
         };
-        console.log('VFS Load returning:', result);
         return result;
     } catch (error) {
         console.error('VFS Load error:', error);
@@ -180,8 +152,6 @@ async function executeVfsSaveNode(engine, node, inputData, executed) {
         let data = inputData.data;
         let success = false;
 
-        console.log('VFS Save input value instanceof Blob:', data instanceof Blob);
-        console.log('VFS Save input data type:', typeof data);
 
         if (format === 'json') {
             success = await sypnexAPI.writeVirtualFileJSON(filePath, data);

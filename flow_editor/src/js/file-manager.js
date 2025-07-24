@@ -34,10 +34,8 @@ async function saveFlow() {
                 fileName: 'flow_workflow.json',
                 fileExtension: '.json',
                 onSelect: (selectedPath) => {
-                    console.log('File selected for saving:', selectedPath);
                 },
                 onCancel: () => {
-                    console.log('File selection cancelled');
                 }
             });
 
@@ -55,12 +53,10 @@ async function saveFlow() {
         } else {
             // Fallback to localStorage
             localStorage.setItem('flow_editor_saved_flow', JSON.stringify(flowData));
-            console.log('Flow saved to localStorage:', flowData);
             if (sypnexAPI && sypnexAPI.showNotification) {
                 sypnexAPI.showNotification('Flow saved to local storage!', 'success');
             }
         }
-        console.log('Flow saved:', flowData);
     } catch (error) {
         console.error('Failed to save flow:', error);
         if (sypnexAPI && sypnexAPI.showNotification) {
@@ -102,10 +98,8 @@ async function saveFlowAs() {
             fileName: 'flow_workflow.json',
             fileExtension: '.json',
             onSelect: (selectedPath) => {
-                console.log('File selected for saving as:', selectedPath);
             },
             onCancel: () => {
-                console.log('File selection cancelled');
             }
         });
 
@@ -122,12 +116,10 @@ async function saveFlowAs() {
         } else {
             // Fallback to localStorage
             localStorage.setItem('flow_editor_saved_flow', JSON.stringify(flowData));
-            console.log('Flow saved to localStorage:', flowData);
             if (sypnexAPI && sypnexAPI.showNotification) {
                 sypnexAPI.showNotification('Flow saved to local storage!', 'success');
             }
         }
-        console.log('Flow saved as:', flowData);
     } catch (error) {
         console.error('Failed to save flow as:', error);
         if (sypnexAPI && sypnexAPI.showNotification) {
@@ -145,10 +137,8 @@ async function loadFlow() {
             title: 'Load Flow File',
             initialPath: '/',
             onSelect: (selectedPath) => {
-                console.log('File selected for loading:', selectedPath);
             },
             onCancel: () => {
-                console.log('File selection cancelled');
             }
         });
 
@@ -163,7 +153,6 @@ async function loadFlow() {
             try {
                 flowData = await sypnexAPI.readVirtualFileJSON(filePath);
             } catch (vfsError) {
-                console.log('Failed to load from virtual file system, trying localStorage...');
                 throw vfsError;
             }
         }
@@ -173,12 +162,10 @@ async function loadFlow() {
             const localData = localStorage.getItem('flow_editor_saved_flow');
             if (localData) {
                 flowData = JSON.parse(localData);
-                console.log('Flow loaded from localStorage');
             }
         }
         
         if (flowData) {
-            console.log('Flow loaded:', flowData);
             
             // Clear current canvas
             clearCanvas();

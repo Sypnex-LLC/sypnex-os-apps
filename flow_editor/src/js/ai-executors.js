@@ -93,7 +93,6 @@ async function executeTerminalNode(engine, node, inputData, executed) {
     try {
         // This would need to be implemented with actual terminal execution
         // For now, we'll return a placeholder
-        console.log('Terminal command would execute:', finalCommand);
 
         return {
             output: `Command executed: ${finalCommand}`,

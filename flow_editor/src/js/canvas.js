@@ -59,7 +59,6 @@ function startConnection(nodeId, portName, isOutput) {
             portName: portName,
             isOutput: true
         };
-        console.log('Started connection from output:', nodeId, portName);
     } else {
         // Starting from input port - check if we have a pending connection
         if (flowEditor.connectingFrom && flowEditor.connectingFrom.isOutput) {
@@ -69,7 +68,6 @@ function startConnection(nodeId, portName, isOutput) {
             
             createConnection(fromNodeId, fromPort, nodeId, portName);
             flowEditor.connectingFrom = null;
-            console.log('Completed connection:', fromNodeId, fromPort, '->', nodeId, portName);
         }
     }
 }
@@ -89,7 +87,6 @@ function updateConnection(connection) {
     const toNode = document.getElementById(connection.to.nodeId);
     
     if (!fromNode || !toNode || !connection.svg) {
-        console.log('Missing elements for connection:', connection.id);
         return;
     }
     
@@ -98,7 +95,6 @@ function updateConnection(connection) {
     const toNodeData = flowEditor.nodes.get(connection.to.nodeId);
     
     if (!fromNodeData || !toNodeData) {
-        console.log('Missing node data for connection:', connection.id);
         return;
     }
     
@@ -120,7 +116,6 @@ function updateConnection(connection) {
     const toX = toNodeData.x;
     const toY = toNodeData.y + toHeight / 2;
     
-    console.log('Connection coords:', connection.id, 'from:', fromX, fromY, 'to:', toX, toY);
     
     // Update the path
     const path = connection.svg.querySelector('path');
@@ -129,9 +124,7 @@ function updateConnection(connection) {
         const controlPoint2X = fromX + (toX - fromX) * 0.5;
         const pathD = `M ${fromX} ${fromY} C ${controlPoint1X} ${fromY} ${controlPoint2X} ${toY} ${toX} ${toY}`;
         path.setAttribute('d', pathD);
-        console.log('Set path:', pathD);
     } else {
-        console.log('No path element found for connection:', connection.id);
     }
 }
 
@@ -201,7 +194,6 @@ function deleteNode(nodeId) {
             document.getElementById('node-config').innerHTML = '<p class="text-muted">Select a node to configure it</p>';
         }
         
-        console.log(`Deleted node: ${nodeId}`);
     }
 }
 
@@ -212,7 +204,6 @@ function deleteConnection(connectionId) {
         connection.svg.remove();
     }
     flowEditor.connections.delete(connectionId);
-    console.log(`Deleted connection: ${connectionId}`);
 }
 
 // Delete selected node
@@ -292,7 +283,6 @@ function createConnection(fromNodeId, fromPort, toNodeId, toPort) {
             connection.from.portName === fromPort &&
             connection.to.nodeId === toNodeId && 
             connection.to.portName === toPort) {
-            console.log('Connection already exists');
             return;
         }
     }
@@ -307,7 +297,6 @@ function createConnection(fromNodeId, fromPort, toNodeId, toPort) {
     flowEditor.connections.set(connectionId, connection);
     drawConnection(connection);
     
-    console.log(`Created connection: ${connectionId}`);
 }
 
 // Draw a connection on the canvas
@@ -505,6 +494,5 @@ function clearCanvas() {
         // Clear config panel
         document.getElementById('node-config').innerHTML = '<p class="text-muted">Select a node to configure it</p>';
         
-        console.log('Canvas cleared');
     }
 } 

@@ -225,7 +225,6 @@ function showNodeConfig(nodeId) {
             select.addEventListener('change', (e) => {
                 const [nodeId, currentInputPort] = e.target.id.replace('input_target_', '').split('|');
                 const selectedInputPort = e.target.value;
-                console.log('Changing input target:', nodeId, currentInputPort, '→', selectedInputPort);
                 // Find the connection
                 const connection = Array.from(flowEditor.connections.values()).find(conn =>
                     conn.to.nodeId === nodeId && conn.to.portName === currentInputPort
@@ -262,7 +261,6 @@ function showNodeConfig(nodeId) {
                 const outputPort = parts[1];
                 const targetNodeId = parts[2];
                 const selectedOutputPort = e.target.value;
-                console.log('Output mapping change:', nodeId, outputPort, '→', selectedOutputPort, 'to', targetNodeId);
                 updateOutputMapping(nodeId, outputPort, targetNodeId, selectedOutputPort);
             });
         });
@@ -314,7 +312,6 @@ function showNodeConfig(nodeId) {
             if (element) {
                 element.addEventListener('change', (e) => {
                     node.config[key].value = e.target.value;
-                    console.log('Updated config:', nodeId, key, e.target.value);
                     
                     // Special handling for display node format changes
                     if (node.type === 'display' && key === 'format') {

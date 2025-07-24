@@ -3,7 +3,6 @@
 // Run the workflow
 async function runWorkflow() {
     if (flowEditor.isRunning) {
-        console.log('Workflow already running');
         return;
     }
     
@@ -24,19 +23,16 @@ async function runWorkflow() {
                 return false;
             }
             
-            console.log(`Checking node ${node.type} (${node.id}): inputs=${nodeDef.inputs.length}, outputs=${nodeDef.outputs.length}`);
             
             // Timer and Repeater nodes are start nodes (can trigger themselves)
             if (node.type === 'timer' || node.type === 'repeater') {
                 if (node.type === 'repeater') {
                     const isRunning = node.repeaterState && node.repeaterState.isRunning;
-                    console.log(`Repeater ${node.id}: isRunning=${isRunning}, repeaterState=`, node.repeaterState);
                 }
                 // Timer/Repeater is a start node if it has connected outputs
                 const hasConnectedOutputs = Array.from(flowEditor.connections.values()).some(conn => 
                     conn.from.nodeId === node.id
                 );
-                console.log(`${node.type} ${node.id}: hasConnectedOutputs=${hasConnectedOutputs}`);
                 return hasConnectedOutputs; // Timer/Repeater is a start node if connected
             }
             
@@ -47,7 +43,6 @@ async function runWorkflow() {
                     conn.from.nodeId === node.id
                 );
                 
-                console.log(`Node ${node.type} (${node.id}): no inputs, hasConnectedOutputs=${hasConnectedOutputs}`);
                 
                 // Only include if it's connected to the workflow
                 return hasConnectedOutputs;
@@ -60,12 +55,10 @@ async function runWorkflow() {
                 const hasConnectedOutputs = Array.from(flowEditor.connections.values()).some(conn => 
                     conn.from.nodeId === node.id
                 );
-                console.log(`Node ${node.type} (${node.id}): has optional inputs, hasConnectedOutputs=${hasConnectedOutputs}`);
                 return hasConnectedOutputs;
             }
             
             // Nodes with required inputs are not start nodes - they should be triggered by other nodes
-            console.log(`Node ${node.type} (${node.id}): has required inputs, not a start node`);
             return false;
         });
         
@@ -116,7 +109,6 @@ async function executeWorkflow(startNodes) {
 // Execute a single node (dynamic version)
 async function executeNode(node, inputData, executed) {
     if (executed.has(node.id)) {
-        console.log(`Node ${node.id} already executed, skipping to prevent cycles`);
         return null;
     }
     executed.add(node.id);
@@ -131,7 +123,6 @@ async function executeNode(node, inputData, executed) {
         
         // Check if output indicates execution should stop (logical gate specific)
         if (output && typeof output === 'object' && output.__stop_execution === true) {
-            console.log(`Node ${node.id} returned stop execution signal, stopping workflow`);
             
             // Mark node as completed
             if (nodeElement) {
@@ -144,55 +135,35 @@ async function executeNode(node, inputData, executed) {
         
         // Find connected nodes and execute them
         const connectedNodes = findConnectedNodes(node.id);
-        console.log(`Node ${node.id} has ${connectedNodes.length} connected nodes`);
         
         for (const connectedNode of connectedNodes) {
             // Check for cycles before executing
             if (executed.has(connectedNode.node.id)) {
-                console.log(`Skipping connected node ${connectedNode.node.id} to prevent cycle`);
                 continue;
             }
             
-            console.log(`=== Processing connection ${node.id} -> ${connectedNode.node.id} ===`);
-            console.log(`Connection details: ${connectedNode.outputPort} -> ${connectedNode.inputPort}`);
             
             // Handle output mapping to input ports - DIRECT MAPPING
             let inputValue = output;
-            console.log(`Node ${node.id} output:`, output);
-            console.log(`Node ${node.id} output type:`, typeof output);
-            console.log(`Source output port:`, connectedNode.outputPort);
-            console.log(`Target input port:`, connectedNode.inputPort);
             
             if (output instanceof Blob) {
                 // Blob output - pass directly to the input port
                 inputValue = output;
-                console.log(`Node ${node.id} -> ${connectedNode.node.id}: Passing Blob directly =`, inputValue);
             } else if (typeof output === 'object' && output !== null) {
                 // Object output - extract the EXACT output port field
-                console.log(`Node ${node.id} output object keys:`, Object.keys(output));
-                console.log(`Node ${node.id} output object values:`, Object.values(output));
                 
                 if (connectedNode.outputPort in output) {
                     inputValue = output[connectedNode.outputPort];
-                    console.log(`Node ${node.id} -> ${connectedNode.node.id}: DIRECT MAPPING ${connectedNode.outputPort} -> ${connectedNode.inputPort} =`, inputValue);
-                    console.log(`Input value type:`, typeof inputValue);
-                    console.log(`Input value is null:`, inputValue === null);
-                    console.log(`Input value is undefined:`, inputValue === undefined);
                 } else {
                     console.error(`Node ${node.id} -> ${connectedNode.node.id}: ERROR - Output port '${connectedNode.outputPort}' not found in output!`);
                     console.error(`Available fields:`, Object.keys(output));
                     // Skip this connection instead of passing null
-                    console.log(`Skipping connection ${node.id} -> ${connectedNode.node.id} due to missing output port`);
                     continue;
                 }
             } else {
                 // Simple value output - pass directly
-                console.log(`Node ${node.id} -> ${connectedNode.node.id}: Passing simple value =`, inputValue);
             }
             
-            console.log(`Final input value for ${connectedNode.node.id}:`, inputValue);
-            console.log(`Input value type:`, typeof inputValue);
-            console.log(`Input value instanceof Blob:`, inputValue instanceof Blob);
             
             try {
                 await executeNode(connectedNode.node, { [connectedNode.inputPort]: inputValue }, executed);
@@ -374,7 +345,6 @@ function stopWorkflow() {
     const output = document.getElementById('execution-output');
     output.innerHTML += '<div class="log-entry warning">Workflow execution stopped by user</div>';
     
-    console.log('Workflow execution stopped');
 }
 
 // Find nodes connected to a specific node

@@ -30,7 +30,6 @@ async function executeDisplayNode(engine, node, inputData, executed) {
     if (inputPort !== 'auto') {
         // Use the specified input port
         content = inputData[inputPort];
-        console.log(`Display node using specified input port '${inputPort}':`, content);
     } else {
         // Auto-detect: Priority order: text, json, data, binary
         if (inputData.text !== undefined) {
@@ -46,12 +45,8 @@ async function executeDisplayNode(engine, node, inputData, executed) {
             const firstInput = Object.values(inputData)[0];
             content = firstInput;
         }
-        console.log('Display node auto-detected input port');
     }
 
-    console.log('Display node input data:', inputData);
-    console.log('Display node selected content:', content);
-    console.log('Display node content type:', typeof content);
 
     // Only convert to JSON string if format is 'json' or if it's an object and format is not specified
     if (typeof content === 'object' && format === 'json') {
@@ -117,7 +112,6 @@ async function executeRepeaterNode(engine, node, inputData, executed) {
         // Start the interval
         node.repeaterState.interval = setInterval(async () => {
             node.repeaterState.count++;
-            console.log('Repeater triggered:', node.id, 'count:', node.repeaterState.count);
 
             // Execute the connected workflow
             try {
@@ -155,18 +149,11 @@ async function executeConditionNode(engine, node, inputData, executed) {
     let compareStr = String(compareValue);
 
     // Debug logging for string comparisons
-    console.log('Condition node debug:');
-    console.log('  Input value:', inputValue, 'Type:', typeof inputValue);
-    console.log('  Compare value:', compareValue, 'Type:', typeof compareValue);
-    console.log('  Input string:', inputStr, 'Length:', inputStr.length);
-    console.log('  Compare string:', compareStr, 'Length:', compareStr.length);
-    console.log('  Case sensitive:', caseSensitive);
 
     // Handle case sensitivity
     if (!caseSensitive) {
         inputStr = inputStr.toLowerCase();
         compareStr = compareStr.toLowerCase();
-        console.log('  After case conversion - Input:', inputStr, 'Compare:', compareStr);
     }
 
     // Perform comparison based on operator
