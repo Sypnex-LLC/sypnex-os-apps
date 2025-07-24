@@ -190,8 +190,19 @@ function updateTagPanel() {
 }
 
 // Delete a tag
-function deleteTag(tagId) {
-    if (confirm('Delete this tag?')) {
+async function deleteTag(tagId) {
+    const confirmed = await sypnexAPI.showConfirmation(
+        'Delete Tag',
+        'Are you sure you want to delete this tag?',
+        {
+            type: 'danger',
+            confirmText: 'Delete',
+            cancelText: 'Cancel',
+            icon: 'fas fa-tag'
+        }
+    );
+    
+    if (confirmed) {
         const tagElement = document.getElementById(tagId);
         if (tagElement) {
             tagElement.remove();

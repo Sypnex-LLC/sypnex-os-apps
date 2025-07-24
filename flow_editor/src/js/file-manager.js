@@ -167,8 +167,8 @@ async function loadFlow() {
         
         if (flowData) {
             
-            // Clear current canvas
-            clearCanvas();
+            // Clear current canvas (without confirmation since we're loading a file)
+            clearCanvasSilent();
             
             // Reset pan offset to center of large canvas for new workflow
             flowEditor.panOffset = { x: -5000, y: -5000 };

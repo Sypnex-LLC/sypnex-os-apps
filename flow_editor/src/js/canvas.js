@@ -136,8 +136,19 @@ function redrawAllConnections() {
 }
 
 // Delete a node and all its connections
-function deleteNode(nodeId) {
-    if (confirm(`Are you sure you want to delete this node?`)) {
+async function deleteNode(nodeId) {
+    const confirmed = await sypnexAPI.showConfirmation(
+        'Delete Node',
+        'Are you sure you want to delete this node?',
+        {
+            type: 'danger',
+            confirmText: 'Delete',
+            cancelText: 'Cancel',
+            icon: 'fas fa-cube'
+        }
+    );
+    
+    if (confirmed) {
         const node = flowEditor.nodes.get(nodeId);
         
         // Clean up audio elements if this is an audio node
@@ -207,9 +218,9 @@ function deleteConnection(connectionId) {
 }
 
 // Delete selected node
-function deleteSelectedNode() {
+async function deleteSelectedNode() {
     if (flowEditor.selectedNode) {
-        deleteNode(flowEditor.selectedNode);
+        await deleteNode(flowEditor.selectedNode);
     }
 }
 
@@ -340,9 +351,20 @@ function drawConnection(connection) {
     });
     
     // Add click to delete
-    path.addEventListener('click', (e) => {
+    path.addEventListener('click', async (e) => {
         e.stopPropagation();
-        if (confirm('Delete this connection?')) {
+        const confirmed = await sypnexAPI.showConfirmation(
+            'Delete Connection',
+            'Are you sure you want to delete this connection?',
+            {
+                type: 'danger',
+                confirmText: 'Delete',
+                cancelText: 'Cancel',
+                icon: 'fas fa-link'
+            }
+        );
+        
+        if (confirmed) {
             deleteConnection(connection.id);
         }
     });
@@ -437,10 +459,27 @@ function hideConnectionTooltip() {
 }
 
 // Clear the canvas
-function clearCanvas() {
-    if (confirm('Are you sure you want to clear the canvas? This will delete all nodes and connections.')) {
-        // Hide any active tooltips
-        hideConnectionTooltip();
+async function clearCanvas() {
+    const confirmed = await sypnexAPI.showConfirmation(
+        'Clear Canvas',
+        'Are you sure you want to clear the canvas? This will delete all nodes and connections.',
+        {
+            type: 'danger',
+            confirmText: 'Clear All',
+            cancelText: 'Cancel',
+            icon: 'fas fa-trash-alt'
+        }
+    );
+    
+    if (confirmed) {
+        clearCanvasSilent();
+    }
+}
+
+// Clear the canvas without confirmation (used internally)
+function clearCanvasSilent() {
+    // Hide any active tooltips
+    hideConnectionTooltip();
         
         // Clear all connections
         for (const connection of flowEditor.connections.values()) {
@@ -493,6 +532,4 @@ function clearCanvas() {
         
         // Clear config panel
         document.getElementById('node-config').innerHTML = '<p class="text-muted">Select a node to configure it</p>';
-        
-    }
 } 
