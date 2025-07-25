@@ -215,6 +215,44 @@ function showNodeConfig(nodeId) {
             configHtml += `</div>`;
         }
         
+        // Show output data for all ports (if node has been executed) - at the bottom
+        if (node.lastOutputData && node.lastExecutionTime) {
+            const nodeDef = nodeRegistry.getNodeType(node.type);
+            const outputs = nodeDef.outputs || [];
+            
+            if (outputs.length > 0) {
+                configHtml += `
+                    <div class="config-group" style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                        <label>Output Port Data</label>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
+                            Last executed: ${new Date(node.lastExecutionTime).toLocaleString()}
+                        </div>
+                `;
+                
+                for (const output of outputs) {
+                    const outputData = getOutputPortData(node.id, output.id);
+                    const formatted = formatDataPreview(outputData);
+                    
+                    configHtml += `
+                        <div class="content-display" style="margin-bottom: 8px;">
+                            <div style="font-weight: 500; margin-bottom: 6px; color: var(--text-color); font-size: 13px;">
+                                ${output.name} <span style="color: var(--text-muted); font-weight: normal; font-size: 11px;">(${formatted.type})</span>
+                            </div>
+                            <pre class="content-text" style="margin-bottom: 4px; max-height: 80px;">${escapeHtml(formatted.preview)}</pre>
+                            ${formatted.length !== undefined ? `<div style="font-size: 11px; color: var(--text-muted);">Length: ${formatted.length}</div>` : ''}
+                            ${formatted.keys !== undefined ? `<div style="font-size: 11px; color: var(--text-muted);">Keys: ${formatted.keys}</div>` : ''}
+                            ${formatted.size !== undefined ? `<div style="font-size: 11px; color: var(--text-muted);">Size: ${(formatted.size / 1024).toFixed(2)} KB</div>` : ''}
+                            ${formatted.estimatedSize !== undefined ? `<div style="font-size: 11px; color: var(--text-muted);">Est. Size: ${(formatted.estimatedSize / 1024).toFixed(2)} KB</div>` : ''}
+                        </div>
+                    `;
+                }
+                
+                configHtml += `
+                    </div>
+                `;
+            }
+        }
+        
         configPanel.innerHTML = configHtml;
         
         // Add event listeners for mapping selects

@@ -127,6 +127,10 @@ async function executeNode(node, inputData, executed, nodeInputBuffer) {
         // Use the dynamic execution engine
         const output = await executionEngine.executeNode(node, inputData, executed);
         
+        // Store output data for config panel display
+        node.lastOutputData = output;
+        node.lastExecutionTime = new Date().toISOString();
+        
         // Check if output indicates execution should stop (logical gate specific)
         if (output && typeof output === 'object' && output.__stop_execution === true) {
             
@@ -491,4 +495,192 @@ function findConnectedNodes(nodeId) {
     }
     
     return connectedNodes;
+}
+
+// Format data for preview in config panel
+function formatDataPreview(data, maxLength = 200) {
+    if (data === null || data === undefined) {
+        return { type: 'null', preview: 'null' };
+    }
+    
+    if (data instanceof Blob) {
+        const sizeKB = (data.size / 1024).toFixed(2);
+        const sizeMB = data.size > 1024 * 1024 ? ` (${(data.size / (1024 * 1024)).toFixed(2)} MB)` : '';
+        return { 
+            type: 'Blob', 
+            preview: `${data.type || 'unknown'} - ${sizeKB} KB${sizeMB}`,
+            size: data.size
+        };
+    }
+    
+    if (data instanceof ArrayBuffer) {
+        const sizeKB = (data.byteLength / 1024).toFixed(2);
+        return { 
+            type: 'ArrayBuffer', 
+            preview: `Binary data - ${sizeKB} KB`,
+            size: data.byteLength
+        };
+    }
+    
+    if (data instanceof Uint8Array || data instanceof Int8Array || 
+        data instanceof Uint16Array || data instanceof Int16Array ||
+        data instanceof Uint32Array || data instanceof Int32Array ||
+        data instanceof Float32Array || data instanceof Float64Array) {
+        const sizeKB = (data.byteLength / 1024).toFixed(2);
+        return { 
+            type: data.constructor.name, 
+            preview: `Binary array - ${sizeKB} KB`,
+            size: data.byteLength
+        };
+    }
+    
+    if (Array.isArray(data)) {
+        // Check if it's likely binary data (array of numbers 0-255)
+        if (data.length > 0 && data.every(item => typeof item === 'number' && item >= 0 && item <= 255)) {
+            const sizeKB = (data.length / 1024).toFixed(2);
+            return { 
+                type: 'Binary Array', 
+                preview: `Binary data array - ${sizeKB} KB`,
+                length: data.length
+            };
+        }
+        
+        const preview = data.length > 3 
+            ? `[${data.slice(0, 3).map(item => JSON.stringify(item)).join(', ')}, ...]`
+            : JSON.stringify(data);
+        const truncated = preview.length > maxLength ? preview.substring(0, maxLength) + '...' : preview;
+        return { 
+            type: 'Array', 
+            preview: truncated,
+            length: data.length
+        };
+    }
+    
+    if (typeof data === 'object') {
+        const keys = Object.keys(data);
+        
+        // Check if it looks like a large data object (has common large data indicators)
+        const hasLargeDataIndicators = keys.some(key => 
+            key.toLowerCase().includes('data') || 
+            key.toLowerCase().includes('buffer') ||
+            key.toLowerCase().includes('base64') ||
+            key.toLowerCase().includes('binary')
+        );
+        
+        if (hasLargeDataIndicators) {
+            // Check sizes of values that might be large
+            let totalSize = 0;
+            let hasLargeValues = false;
+            const summary = {};
+            
+            for (const key of keys) {
+                const value = data[key];
+                if (typeof value === 'string' && value.length > 1000) {
+                    summary[key] = `String (${(value.length / 1024).toFixed(2)} KB)`;
+                    totalSize += value.length;
+                    hasLargeValues = true;
+                } else if (value instanceof ArrayBuffer) {
+                    summary[key] = `ArrayBuffer (${(value.byteLength / 1024).toFixed(2)} KB)`;
+                    totalSize += value.byteLength;
+                    hasLargeValues = true;
+                } else if (Array.isArray(value) && value.length > 1000) {
+                    summary[key] = `Array[${value.length}] (${(value.length / 1024).toFixed(2)} KB est.)`;
+                    totalSize += value.length;
+                    hasLargeValues = true;
+                } else {
+                    summary[key] = typeof value === 'string' ? `"${value.substring(0, 30)}..."` : typeof value;
+                }
+            }
+            
+            if (hasLargeValues) {
+                return { 
+                    type: 'Large Object', 
+                    preview: JSON.stringify(summary, null, 2),
+                    keys: keys.length,
+                    estimatedSize: totalSize
+                };
+            }
+        }
+        
+        // Regular object handling
+        const preview = keys.length > 3
+            ? `{${keys.slice(0, 3).join(', ')}, ...}`
+            : JSON.stringify(data);
+        const truncated = preview.length > maxLength ? preview.substring(0, maxLength) + '...' : preview;
+        return { 
+            type: 'Object', 
+            preview: truncated,
+            keys: keys.length
+        };
+    }
+    
+    if (typeof data === 'string') {
+        // Check if it's base64 data
+        const isBase64 = /^[A-Za-z0-9+/]*={0,2}$/.test(data) && data.length > 100 && data.length % 4 === 0;
+        if (isBase64) {
+            const sizeKB = (data.length * 0.75 / 1024).toFixed(2); // Base64 is ~33% larger than binary
+            return { 
+                type: 'Base64 Data', 
+                preview: `Base64 encoded data - ${sizeKB} KB`,
+                length: data.length
+            };
+        }
+        
+        // Check if it's a data URL
+        if (data.startsWith('data:')) {
+            const commaIndex = data.indexOf(',');
+            const header = commaIndex > 0 ? data.substring(0, commaIndex) : data.substring(0, 50);
+            const dataSize = commaIndex > 0 ? data.length - commaIndex - 1 : data.length;
+            const sizeKB = (dataSize * 0.75 / 1024).toFixed(2);
+            return { 
+                type: 'Data URL', 
+                preview: `${header}... - ${sizeKB} KB`,
+                length: data.length
+            };
+        }
+        
+        // Regular string handling
+        const truncated = data.length > maxLength ? data.substring(0, maxLength) + '...' : data;
+        return { 
+            type: 'String', 
+            preview: truncated,
+            length: data.length
+        };
+    }
+    
+    return { 
+        type: typeof data, 
+        preview: String(data) 
+    };
+}
+
+// Get output port data for a specific node and port
+function getOutputPortData(nodeId, portId) {
+    const node = flowEditor.nodes.get(nodeId);
+    if (!node || !node.lastOutputData) {
+        return null;
+    }
+    
+    // If the output data is an object with named ports, extract the specific port
+    if (typeof node.lastOutputData === 'object' && node.lastOutputData !== null && !Array.isArray(node.lastOutputData) && !(node.lastOutputData instanceof Blob) && !(node.lastOutputData instanceof ArrayBuffer)) {
+        if (portId in node.lastOutputData) {
+            return node.lastOutputData[portId];
+        }
+        // Port not found in output object
+        return null;
+    }
+    
+    // For single output nodes or non-object outputs (Blob, ArrayBuffer, primitives), 
+    // only return data for the first/primary output port
+    const nodeDef = nodeRegistry.getNodeType(node.type);
+    if (nodeDef && nodeDef.outputs && nodeDef.outputs.length > 0) {
+        // Only return data for the first output port, others get null
+        if (portId === nodeDef.outputs[0].id) {
+            return node.lastOutputData;
+        }
+        return null;
+    }
+    
+    // Fallback: return the data (shouldn't normally reach here)
+    return node.lastOutputData;
 } 
