@@ -37,6 +37,12 @@ class ExecutionEngine {
             window.dataExecutors.executeRandomQuoteNode(this, node, inputData, executed));
         this.registry.registerExecutor('text_executor', (node, inputData, executed) => 
             window.dataExecutors.executeTextNode(this, node, inputData, executed));
+        this.registry.registerExecutor('math_executor', (node, inputData, executed) => 
+            window.dataExecutors.executeMathNode(this, node, inputData, executed));
+        this.registry.registerExecutor('array_executor', (node, inputData, executed) => 
+            window.dataExecutors.executeArrayNode(this, node, inputData, executed));
+        this.registry.registerExecutor('string_executor', (node, inputData, executed) => 
+            window.dataExecutors.executeStringNode(this, node, inputData, executed));
             
         this.registry.registerExecutor('llm_chat_executor', (node, inputData, executed) => 
             window.aiExecutors.executeLlmChatNode(this, node, inputData, executed));

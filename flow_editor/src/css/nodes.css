@@ -152,8 +152,32 @@
     animation: pulse 2s infinite;
 }
 
+/* Waiting for Inputs State */
+.flow-node.waiting-inputs {
+    border-color: var(--warning-color);
+    animation: waiting-pulse 2s infinite;
+}
+
+/* Completed State */
+.flow-node.completed {
+    border-color: var(--success-color);
+    background: rgba(var(--success-color-rgb), 0.1);
+}
+
+/* Error State */
+.flow-node.error {
+    border-color: var(--error-color);
+    background: rgba(var(--error-color-rgb), 0.1);
+}
+
 @keyframes pulse {
     0% { box-shadow: 0 0 0 0 rgba(var(--success-color-rgb), 0.4); }
     70% { box-shadow: 0 0 0 10px rgba(var(--success-color-rgb), 0); }
     100% { box-shadow: 0 0 0 0 rgba(var(--success-color-rgb), 0); }
+}
+
+@keyframes waiting-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(var(--warning-color-rgb), 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(var(--warning-color-rgb), 0); }
+    100% { box-shadow: 0 0 0 0 rgba(var(--warning-color-rgb), 0); }
 }
