@@ -97,12 +97,12 @@ function startDraggingTag(tagId, e) {
 
     // Calculate offset from mouse to tag corner, accounting for zoom
     const container = flowEditor.canvas.parentElement;
-    const containerRect = window.flowEditorUtils ? 
-        window.flowEditorUtils.getScaledBoundingClientRect(container) : 
+    const containerRect = (typeof sypnexAPI !== 'undefined' && sypnexAPI.getScaledBoundingClientRect) ? 
+        sypnexAPI.getScaledBoundingClientRect(container) : 
         container.getBoundingClientRect();
     
-    const mouseCoords = window.flowEditorUtils ? 
-        window.flowEditorUtils.getScaledMouseCoords(e) : 
+    const mouseCoords = (typeof sypnexAPI !== 'undefined' && sypnexAPI.getScaledMouseCoords) ? 
+        sypnexAPI.getScaledMouseCoords(e) : 
         { x: e.clientX, y: e.clientY };
     
     // Convert mouse position to canvas coordinates

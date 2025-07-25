@@ -18,8 +18,8 @@ function startCanvasPan(e) {
     // and not already dragging a node
     if (e.target === flowEditor.canvas && !flowEditor.draggingNode) {
         flowEditor.isPanning = true;
-        const mouseCoords = window.flowEditorUtils ?
-            window.flowEditorUtils.getScaledMouseCoords(e) :
+        const mouseCoords = (typeof sypnexAPI !== 'undefined' && sypnexAPI.getScaledMouseCoords) ?
+            sypnexAPI.getScaledMouseCoords(e) :
             { x: e.clientX, y: e.clientY };
         flowEditor.panStart = { x: mouseCoords.x, y: mouseCoords.y };
         flowEditor.lastPanOffset = { ...flowEditor.panOffset };
@@ -33,8 +33,8 @@ function startCanvasPan(e) {
 // Update canvas panning
 function updateCanvasPan(e) {
     if (flowEditor.isPanning) {
-        const mouseCoords = window.flowEditorUtils ?
-            window.flowEditorUtils.getScaledMouseCoords(e) :
+        const mouseCoords = (typeof sypnexAPI !== 'undefined' && sypnexAPI.getScaledMouseCoords) ?
+            sypnexAPI.getScaledMouseCoords(e) :
             { x: e.clientX, y: e.clientY };
         const deltaX = mouseCoords.x - flowEditor.panStart.x;
         const deltaY = mouseCoords.y - flowEditor.panStart.y;
@@ -74,8 +74,8 @@ function resetCanvasPan() {
 
         // Get canvas container dimensions (scaled)
         const container = flowEditor.canvas.parentElement;
-        const containerRect = window.flowEditorUtils ?
-            window.flowEditorUtils.getScaledBoundingClientRect(container) :
+        const containerRect = (typeof sypnexAPI !== 'undefined' && sypnexAPI.getScaledBoundingClientRect) ?
+            sypnexAPI.getScaledBoundingClientRect(container) :
             container.getBoundingClientRect();
 
         // Calculate pan offset to center the nodes in the viewport
@@ -111,8 +111,8 @@ function zoomOut() {
 function setZoomLevel(zoomLevel) {
     // Get the center of the canvas container for zoom origin
     const container = flowEditor.canvas.parentElement;
-    const containerRect = window.flowEditorUtils ?
-        window.flowEditorUtils.getScaledBoundingClientRect(container) :
+    const containerRect = (typeof sypnexAPI !== 'undefined' && sypnexAPI.getScaledBoundingClientRect) ?
+        sypnexAPI.getScaledBoundingClientRect(container) :
         container.getBoundingClientRect();
     
     const centerX = containerRect.width / 2;
@@ -175,8 +175,8 @@ function zoomToFit() {
     
     // Get container dimensions
     const container = flowEditor.canvas.parentElement;
-    const containerRect = window.flowEditorUtils ?
-        window.flowEditorUtils.getScaledBoundingClientRect(container) :
+    const containerRect = (typeof sypnexAPI !== 'undefined' && sypnexAPI.getScaledBoundingClientRect) ?
+        sypnexAPI.getScaledBoundingClientRect(container) :
         container.getBoundingClientRect();
     
     // Calculate zoom to fit
@@ -212,12 +212,12 @@ function handleMouseWheel(e) {
         
         // Get mouse position relative to container
         const container = flowEditor.canvas.parentElement;
-        const containerRect = window.flowEditorUtils ?
-            window.flowEditorUtils.getScaledBoundingClientRect(container) :
+        const containerRect = (typeof sypnexAPI !== 'undefined' && sypnexAPI.getScaledBoundingClientRect) ?
+            sypnexAPI.getScaledBoundingClientRect(container) :
             container.getBoundingClientRect();
         
-        const mouseCoords = window.flowEditorUtils ?
-            window.flowEditorUtils.getScaledMouseCoords(e) :
+        const mouseCoords = (typeof sypnexAPI !== 'undefined' && sypnexAPI.getScaledMouseCoords) ?
+            sypnexAPI.getScaledMouseCoords(e) :
             { x: e.clientX, y: e.clientY };
         
         const mouseX = mouseCoords.x - containerRect.left;
@@ -294,12 +294,12 @@ function handleDocumentMouseDown(e) {
         
         // Calculate offset from mouse to node corner, accounting for zoom
         const container = flowEditor.canvas.parentElement;
-        const containerRect = window.flowEditorUtils ? 
-            window.flowEditorUtils.getScaledBoundingClientRect(container) : 
+        const containerRect = (typeof sypnexAPI !== 'undefined' && sypnexAPI.getScaledBoundingClientRect) ? 
+            sypnexAPI.getScaledBoundingClientRect(container) : 
             container.getBoundingClientRect();
         
-        const mouseCoords = window.flowEditorUtils ? 
-            window.flowEditorUtils.getScaledMouseCoords(e) : 
+        const mouseCoords = (typeof sypnexAPI !== 'undefined' && sypnexAPI.getScaledMouseCoords) ? 
+            sypnexAPI.getScaledMouseCoords(e) : 
             { x: e.clientX, y: e.clientY };
         
         // Convert mouse position to canvas coordinates
@@ -328,8 +328,8 @@ function handleDocumentMouseMove(e) {
     }
     
     // Get scaled coordinates
-    const mouseCoords = window.flowEditorUtils ? 
-        window.flowEditorUtils.getScaledMouseCoords(e) : 
+    const mouseCoords = (typeof sypnexAPI !== 'undefined' && sypnexAPI.getScaledMouseCoords) ? 
+        sypnexAPI.getScaledMouseCoords(e) : 
         { x: e.clientX, y: e.clientY };
     
     // Handle tag dragging
@@ -338,8 +338,8 @@ function handleDocumentMouseMove(e) {
         if (tag) {
             // Get container dimensions for coordinate conversion
             const container = flowEditor.canvas.parentElement;
-            const containerRect = window.flowEditorUtils ? 
-                window.flowEditorUtils.getScaledBoundingClientRect(container) : 
+            const containerRect = (typeof sypnexAPI !== 'undefined' && sypnexAPI.getScaledBoundingClientRect) ? 
+                sypnexAPI.getScaledBoundingClientRect(container) : 
                 container.getBoundingClientRect();
             
             // Convert mouse coordinates to canvas coordinates, accounting for pan and zoom
@@ -375,8 +375,8 @@ function handleDocumentMouseMove(e) {
         if (node) {
             // Get container dimensions for coordinate conversion
             const container = flowEditor.canvas.parentElement;
-            const containerRect = window.flowEditorUtils ? 
-                window.flowEditorUtils.getScaledBoundingClientRect(container) : 
+            const containerRect = (typeof sypnexAPI !== 'undefined' && sypnexAPI.getScaledBoundingClientRect) ? 
+                sypnexAPI.getScaledBoundingClientRect(container) : 
                 container.getBoundingClientRect();
             
             // Convert mouse coordinates to canvas coordinates, accounting for pan and zoom

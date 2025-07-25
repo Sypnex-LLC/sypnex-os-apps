@@ -202,13 +202,13 @@ function setupHamburgerMenu() {
         // Position the dropdown relative to the hamburger button
         if (!dropdownMenu.classList.contains('show')) {
             // Use scaled mouse coordinates for more intuitive positioning
-            const mouseCoords = window.flowEditorUtils ? 
-                window.flowEditorUtils.getScaledMouseCoords(e) :
+            const mouseCoords = (typeof sypnexAPI !== 'undefined' && sypnexAPI.getScaledMouseCoords) ? 
+                sypnexAPI.getScaledMouseCoords(e) :
                 { x: e.clientX, y: e.clientY };
             
             const container = hamburgerBtn.closest('.flow-editor, .app-container');
-            const containerRect = window.flowEditorUtils && container ?
-                window.flowEditorUtils.getScaledBoundingClientRect(container) :
+            const containerRect = (typeof sypnexAPI !== 'undefined' && sypnexAPI.getScaledBoundingClientRect && container) ?
+                sypnexAPI.getScaledBoundingClientRect(container) :
                 (container ? container.getBoundingClientRect() : { top: 0, left: 0 });
             
             // Position relative to mouse click, offset slightly to avoid covering the button

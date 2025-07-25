@@ -41,8 +41,13 @@ async function initFlowEditor() {
 
     
     // Initialize scale detection for app scaling compensation
-    if (window.flowEditorUtils) {
-        window.flowEditorUtils.initScaleDetection();
+    if (typeof sypnexAPI !== 'undefined' && sypnexAPI.initScaleDetection) {
+        sypnexAPI.initScaleDetection((newScale, oldScale) => {
+            // Redraw connections when scale changes
+            if (typeof redrawAllConnections === 'function') {
+                redrawAllConnections();
+            }
+        });
     }
     
     // Test VFS API

@@ -12,11 +12,11 @@ function startDraggingNode(nodeId, e) {
     
     // Calculate offset from mouse to node corner using scaled coordinates
     const nodeElement = document.getElementById(nodeId);
-    const rect = window.flowEditorUtils ? 
-        window.flowEditorUtils.getScaledBoundingClientRect(nodeElement) : 
+    const rect = (typeof sypnexAPI !== 'undefined' && sypnexAPI.getScaledBoundingClientRect) ? 
+        sypnexAPI.getScaledBoundingClientRect(nodeElement) : 
         nodeElement.getBoundingClientRect();
-    const mouseCoords = window.flowEditorUtils ? 
-        window.flowEditorUtils.getScaledMouseCoords(e) : 
+    const mouseCoords = (typeof sypnexAPI !== 'undefined' && sypnexAPI.getScaledMouseCoords) ? 
+        sypnexAPI.getScaledMouseCoords(e) : 
         { x: e.clientX, y: e.clientY };
     
     flowEditor.dragOffset = {
@@ -28,8 +28,8 @@ function startDraggingNode(nodeId, e) {
     nodeElement.style.zIndex = '1000'; // Bring to front while dragging
     
     // Cache canvas rect for performance (scaled)
-    flowEditor.canvasRect = window.flowEditorUtils ? 
-        window.flowEditorUtils.getScaledBoundingClientRect(flowEditor.canvas) : 
+    flowEditor.canvasRect = (typeof sypnexAPI !== 'undefined' && sypnexAPI.getScaledBoundingClientRect) ? 
+        sypnexAPI.getScaledBoundingClientRect(flowEditor.canvas) : 
         flowEditor.canvas.getBoundingClientRect();
 }
 
@@ -432,8 +432,8 @@ function updateTooltipPosition(e) {
     const tooltip = document.getElementById('connection-tooltip');
     if (tooltip) {
         // Use scaled coordinates for tooltip positioning
-        const mouseCoords = window.flowEditorUtils ? 
-            window.flowEditorUtils.getScaledMouseCoords(e) : 
+        const mouseCoords = (typeof sypnexAPI !== 'undefined' && sypnexAPI.getScaledMouseCoords) ? 
+            sypnexAPI.getScaledMouseCoords(e) : 
             { x: e.clientX, y: e.clientY };
         tooltip.style.left = (mouseCoords.x + 10) + 'px';
         tooltip.style.top = (mouseCoords.y - 10) + 'px';

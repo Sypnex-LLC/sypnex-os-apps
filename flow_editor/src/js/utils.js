@@ -1,139 +1,7 @@
 // utils.js - Utility functions for Flow Editor
 
-// Scale compensation utilities
-let appScale = 1.0;
-
-// Detect the current app scale from CSS transform
-function detectAppScale() {
-    try {
-        // Find the app window container
-        const appWindow = document.querySelector('.app-window');
-        if (!appWindow) {
-            return 1.0;
-        }
-
-        // Check for scale classes
-        const scaleClasses = ['scale-75', 'scale-80', 'scale-85', 'scale-90', 'scale-95',
-            'scale-100', 'scale-105', 'scale-110', 'scale-115', 'scale-120',
-            'scale-125', 'scale-130', 'scale-135', 'scale-140', 'scale-145', 'scale-150'];
-
-        for (const scaleClass of scaleClasses) {
-            if (appWindow.classList.contains(scaleClass)) {
-                const scaleValue = parseInt(scaleClass.replace('scale-', ''));
-                appScale = scaleValue / 100;
-                return appScale;
-            }
-        }
-
-        // Fallback: check computed transform
-        const computedStyle = window.getComputedStyle(appWindow);
-        const transform = computedStyle.transform;
-        if (transform && transform !== 'none') {
-            // Parse transform matrix to extract scale
-            const matrix = transform.match(/matrix\(([^)]+)\)/);
-            if (matrix) {
-                const values = matrix[1].split(',').map(v => parseFloat(v.trim()));
-                if (values.length >= 4) {
-                    // Matrix format: matrix(a, b, c, d, tx, ty) where a and d are scale factors
-                    const scaleX = values[0];
-                    const scaleY = values[3];
-                    appScale = (scaleX + scaleY) / 2; // Average of X and Y scale
-                    return appScale;
-                }
-            }
-        }
-
-        return 1.0;
-    } catch (error) {
-        console.error('Error detecting app scale:', error);
-        return 1.0;
-    }
-}
-
-// Get the total effective scale (app scale × zoom scale)
-function getEffectiveScale() {
-    const appScale = detectAppScale();
-    const zoomScale = (typeof flowEditor !== 'undefined' && flowEditor.zoomLevel) ? flowEditor.zoomLevel : 1.0;
-    return appScale * zoomScale;
-}
-
-// Convert screen coordinates to app coordinates (accounting for both app scale and zoom)
-function screenToAppCoords(screenX, screenY) {
-    const scale = getEffectiveScale();
-    return {
-        x: screenX / scale,
-        y: screenY / scale
-    };
-}
-
-// Convert app coordinates to screen coordinates (accounting for both app scale and zoom)
-function appToScreenCoords(appX, appY) {
-    const scale = getEffectiveScale();
-    return {
-        x: appX * scale,
-        y: appY * scale
-    };
-}
-
-// Get scaled element rect (compensates for app scaling and zoom)
-function getScaledBoundingClientRect(element) {
-    const rect = element.getBoundingClientRect();
-    const appScale = detectAppScale();
-    // Note: Don't include zoom scale here as getBoundingClientRect already accounts for CSS transforms
-
-    return {
-        left: rect.left / appScale,
-        top: rect.top / appScale,
-        right: rect.right / appScale,
-        bottom: rect.bottom / appScale,
-        width: rect.width / appScale,
-        height: rect.height / appScale,
-        x: rect.x / appScale,
-        y: rect.y / appScale
-    };
-}
-
-// Get scaled mouse coordinates from event (compensates for app scaling only)
-function getScaledMouseCoords(e) {
-    const appScale = detectAppScale();
-    return {
-        x: e.clientX / appScale,
-        y: e.clientY / appScale
-    };
-}
-
-// Initialize scale detection
-function initScaleDetection() {
-    // Detect scale on initialization
-    detectAppScale();
-
-    // Listen for scale changes (if the app scale changes dynamically)
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                const oldScale = appScale;
-                const newScale = detectAppScale();
-                if (oldScale !== newScale) {
-                    // Trigger any necessary updates
-                    if (typeof redrawAllConnections === 'function') {
-                        redrawAllConnections();
-                    }
-                }
-            }
-        });
-    });
-
-    // Observe the app window for class changes
-    const appWindow = document.querySelector('.app-window');
-    if (appWindow) {
-        observer.observe(appWindow, {
-            attributes: true,
-            attributeFilter: ['class']
-        });
-    }
-
-    return observer;
-}
+// Canvas-specific coordinate transformation utilities
+// (App scaling utilities are now centralized in sypnexAPI.scaling)
 
 // Utility function to escape HTML
 function escapeHtml(text) {
@@ -303,24 +171,21 @@ function centerViewportOnCanvas(canvasX, canvasY) {
 }
 
 // Export utilities for use in other modules
+// Canvas-specific utilities only - scaling utilities are now in sypnexAPI.scaling
 window.flowEditorUtils = {
-    detectAppScale,
-    getEffectiveScale,
-    screenToAppCoords,
-    appToScreenCoords,
-    getScaledBoundingClientRect,
-    getScaledMouseCoords,
-    initScaleDetection,
+    // Canvas-specific coordinate transformations
+    viewportToCanvasCoords,
+    canvasToViewportCoords,
+    getViewportCenterInCanvas,
+    centerViewportOnCanvas,
+    
+    // General utilities
     escapeHtml,
     formatFileSize,
     debounce,
     processTemplates,
     extractNestedValue,
-    detectImageTypeFromBase64,
-    viewportToCanvasCoords,
-    canvasToViewportCoords,
-    getViewportCenterInCanvas,
-    centerViewportOnCanvas
+    detectImageTypeFromBase64
 };
 
 // Replace template placeholders in JSON body
