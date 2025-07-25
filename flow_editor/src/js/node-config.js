@@ -12,8 +12,12 @@ function showNodeConfig(nodeId) {
         let configHtml = `<h4>${nodeDef.name} Configuration</h4>`;
         
         // Add special content display for different node types
+        let hasSpecialContent = false;
+        let specialContentHtml = '';
+        
         if (node.type === 'display' && node.lastContent) {
-            configHtml += `
+            hasSpecialContent = true;
+            specialContentHtml += `
                 <div class="config-group">
                     <label>Last Content</label>
                     <div class="content-display">
@@ -25,7 +29,8 @@ function showNodeConfig(nodeId) {
                 </div>
             `;
         } else if (node.type === 'image' && node.lastImageData) {
-            configHtml += `
+            hasSpecialContent = true;
+            specialContentHtml += `
                 <div class="config-group">
                     <label>Image Preview</label>
                     <div class="image-display">
@@ -38,7 +43,8 @@ function showNodeConfig(nodeId) {
                 </div>
             `;
         } else if (node.type === 'audio' && node.lastAudioData) {
-            configHtml += `
+            hasSpecialContent = true;
+            specialContentHtml += `
                 <div class="config-group">
                     <label>Audio Controls</label>
                     <div class="audio-display">
@@ -57,7 +63,8 @@ function showNodeConfig(nodeId) {
                 </div>
             `;
         } else if (node.type === 'vfs_load') {
-            configHtml += `
+            hasSpecialContent = true;
+            specialContentHtml += `
                 <div class="config-group">
                     <label>VFS Load Status</label>
                     <div class="vfs-load-info">
@@ -66,7 +73,8 @@ function showNodeConfig(nodeId) {
                 </div>
             `;
         } else if (node.type === 'llm_chat' && node.lastResponse) {
-            configHtml += `
+            hasSpecialContent = true;
+            specialContentHtml += `
                 <div class="config-group">
                     <label>Last Response</label>
                     <div class="content-display">
@@ -78,9 +86,10 @@ function showNodeConfig(nodeId) {
                 </div>
             `;
         } else if (node.type === 'repeater') {
+            hasSpecialContent = true;
             const isRunning = node.repeaterState && node.repeaterState.isRunning;
             const count = node.repeaterState ? node.repeaterState.count : 0;
-            configHtml += `
+            specialContentHtml += `
                 <div class="config-group">
                     <label>Repeater Controls</label>
                     <div class="repeater-display">
@@ -100,15 +109,35 @@ function showNodeConfig(nodeId) {
             `;
         }
         
+        // Wrap special content in a collapsible section if present
+        if (hasSpecialContent) {
+            configHtml += `
+                <div class="config-section">
+                    <div class="config-section-header" data-section="node-content">
+                        <i class="fas fa-chevron-down"></i>
+                        <span>Node Content</span>
+                    </div>
+                    <div class="config-section-content" id="node-content-content">
+                        ${specialContentHtml}
+                    </div>
+                </div>
+            `;
+        }
+        
         // Show input mappings configuration (what this node receives from other nodes)
         const inputConnections = Array.from(flowEditor.connections.values())
             .filter(conn => conn.to.nodeId === nodeId);
         
         if (inputConnections.length > 0) {
             configHtml += `
-                <div class="config-group">
-                    <label>Receiving From</label>
-                    <div class="input-mappings-config">
+                <div class="config-section">
+                    <div class="config-section-header collapsed" data-section="input-connections">
+                        <i class="fas fa-chevron-right"></i>
+                        <span>Input Connections</span>
+                        <small class="config-count">(${inputConnections.length})</small>
+                    </div>
+                    <div class="config-section-content" id="input-connections-content" style="display: none;">
+                        <div class="input-mappings-config">
             `;
             
             for (const conn of inputConnections) {
@@ -138,6 +167,7 @@ function showNodeConfig(nodeId) {
             }
             
             configHtml += `
+                        </div>
                     </div>
                 </div>
             `;
@@ -149,9 +179,14 @@ function showNodeConfig(nodeId) {
         
         if (outputConnections.length > 0) {
             configHtml += `
-                <div class="config-group">
-                    <label>Sending To</label>
-                    <div class="output-mappings-config">
+                <div class="config-section">
+                    <div class="config-section-header collapsed" data-section="output-connections">
+                        <i class="fas fa-chevron-right"></i>
+                        <span>Output Connections</span>
+                        <small class="config-count">(${outputConnections.length})</small>
+                    </div>
+                    <div class="config-section-content" id="output-connections-content" style="display: none;">
+                        <div class="output-mappings-config">
             `;
             
             for (const conn of outputConnections) {
@@ -162,7 +197,6 @@ function showNodeConfig(nodeId) {
                 // Get available outputs from THIS node (source node)
                 const sourceNodeDef = nodeRegistry.getNodeType(node.type);
                 const availableOutputs = sourceNodeDef?.outputs || [];
-                
                 configHtml += `
                     <div class="output-mapping-config">
                         <div class="connection-header">To ${targetNodeName}</div>
@@ -182,37 +216,56 @@ function showNodeConfig(nodeId) {
             }
             
             configHtml += `
+                        </div>
                     </div>
                 </div>
             `;
         }
         
-        // Generate configuration fields
-        for (const [key, config] of Object.entries(nodeDef.config)) {
+        // Generate configuration fields - grouped for better organization
+        const configEntries = Object.entries(nodeDef.config);
+        if (configEntries.length > 0) {
             configHtml += `
-                <div class="config-group">
-                    <label for="config_${nodeId}_${key}">${config.label}</label>
+                <div class="config-section">
+                    <div class="config-section-header collapsed" data-section="node-settings">
+                        <i class="fas fa-chevron-right"></i>
+                        <span>Node Settings</span>
+                        <small class="config-count">(${configEntries.length})</small>
+                    </div>
+                    <div class="config-section-content" id="node-settings-content" style="display: none;">
             `;
             
-            if (config.type === 'select') {
-                configHtml += `<select id="config_${nodeId}_${key}">`;
-                config.options.forEach(option => {
-                    const selected = node.config[key].value === option ? 'selected' : '';
-                    configHtml += `<option value="${option}" ${selected}>${option}</option>`;
-                });
-                configHtml += `</select>`;
-            } else if (config.type === 'textarea') {
-                configHtml += `<textarea id="config_${nodeId}_${key}">${node.config[key].value}</textarea>`;
-            } else if (config.type === 'number') {
-                const min = config.min ? ` min="${config.min}"` : '';
-                const max = config.max ? ` max="${config.max}"` : '';
-                const step = config.step ? ` step="${config.step}"` : '';
-                configHtml += `<input type="number" id="config_${nodeId}_${key}" value="${node.config[key].value}"${min}${max}${step}>`;
-            } else {
-                configHtml += `<input type="${config.type}" id="config_${nodeId}_${key}" value="${node.config[key].value}">`;
+            for (const [key, config] of configEntries) {
+                configHtml += `
+                    <div class="config-group">
+                        <label for="config_${nodeId}_${key}">${config.label}</label>
+                `;
+                
+                if (config.type === 'select') {
+                    configHtml += `<select id="config_${nodeId}_${key}">`;
+                    config.options.forEach(option => {
+                        const selected = node.config[key].value === option ? 'selected' : '';
+                        configHtml += `<option value="${option}" ${selected}>${option}</option>`;
+                    });
+                    configHtml += `</select>`;
+                } else if (config.type === 'textarea') {
+                    configHtml += `<textarea id="config_${nodeId}_${key}">${node.config[key].value}</textarea>`;
+                } else if (config.type === 'number') {
+                    const min = config.min ? ` min="${config.min}"` : '';
+                    const max = config.max ? ` max="${config.max}"` : '';
+                    const step = config.step ? ` step="${config.step}"` : '';
+                    configHtml += `<input type="number" id="config_${nodeId}_${key}" value="${node.config[key].value}"${min}${max}${step}>`;
+                } else {
+                    configHtml += `<input type="${config.type}" id="config_${nodeId}_${key}" value="${node.config[key].value}">`;
+                }
+                
+                configHtml += `</div>`;
             }
             
-            configHtml += `</div>`;
+            configHtml += `
+                    </div>
+                </div>
+            `;
         }
         
         // Show output data for all ports (if node has been executed) - at the bottom
@@ -222,11 +275,16 @@ function showNodeConfig(nodeId) {
             
             if (outputs.length > 0) {
                 configHtml += `
-                    <div class="config-group" style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 15px;">
-                        <label>Output Port Data</label>
-                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
-                            Last executed: ${new Date(node.lastExecutionTime).toLocaleString()}
+                    <div class="config-section">
+                        <div class="config-section-header collapsed" data-section="output-data">
+                            <i class="fas fa-chevron-right"></i>
+                            <span>Output Data</span>
+                            <small class="config-count">(${outputs.length} ports)</small>
                         </div>
+                        <div class="config-section-content" id="output-data-content" style="display: none;">
+                            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
+                                Last executed: ${new Date(node.lastExecutionTime).toLocaleString()}
+                            </div>
                 `;
                 
                 for (const output of outputs) {
@@ -248,6 +306,7 @@ function showNodeConfig(nodeId) {
                 }
                 
                 configHtml += `
+                        </div>
                     </div>
                 `;
             }
@@ -361,5 +420,32 @@ function showNodeConfig(nodeId) {
                 });
             }
         }
+        
+        // Add collapsible section functionality
+        const sectionHeaders = configPanel.querySelectorAll('.config-section-header');
+        sectionHeaders.forEach(header => {
+            header.addEventListener('click', (e) => {
+                e.preventDefault();
+                const sectionId = header.getAttribute('data-section');
+                const content = document.getElementById(`${sectionId}-content`);
+                const icon = header.querySelector('i');
+                
+                if (content && icon) {
+                    const isCollapsed = header.classList.contains('collapsed');
+                    
+                    if (isCollapsed) {
+                        // Expand
+                        header.classList.remove('collapsed');
+                        content.style.display = '';
+                        icon.className = 'fas fa-chevron-down';
+                    } else {
+                        // Collapse
+                        header.classList.add('collapsed');
+                        content.style.display = 'none';
+                        icon.className = 'fas fa-chevron-right';
+                    }
+                }
+            });
+        });
     }
 }
