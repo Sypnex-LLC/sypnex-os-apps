@@ -23,7 +23,7 @@
       "type": "select",
       "label": "Operation",
       "value": "concatenate",
-      "options": ["concatenate", "split", "replace", "trim", "uppercase", "lowercase", "substring", "regex_match", "regex_replace", "starts_with", "ends_with", "contains", "repeat"]
+      "options": ["concatenate", "split", "replace", "trim", "uppercase", "lowercase", "substring", "regex_match", "regex_replace", "starts_with", "ends_with", "contains", "repeat", "last_line"]
     },
     "text_b": {
       "type": "text",

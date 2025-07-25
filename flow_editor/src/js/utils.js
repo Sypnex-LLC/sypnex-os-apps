@@ -35,12 +35,29 @@ function debounce(func, wait) {
 
 // Helper method for template processing
 function processTemplates(template, data) {
-    // Simple template processing - can be enhanced
     let result = template;
-    if (typeof data === 'object') {
-        for (const [key, value] of Object.entries(data)) {
-            result = result.replace(new RegExp(`{{${key}}}`, 'g'), value);
+    if (typeof data === 'object' && data !== null) {
+        // Check if data.data is a JSON string and try to parse it
+        let templateData = data;
+        if (data.data && typeof data.data === 'string') {
+            try {
+                const parsedData = JSON.parse(data.data);
+                // Merge the parsed JSON with the original data object
+                templateData = { ...data, ...parsedData };
+            } catch (e) {
+                // If parsing fails, just use the original data
+                templateData = data;
+            }
         }
+        
+        // Find all template patterns like {{key}} or {{path.to.value}}
+        const templatePattern = /\{\{([^}]+)\}\}/g;
+        result = result.replace(templatePattern, (match, path) => {
+            // Try to get nested value using dot notation
+            const value = extractNestedValue(templateData, path);
+            // Return the value if found, otherwise keep the original template
+            return value !== null && value !== undefined ? value : match;
+        });
     }
     return result;
 }

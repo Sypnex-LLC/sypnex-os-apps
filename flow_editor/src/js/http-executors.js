@@ -5,21 +5,22 @@ async function executeHttpNode(engine, node, inputData, executed) {
     const method = node.config.method.value;
     const headers = JSON.parse(node.config.headers.value || '{}');
     const body = node.config.body.value;
-    const useTemplate = (node.config.use_template?.value || 'false') === 'true';
+    const useTemplate = true; // Always enable template processing
 
     let processedBody = body;
 
-    // Parse body as JSON if it's a string and looks like JSON
+    // Process templates first on the string body
+    if (useTemplate && inputData) {
+        processedBody = window.flowEditorUtils.processTemplates(processedBody, inputData);
+    }
+
+    // Then parse as JSON if it's a string and looks like JSON
     if (typeof processedBody === 'string' && processedBody.trim().startsWith('{')) {
         try {
             processedBody = JSON.parse(processedBody);
         } catch (e) {
             console.warn('Failed to parse body as JSON, using as string:', e);
         }
-    }
-
-    if (useTemplate && inputData.template_data) {
-        processedBody = window.flowEditorUtils.processTemplates(processedBody, inputData.template_data);
     }
 
     // Use OS proxy to bypass CORS
@@ -89,12 +90,36 @@ async function executeHttpNode(engine, node, inputData, executed) {
 
 // VFS Load Node Executor
 async function executeVfsLoadNode(engine, node, inputData, executed) {
-    const filePath = node.config.file_path.value;
+    let filePath = node.config.file_path.value;
     const format = node.config.format.value;
 
+    // Process template variables in file path
+    const currentDate = new Date();
+    const dateTemplates = {
+        '{{DATE}}': currentDate.toISOString().split('T')[0], // YYYY-MM-DD
+        '{{YYYY}}': currentDate.getFullYear().toString(),
+        '{{MM}}': (currentDate.getMonth() + 1).toString().padStart(2, '0'),
+        '{{DD}}': currentDate.getDate().toString().padStart(2, '0'),
+        '{{TIMESTAMP}}': currentDate.getTime().toString(),
+        '{{ISO_DATE}}': currentDate.toISOString()
+    };
+
+    // Replace all template variables using simple string replacement
+    for (const [template, value] of Object.entries(dateTemplates)) {
+        filePath = filePath.replaceAll(template, value);
+    }
+
+    console.log('VFS Load Debug:', {
+        originalPath: node.config.file_path.value,
+        processedPath: filePath,
+        format: format,
+        dateTemplates: dateTemplates
+    });
 
     try {
         let data = null;
+
+        console.log('VFS Load attempting to read:', filePath, 'format:', format);
 
         if (format === 'json') {
             data = await sypnexAPI.readVirtualFileJSON(filePath);
@@ -127,15 +152,28 @@ async function executeVfsLoadNode(engine, node, inputData, executed) {
         node.lastLoadedFile = filePath;
         node.lastLoadedData = data;
 
+        console.log('VFS Load success:', {
+            filePath: filePath,
+            dataType: typeof data,
+            dataLength: data ? data.length : 0,
+            dataPreview: data ? (typeof data === 'string' ? data.substring(0, 100) : JSON.stringify(data).substring(0, 100)) : null
+        });
+
         // Return structured output with appropriate port names
         const result = {
             data: data,
-            file_path: filePath,  // Return the actual file path string
+            file_path: filePath,  // Return the actual processed file path string
             json_data: format === 'json' ? data : null
         };
         return result;
     } catch (error) {
-        console.error('VFS Load error:', error);
+        console.error('VFS Load error:', {
+            originalPath: node.config.file_path.value,
+            processedPath: filePath,
+            format: format,
+            error: error.message,
+            errorStack: error.stack
+        });
         return { data: null, error: error.message };
     }
 }

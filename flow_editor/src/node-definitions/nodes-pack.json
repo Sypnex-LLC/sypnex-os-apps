@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "packed_at": "2025-07-25T06:56:20.324799",
+  "packed_at": "2025-07-25T10:23:24.191941",
   "total_nodes": 16,
   "nodes": {
     "array": {
@@ -947,7 +947,8 @@
             "starts_with",
             "ends_with",
             "contains",
-            "repeat"
+            "repeat",
+            "last_line"
           ]
         },
         "text_b": {

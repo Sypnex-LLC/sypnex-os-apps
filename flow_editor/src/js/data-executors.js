@@ -452,6 +452,10 @@ async function executeStringNode(engine, node, inputData, executed) {
             case 'repeat':
                 result = textA.repeat(Math.max(0, Math.min(repeatCount, 100)));
                 break;
+            case 'last_line':
+                const lines = textA.split('\n').filter(line => line.trim().length > 0);
+                result = lines.length > 0 ? lines[lines.length - 1] : '';
+                break;
             default:
                 result = textA;
         }
