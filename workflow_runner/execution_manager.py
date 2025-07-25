@@ -63,6 +63,9 @@ class WorkflowExecutionManager:
             print(f"🔄 Repeater iteration {count}")
             print("=" * 50)
             
+            # Clear executed nodes to allow re-execution in each iteration
+            self.workflow_runner.executed_nodes.clear()
+            
             # Execute all nodes in sequence (simple approach)
             results = self.execute_nodes_simple(execution_nodes, workflow)
             all_results.extend(results)

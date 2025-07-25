@@ -157,7 +157,7 @@ class NodeExecutorRegistry:
         
         # Enhanced input data handling - match frontend structure
         processed_input_data = DataUtils.process_input_data_for_node(node, input_data, node_def)
-        print(f"  🔄 Processed input data for {node['id']}: {processed_input_data}")
+        #print(f"  🔄 Processed input data for {node['id']}: {processed_input_data}")
         
         try:
             # Get executor for this node type

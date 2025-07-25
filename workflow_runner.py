@@ -60,7 +60,8 @@ def main():
                             output_summary = f" | {', '.join(outputs)}"
                             if len(node_result) > 3:
                                 output_summary += f" (+{len(node_result)-3} more)"
-                    print(f"  ✅ {node_id} ({node_type}): Success{output_summary}")
+                    #print(f"  ✅ {node_id} ({node_type}): Success{output_summary}")
+                    print(f"  ✅ {node_id} ({node_type}): Success")
                     success_count += 1
             
             print()
