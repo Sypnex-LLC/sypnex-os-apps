@@ -243,11 +243,206 @@ async function executeLogicalGateNode(engine, node, inputData, executed) {
     }
 }
 
+// For Each Node Executor
+async function executeForEachNode(engine, node, inputData, executed) {
+    const stopOnError = node.config.stop_on_error.value === 'true';
+    
+    // Get the array from input
+    let array = inputData.array;
+    
+    // If array is not provided, try other common input names
+    if (!Array.isArray(array)) {
+        array = inputData.data || inputData.file_names || inputData.items;
+    }
+    
+    // Ensure we have a valid array
+    if (!Array.isArray(array)) {
+        throw new Error('For Each node requires an array input');
+    }
+
+    console.log('For Each Debug:', {
+        arrayLength: array.length,
+        arrayPreview: array.slice(0, 3),
+        stopOnError: stopOnError
+    });
+
+    // Initialize iteration state if not exists
+    if (!node.forEachState) {
+        node.forEachState = {
+            currentIndex: 0,
+            array: array,
+            isIterating: false,
+            interval: null
+        };
+    }
+
+    // If this is a manual trigger (not from interval), start the iterator
+    if (!node.forEachState.isIterating) {
+        node.forEachState.isIterating = true;
+        node.forEachState.currentIndex = 0;
+        node.forEachState.array = array;
+
+        // Start the interval to process each item like Repeater
+        node.forEachState.interval = setInterval(async () => {
+            if (node.forEachState.currentIndex < node.forEachState.array.length) {
+                const currentItem = node.forEachState.array[node.forEachState.currentIndex];
+                const currentIndex = node.forEachState.currentIndex;
+                
+                console.log(`For Each iteration ${currentIndex + 1}/${node.forEachState.array.length}:`, currentItem);
+
+                // Execute the connected workflow - use the execution engine directly
+                try {
+                    // Find nodes connected to the current_item output port
+                    const connectedNodes = [];
+                    for (const connection of flowEditor.connections.values()) {
+                        if (connection.from.nodeId === node.id) {
+                            const targetNode = flowEditor.nodes.get(connection.to.nodeId);
+                            if (targetNode) {
+                                connectedNodes.push({
+                                    node: targetNode,
+                                    inputPort: connection.to.portName,
+                                    outputPort: connection.from.portName
+                                });
+                            }
+                        }
+                    }
+
+                    // Set all connected nodes to running state before execution
+                    for (const connectedNodeInfo of connectedNodes) {
+                        const nodeElement = document.getElementById(connectedNodeInfo.node.id);
+                        if (nodeElement) {
+                            nodeElement.classList.remove('completed', 'error', 'waiting-inputs');
+                            nodeElement.classList.add('running');
+                        }
+                    }
+
+                    // Execute each connected node with the appropriate data
+                    for (const connectedNodeInfo of connectedNodes) {
+                        let inputValue;
+                        
+                        // Map the For Each outputs to the connected node's input
+                        if (connectedNodeInfo.outputPort === 'current_item') {
+                            inputValue = currentItem;
+                        } else if (connectedNodeInfo.outputPort === 'current_index') {
+                            inputValue = currentIndex;
+                        } else {
+                            inputValue = currentItem; // Default to current item
+                        }
+                        
+                        // Create input data for the connected node
+                        const nodeInputData = {};
+                        nodeInputData[connectedNodeInfo.inputPort] = inputValue;
+                        
+                        try {
+                            // Execute the connected node using the execution engine
+                            await engine.executeNode(connectedNodeInfo.node, nodeInputData, new Set());
+                            
+                            // Mark node as completed after successful execution
+                            const nodeElement = document.getElementById(connectedNodeInfo.node.id);
+                            if (nodeElement) {
+                                nodeElement.classList.remove('running');
+                                nodeElement.classList.add('completed');
+                            }
+                        } catch (nodeError) {
+                            // Mark node as error if execution fails
+                            const nodeElement = document.getElementById(connectedNodeInfo.node.id);
+                            if (nodeElement) {
+                                nodeElement.classList.remove('running');
+                                nodeElement.classList.add('error');
+                            }
+                            // Re-throw the error to be handled by the outer catch
+                            throw nodeError;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error executing for each iteration:', error);
+                    
+                    // Mark any still-running connected nodes as error
+                    const connectedNodes = [];
+                    for (const connection of flowEditor.connections.values()) {
+                        if (connection.from.nodeId === node.id) {
+                            const targetNode = flowEditor.nodes.get(connection.to.nodeId);
+                            if (targetNode) {
+                                connectedNodes.push({
+                                    node: targetNode,
+                                    inputPort: connection.to.portName,
+                                    outputPort: connection.from.portName
+                                });
+                            }
+                        }
+                    }
+                    
+                    for (const connectedNodeInfo of connectedNodes) {
+                        const nodeElement = document.getElementById(connectedNodeInfo.node.id);
+                        if (nodeElement && nodeElement.classList.contains('running')) {
+                            nodeElement.classList.remove('running');
+                            nodeElement.classList.add('error');
+                        }
+                    }
+                    
+                    if (stopOnError) {
+                        // Stop the iteration
+                        clearInterval(node.forEachState.interval);
+                        node.forEachState.isIterating = false;
+                        node.forEachState.interval = null;
+                        return;
+                    }
+                }
+
+                // Move to next item
+                node.forEachState.currentIndex++;
+
+                // Stop if we've processed all items
+                if (node.forEachState.currentIndex >= node.forEachState.array.length) {
+                    clearInterval(node.forEachState.interval);
+                    node.forEachState.isIterating = false;
+                    node.forEachState.interval = null;
+                    console.log('For Each completed all items');
+                    
+                    // Ensure all connected nodes show final completed status
+                    const connectedNodes = [];
+                    for (const connection of flowEditor.connections.values()) {
+                        if (connection.from.nodeId === node.id) {
+                            const targetNode = flowEditor.nodes.get(connection.to.nodeId);
+                            if (targetNode) {
+                                connectedNodes.push(targetNode);
+                            }
+                        }
+                    }
+                    
+                    for (const connectedNode of connectedNodes) {
+                        const nodeElement = document.getElementById(connectedNode.id);
+                        if (nodeElement && !nodeElement.classList.contains('error')) {
+                            nodeElement.classList.remove('running', 'waiting-inputs');
+                            nodeElement.classList.add('completed');
+                        }
+                    }
+                }
+            }
+        }, 100); // Process every 100ms
+        
+        // Don't return any data immediately - let the interval handle all executions
+        return {
+            started: true,
+            total_items: array.length,
+            message: 'For Each iteration started'
+        };
+    }
+
+    // If already iterating, return current state
+    return {
+        isIterating: node.forEachState.isIterating,
+        current_index: node.forEachState.currentIndex,
+        total_items: node.forEachState.array.length
+    };
+}
+
 // Export to global scope
 window.flowExecutors = {
     executeTimerNode,
     executeDisplayNode,
     executeRepeaterNode,
     executeConditionNode,
-    executeLogicalGateNode
+    executeLogicalGateNode,
+    executeForEachNode
 };

@@ -183,10 +183,47 @@ async function executeVfsSaveNode(engine, node, inputData, executed) {
         let data = inputData.data;
         let success = false;
 
+        console.log('VFS Save Debug:', {
+            filePath: filePath,
+            format: format,
+            overwrite: overwrite,
+            append: append,
+            dataType: typeof data,
+            data: data
+        });
+
         if (format === 'json') {
+            // For JSON format with append mode, we need to handle it specially
+            if (append && !overwrite) {
+                try {
+                    // Try to read existing file first
+                    const existingData = await sypnexAPI.readVirtualFileJSON(filePath);
+                    if (Array.isArray(existingData)) {
+                        // If existing data is an array, append to it
+                        existingData.push(data);
+                        data = existingData;
+                    } else {
+                        // If existing data is not an array, create a new array
+                        data = [existingData, data];
+                    }
+                } catch (error) {
+                    // File doesn't exist or can't be read, create new array
+                    data = [data];
+                }
+            }
             success = await sypnexAPI.writeVirtualFileJSON(filePath, data);
         } else if (format === 'text') {
             if (typeof data === 'string') {
+                // For text format with append mode
+                if (append && !overwrite) {
+                    try {
+                        // Try to read existing file first
+                        const existingText = await sypnexAPI.readVirtualFileText(filePath);
+                        data = existingText + '\n' + data;
+                    } catch (error) {
+                        // File doesn't exist, use data as-is
+                    }
+                }
                 success = await sypnexAPI.writeVirtualFile(filePath, data);
             } else {
                 throw new Error('Text format requires string data, received: ' + typeof data + '. Use JSON format for objects.');

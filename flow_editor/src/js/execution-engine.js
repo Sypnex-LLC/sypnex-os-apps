@@ -27,6 +27,8 @@ class ExecutionEngine {
             window.flowExecutors.executeConditionNode(this, node, inputData, executed));
         this.registry.registerExecutor('logical_gate_executor', (node, inputData, executed) => 
             window.flowExecutors.executeLogicalGateNode(this, node, inputData, executed));
+        this.registry.registerExecutor('for_each_executor', (node, inputData, executed) => 
+            window.flowExecutors.executeForEachNode(this, node, inputData, executed));
             
         this.registry.registerExecutor('audio_executor', (node, inputData, executed) => 
             window.mediaExecutors.executeAudioNode(this, node, inputData, executed));
@@ -76,6 +78,15 @@ class ExecutionEngine {
             clearInterval(node.repeaterState.interval);
             node.repeaterState.interval = null;
             node.repeaterState.isRunning = false;
+        }
+    }
+
+    // Stop for each method
+    stopForEach(node) {
+        if (node.forEachState && node.forEachState.interval) {
+            clearInterval(node.forEachState.interval);
+            node.forEachState.interval = null;
+            node.forEachState.isIterating = false;
         }
     }
 

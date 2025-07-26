@@ -1,0 +1,28 @@
+{
+  "id": "for_each",
+  "name": "For Each",
+  "description": "Iterate through an array and execute connected nodes for each item",
+  "icon": "fas fa-repeat",
+  "color": "warning",
+  "category": "flow",
+  "execution_mode": "both",
+  "inputs": [
+    {"id": "trigger", "name": "Trigger", "type": "data"},
+    {"id": "array", "name": "Array", "type": "json"}
+  ],
+  "outputs": [
+    {"id": "current_item", "name": "Current Item", "type": "data"},
+    {"id": "current_index", "name": "Current Index", "type": "number"},
+    {"id": "completed", "name": "Completed", "type": "data"}
+  ],
+  "config": {
+    "stop_on_error": {
+      "type": "select",
+      "label": "Stop on Error",
+      "value": "true",
+      "options": ["true", "false"]
+    }
+  },
+  "executor": "for_each_executor",
+  "template": "standard"
+}
