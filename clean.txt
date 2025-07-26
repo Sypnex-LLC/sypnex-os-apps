@@ -1,81 +1,30 @@
 Console.log Removal Log
 Generated on: clean_console_logs.py
-Total files scanned: 27
+Total files scanned: 28
 
 The following console.log statements were removed:
 
 ================================================================================
-FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\flow_editor\src\js\data-executors.js
+FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\flow_runner\src\main.js
 ================================================================================
-Line 388:     console.log(`String Operations Node Debug:`, {
-        operation: operation,
-        inputData: inputData,
-        inputDataKeys: Object.keys(inputData),
-        textA: textA,
-        textB: textB,
-        configTextB: configTextB
-    });
+Line 138:             console.log('Fetching jobs from:', `${this.flowRunnerUrl}/api/jobs`);
+Line 140:             console.log('Jobs response:', response);
+Line 167:             console.log('Parsed jobs data:', jobsData);
+Line 181:             console.log('Jobs map size:', jobsMap.size);
+Line 191:             console.log('Fetching stats from:', `${this.flowRunnerUrl}/api/stats`);
+Line 193:             console.log('Stats response:', response);
+Line 217:             console.log('Parsed stats data:', statsData);
+Line 387:             console.log('Cancelling job:', jobId);
+Line 389:             console.log('Cancel response:', response);
+Line 438:             console.log('Deleting job:', jobId);
+Line 440:             console.log('Delete response:', response);
+Line 568:             console.log('Submitting job:', { workflowPath, sypnexOsUrl });
+Line 576:             console.log('Submit response:', response);
 
-Removed 1 console.log statement(s) from this file.
-
-================================================================================
-FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\flow_editor\src\js\http-executors.js
-================================================================================
-Line 126:     console.log('VFS Load Debug:', {
-        originalPath: node.config.file_path.value,
-        processedPath: filePath,
-        format: format,
-        dateTemplates: dateTemplates
-    });
-Line 136:         console.log('VFS Load attempting to read:', filePath, 'format:', format);
-Line 161:         console.log('VFS Load success:', {
-            filePath: filePath,
-            dataType: typeof data,
-            dataLength: data ? data.length : 0,
-            dataPreview: data ? (typeof data === 'string' ? data.substring(0, 100) : JSON.stringify(data).substring(0, 100)) : null
-        });
-
-Removed 3 console.log statement(s) from this file.
-
-================================================================================
-FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\flow_editor\src\js\workflow.js
-================================================================================
-Line 219:     console.log(`executeNodeSmart: Node ${nodeId}, inputPort: ${inputPort}, connectedPorts: [${connectedInputPorts.join(', ')}]`);
-Line 223:         console.log(`executeNodeSmart: Single input node, executing immediately`);
-Line 247:     console.log(`Node ${nodeId}: Received input '${inputPort}' = '${JSON.stringify(inputValue)}'. Have: [${Object.keys(buffer.receivedInputs).join(', ')}], Need: [${buffer.connectedPorts.join(', ')}]`);
-Line 254:         console.log(`Node ${nodeId}: Waiting for more inputs...`);
-Line 264:     console.log(`Node ${nodeId}: All inputs ready, executing with synchronized data:`, buffer.receivedInputs);
-Line 278:     console.log(`getConnectedInputPorts: window.flowEditor exists:`, !!window.flowEditor);
-Line 279:     console.log(`getConnectedInputPorts: flowEditor exists:`, typeof flowEditor !== 'undefined' && !!flowEditor);
-Line 285:         console.log(`getConnectedInputPorts: Using direct flowEditor reference`);
-Line 288:         console.log(`getConnectedInputPorts: Using window.flowEditor reference`);
-Line 290:         console.log(`getConnectedInputPorts: No flowEditor available for node ${nodeId}`);
-Line 294:     console.log(`getConnectedInputPorts: editor keys:`, Object.keys(editor));
-Line 295:     console.log(`getConnectedInputPorts: editor.connections exists:`, !!editor.connections);
-Line 300:         console.log(`getConnectedInputPorts: Using editor.connections`);
-Line 303:         console.log(`getConnectedInputPorts: Using editor.workflow.connections`);
-Line 305:         console.log(`getConnectedInputPorts: No connections data available for node ${nodeId}`);
-Line 310:     console.log(`getConnectedInputPorts: Node ${nodeId}, total connections: ${allConnections.length}`);
-Line 314:         console.log(`  Connection ${index}: ${conn.from.nodeId}[${conn.from.portName}] -> ${conn.to.nodeId}[${conn.to.portName}]`);
-Line 321:                 console.log(`  MATCH: Connection to ${nodeId}: ${conn.from.nodeId}[${conn.from.portName}] -> ${conn.to.nodeId}[${conn.to.portName}]`);
-Line 327:     console.log(`getConnectedInputPorts: Node ${nodeId} has connected ports: [${connectedPorts.join(', ')}]`);
-
-Removed 19 console.log statement(s) from this file.
-
-================================================================================
-FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\text_editor\src\js\main.js
-================================================================================
-Line 107:         console.log('Text Editor: Checking for app intent...');
-Line 111:         console.log('Text Editor: Intent data from preferences:', intentData);
-Line 114:             console.log('Text Editor: Processing file open intent:', intentData);
-Line 118:                 console.log('Text Editor: Loading file:', fileData.filePath);
-Line 126:                 console.log('Text Editor: Successfully opened file from intent');
-Line 131:             console.log('Text Editor: No intent found or wrong action type');
-
-Removed 6 console.log statement(s) from this file.
+Removed 13 console.log statement(s) from this file.
 
 ================================================================================
 SUMMARY
 ================================================================================
-Files processed: 27
-Files modified: 4
+Files processed: 28
+Files modified: 1

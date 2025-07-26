@@ -135,9 +135,7 @@ class FlowRunner {
 
     async fetchJobs() {
         try {
-            console.log('Fetching jobs from:', `${this.flowRunnerUrl}/api/jobs`);
             const response = await sypnexAPI.proxyGET(`${this.flowRunnerUrl}/api/jobs`);
-            console.log('Jobs response:', response);
             
             // Handle different response formats
             let jobsData;
@@ -164,7 +162,6 @@ class FlowRunner {
                 jobsData = response;
             }
 
-            console.log('Parsed jobs data:', jobsData);
 
             const jobsMap = new Map();
             if (jobsData && jobsData.jobs && Array.isArray(jobsData.jobs)) {
@@ -178,7 +175,6 @@ class FlowRunner {
                 });
             }
 
-            console.log('Jobs map size:', jobsMap.size);
             return jobsMap;
         } catch (error) {
             console.error('Error fetching jobs:', error);
@@ -188,9 +184,7 @@ class FlowRunner {
 
     async fetchStats() {
         try {
-            console.log('Fetching stats from:', `${this.flowRunnerUrl}/api/stats`);
             const response = await sypnexAPI.proxyGET(`${this.flowRunnerUrl}/api/stats`);
-            console.log('Stats response:', response);
             
             // Handle different response formats
             let statsData;
@@ -214,7 +208,6 @@ class FlowRunner {
                 statsData = response;
             }
 
-            console.log('Parsed stats data:', statsData);
             return statsData || {
                 total_jobs: 0,
                 queued: 0,
@@ -384,9 +377,7 @@ class FlowRunner {
 
     async cancelJob(jobId) {
         try {
-            console.log('Cancelling job:', jobId);
             const response = await sypnexAPI.proxyDELETE(`${this.flowRunnerUrl}/api/jobs/${jobId}`);
-            console.log('Cancel response:', response);
             
             // Handle different response formats
             let success = false;
@@ -435,9 +426,7 @@ class FlowRunner {
         }
 
         try {
-            console.log('Deleting job:', jobId);
             const response = await sypnexAPI.proxyDELETE(`${this.flowRunnerUrl}/api/jobs/${jobId}/delete`);
-            console.log('Delete response:', response);
             
             // Handle different response formats
             let success = false;
@@ -565,7 +554,6 @@ class FlowRunner {
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
 
-            console.log('Submitting job:', { workflowPath, sypnexOsUrl });
             const response = await sypnexAPI.proxyJSON(`${this.flowRunnerUrl}/api/jobs`, {
                 method: 'POST',
                 data: {
@@ -573,7 +561,6 @@ class FlowRunner {
                     sypnex_os_url: sypnexOsUrl
                 }
             });
-            console.log('Submit response:', response);
 
             // Handle different response formats
             let success = false;
