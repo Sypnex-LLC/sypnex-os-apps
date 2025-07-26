@@ -143,6 +143,18 @@ async function executeNode(node, inputData, executed, nodeInputBuffer) {
             return { nodeId: node.id, output: null };
         }
         
+        // Check for for_each control flag - skip downstream execution, let interval handle it
+        if (output && typeof output === 'object' && output.__for_each_control === true) {
+            
+            // Mark node as completed but don't execute downstream nodes
+            if (nodeElement) {
+                nodeElement.classList.remove('running');
+                nodeElement.classList.add('completed');
+            }
+            
+            return { nodeId: node.id, output: output };
+        }
+        
         // Find connected nodes and execute them
         const connectedNodes = findConnectedNodes(node.id);
         

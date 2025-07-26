@@ -339,8 +339,15 @@ async function executeForEachNode(engine, node, inputData, executed) {
                         nodeInputData[connectedNodeInfo.inputPort] = inputValue;
                         
                         try {
-                            // Execute the connected node using the execution engine
-                            await engine.executeNode(connectedNodeInfo.node, nodeInputData, new Set());
+                            // Use the workflow execution system to ensure downstream nodes execute
+                            // This will trigger the complete execution chain (llm → http → etc.)
+                            await executeNodeSmart(
+                                connectedNodeInfo.node, 
+                                connectedNodeInfo.inputPort, 
+                                inputValue, 
+                                new Set(), // Fresh executed set for this iteration
+                                new Map()  // Fresh input buffer for this iteration
+                            );
                             
                             // Mark node as completed after successful execution
                             const nodeElement = document.getElementById(connectedNodeInfo.node.id);
@@ -427,11 +434,13 @@ async function executeForEachNode(engine, node, inputData, executed) {
         }, iterationDelay); // Use configurable iteration delay
         
         // Don't return any data immediately - let the interval handle all executions
+        // Use a special flag to prevent main workflow from executing downstream nodes
         return {
             started: true,
             total_items: array.length,
             iteration_delay: iterationDelay,
-            message: `For Each iteration started with ${iterationDelay}ms delay`
+            message: `For Each iteration started with ${iterationDelay}ms delay`,
+            __for_each_control: true  // Special flag to prevent downstream execution by main workflow
         };
     }
 

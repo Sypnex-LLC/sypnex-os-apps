@@ -9,9 +9,20 @@ async function executeHttpNode(engine, node, inputData, executed) {
 
     let processedBody = body;
 
+    console.log('HTTP Node Debug:', {
+        inputData: inputData,
+        originalBody: body,
+        useTemplate: useTemplate
+    });
+
     // Process templates first on the string body
     if (useTemplate && inputData) {
         processedBody = window.flowEditorUtils.processTemplates(processedBody, inputData);
+        console.log('HTTP Node Template Processing:', {
+            originalBody: body,
+            processedBody: processedBody,
+            inputData: inputData
+        });
     }
 
     // Then parse as JSON if it's a string and looks like JSON
