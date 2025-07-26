@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "packed_at": "2025-07-26T01:47:22.504245",
-  "total_nodes": 16,
+  "packed_at": "2025-07-26T07:29:02.971849",
+  "total_nodes": 17,
   "nodes": {
     "array": {
       "id": "array",
@@ -1130,6 +1130,93 @@
         }
       },
       "executor": "timer_executor",
+      "template": "standard"
+    },
+    "vfs_directory_list": {
+      "id": "vfs_directory_list",
+      "name": "VFS Directory List",
+      "description": "List all files and directories in a VFS path",
+      "icon": "fas fa-folder-tree",
+      "color": "primary",
+      "category": "storage",
+      "execution_mode": "both",
+      "inputs": [
+        {
+          "id": "trigger",
+          "name": "Trigger",
+          "type": "data"
+        },
+        {
+          "id": "directory_path",
+          "name": "Directory Path",
+          "type": "text"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "file_list",
+          "name": "File List",
+          "type": "json"
+        },
+        {
+          "id": "file_paths",
+          "name": "File Paths",
+          "type": "json"
+        },
+        {
+          "id": "file_names",
+          "name": "File Names",
+          "type": "json"
+        },
+        {
+          "id": "count",
+          "name": "File Count",
+          "type": "number"
+        },
+        {
+          "id": "directories",
+          "name": "Directories",
+          "type": "json"
+        },
+        {
+          "id": "files_only",
+          "name": "Files Only",
+          "type": "json"
+        }
+      ],
+      "config": {
+        "directory_path": {
+          "type": "text",
+          "label": "Directory Path",
+          "value": "/",
+          "placeholder": "/absolute/path/in/vfs"
+        },
+        "filter_extensions": {
+          "type": "text",
+          "label": "File Extensions Filter",
+          "value": "",
+          "placeholder": "txt,json,md (leave empty for all)"
+        },
+        "include_directories": {
+          "type": "select",
+          "label": "Include Directories",
+          "value": "true",
+          "options": [
+            "true",
+            "false"
+          ]
+        },
+        "recursive": {
+          "type": "select",
+          "label": "Recursive",
+          "value": "false",
+          "options": [
+            "true",
+            "false"
+          ]
+        }
+      },
+      "executor": "vfs_directory_list_executor",
       "template": "standard"
     },
     "vfs_load": {

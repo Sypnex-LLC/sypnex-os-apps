@@ -226,9 +226,176 @@ async function executeVfsSaveNode(engine, node, inputData, executed) {
     }
 }
 
+// VFS Directory List Node Executor
+async function executeVfsDirectoryListNode(engine, node, inputData, executed) {
+    let directoryPath = node.config.directory_path.value;
+    const filterExtensions = node.config.filter_extensions.value;
+    const includeDirectories = node.config.include_directories.value === 'true';
+    const recursive = node.config.recursive.value === 'true';
+
+    // Debug logging
+    console.log('VFS Directory List Debug:', {
+        configValue: node.config.directory_path.value,
+        inputData: inputData,
+        initialDirectoryPath: directoryPath
+    });
+
+    // Use input path if provided, otherwise use config
+    if (inputData && inputData.directory_path) {
+        directoryPath = inputData.directory_path;
+        console.log('Using input directory path:', directoryPath);
+    }
+
+    // Ensure directoryPath is a string and not empty
+    if (typeof directoryPath !== 'string' || !directoryPath) {
+        directoryPath = '/';
+        console.log('Reset directory path to root:', directoryPath);
+    }
+
+    // Process template variables in directory path
+    const currentDate = new Date();
+    const dateTemplates = {
+        '{{DATE}}': currentDate.toISOString().split('T')[0],
+        '{{YYYY}}': currentDate.getFullYear().toString(),
+        '{{MM}}': (currentDate.getMonth() + 1).toString().padStart(2, '0'),
+        '{{DD}}': currentDate.getDate().toString().padStart(2, '0'),
+        '{{TIMESTAMP}}': currentDate.getTime().toString(),
+        '{{ISO_DATE}}': currentDate.toISOString()
+    };
+
+    for (const [template, value] of Object.entries(dateTemplates)) {
+        directoryPath = directoryPath.replaceAll(template, value);
+    }
+
+    console.log('Final directory path before API call:', directoryPath);
+
+    try {
+        // Use the existing sypnexAPI.listVirtualFiles method
+        const fileListData = await sypnexAPI.listVirtualFiles(directoryPath);
+        
+        if (!fileListData || !fileListData.items) {
+            return { 
+                error: `Directory not found or empty: ${directoryPath}`,
+                file_list: [],
+                file_paths: [],
+                file_names: [],
+                count: 0,
+                directories: [],
+                files_only: []
+            };
+        }
+
+        let allItems = fileListData.items;
+        
+        // Handle recursive listing if enabled
+        if (recursive) {
+            const getAllFilesRecursive = async (items, basePath) => {
+                let allFiles = [];
+                for (const item of items) {
+                    if (item.is_directory) {
+                        const subPath = basePath + (basePath.endsWith('/') ? '' : '/') + item.name;
+                        try {
+                            const subDirData = await sypnexAPI.listVirtualFiles(subPath);
+                            if (subDirData && subDirData.items) {
+                                const subFiles = await getAllFilesRecursive(subDirData.items, subPath);
+                                allFiles = allFiles.concat(subFiles);
+                            }
+                        } catch (err) {
+                            console.warn(`Could not read subdirectory ${subPath}:`, err);
+                        }
+                    }
+                    allFiles.push({...item, fullPath: basePath + (basePath.endsWith('/') ? '' : '/') + item.name});
+                }
+                return allFiles;
+            };
+            
+            allItems = await getAllFilesRecursive(allItems, directoryPath);
+        } else {
+            // Add full path for non-recursive
+            allItems = allItems.map(item => ({
+                ...item, 
+                fullPath: directoryPath + (directoryPath.endsWith('/') ? '' : '/') + item.name
+            }));
+        }
+
+        // Filter by file extensions if specified
+        let filteredItems = allItems;
+        if (filterExtensions && filterExtensions.trim()) {
+            const extensions = filterExtensions.split(',').map(ext => ext.trim().toLowerCase());
+            filteredItems = allItems.filter(item => {
+                // Always include directories if includeDirectories is true
+                if (item.is_directory) return includeDirectories;
+                // For files, check the extension
+                const itemExt = item.name.split('.').pop()?.toLowerCase();
+                return extensions.includes(itemExt);
+            });
+            console.log('Extension filtering applied:', {
+                extensions: extensions,
+                beforeFilter: allItems.length,
+                afterFilter: filteredItems.length
+            });
+        } else {
+            console.log('No extension filtering - returning all items');
+        }
+
+        // Separate files and directories
+        const files = filteredItems.filter(item => !item.is_directory);
+        const directories = filteredItems.filter(item => item.is_directory);
+        
+        // Create output arrays
+        const filePaths = files.map(file => file.fullPath);
+        const fileNames = files.map(file => file.name);
+        const directoryPaths = directories.map(dir => dir.fullPath);
+
+        // Final file list based on includeDirectories setting
+        // If includeDirectories is true, return all filtered items (files + directories)
+        // If includeDirectories is false, return only files
+        const finalFileList = includeDirectories ? filteredItems : files;
+
+        console.log('Processing results:', {
+            totalFilteredItems: filteredItems.length,
+            filesCount: files.length,
+            directoriesCount: directories.length,
+            includeDirectories: includeDirectories,
+            finalFileListCount: finalFileList.length
+        });
+
+        // Store results for config panel display
+        node.lastDirectoryPath = directoryPath;
+        node.lastFileCount = finalFileList.length;
+        node.lastFileList = finalFileList;
+
+        return {
+            file_list: finalFileList,
+            file_paths: filePaths,
+            file_names: fileNames,
+            count: finalFileList.length,
+            directories: directoryPaths,
+            files_only: files
+        };
+        
+    } catch (error) {
+        console.error('VFS Directory List error:', {
+            directoryPath: directoryPath,
+            error: error.message,
+            errorStack: error.stack
+        });
+        return { 
+            error: error.message,
+            file_list: [],
+            file_paths: [],
+            file_names: [],
+            count: 0,
+            directories: [],
+            files_only: []
+        };
+    }
+}
+
 // Export to global scope
 window.httpExecutors = {
     executeHttpNode,
     executeVfsLoadNode,
-    executeVfsSaveNode
+    executeVfsSaveNode,
+    executeVfsDirectoryListNode
 };

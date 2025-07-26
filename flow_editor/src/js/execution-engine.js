@@ -14,6 +14,8 @@ class ExecutionEngine {
             window.httpExecutors.executeVfsSaveNode(this, node, inputData, executed));
         this.registry.registerExecutor('vfs_load_executor', (node, inputData, executed) => 
             window.httpExecutors.executeVfsLoadNode(this, node, inputData, executed));
+        this.registry.registerExecutor('vfs_directory_list_executor', (node, inputData, executed) => 
+            window.httpExecutors.executeVfsDirectoryListNode(this, node, inputData, executed));
             
         this.registry.registerExecutor('timer_executor', (node, inputData, executed) => 
             window.flowExecutors.executeTimerNode(this, node, inputData, executed));
