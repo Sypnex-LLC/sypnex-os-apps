@@ -603,6 +603,65 @@ async function executeNodeReferenceNode(engine, node, inputData, executed) {
     }
 }
 
+// Random Number Node Executor
+async function executeRandomNode(engine, node, inputData, executed) {
+    const minValue = parseFloat(node.config.min_value.value) || 0;
+    const maxValue = parseFloat(node.config.max_value.value) || 100;
+    const decimalPlaces = parseInt(node.config.decimal_places.value) || 0;
+    const outputType = node.config.output_type.value || 'integer';
+
+    // Validate range
+    if (minValue >= maxValue) {
+        console.error('Random: Minimum value must be less than maximum value');
+        return {
+            number: 0,
+            text: '0',
+            data: '0',
+            integer: 0,
+            float: 0.0,
+            error: 'Invalid range: minimum must be less than maximum'
+        };
+    }
+
+    try {
+        // Generate random number between min and max
+        let randomValue = Math.random() * (maxValue - minValue) + minValue;
+
+        // Apply output type and decimal places
+        if (outputType === 'integer' || decimalPlaces === 0) {
+            randomValue = Math.round(randomValue);
+        } else {
+            randomValue = parseFloat(randomValue.toFixed(decimalPlaces));
+        }
+
+        // Store for display in config panel
+        node.lastRandomValue = randomValue;
+        node.lastRange = `${minValue} - ${maxValue}`;
+        node.lastOutputType = outputType;
+
+        console.log(`Random: Generated ${randomValue} (${outputType}) in range ${minValue}-${maxValue}`);
+
+        return {
+            number: randomValue,
+            text: String(randomValue), // Convert to string for VFS compatibility
+            data: String(randomValue), // Convert to string for VFS compatibility  
+            integer: Math.round(randomValue),
+            float: parseFloat(randomValue.toFixed(Math.max(decimalPlaces, 1)))
+        };
+
+    } catch (error) {
+        console.error('Random execution error:', error);
+        return {
+            number: 0,
+            text: '0',
+            data: '0',
+            integer: 0,
+            float: 0.0,
+            error: error.message
+        };
+    }
+}
+
 // Export to global scope
 window.dataExecutors = {
     executeTextNode,
@@ -611,5 +670,6 @@ window.dataExecutors = {
     executeMathNode,
     executeArrayNode,
     executeStringNode,
-    executeNodeReferenceNode
+    executeNodeReferenceNode,
+    executeRandomNode
 };

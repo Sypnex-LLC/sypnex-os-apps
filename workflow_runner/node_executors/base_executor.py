@@ -109,6 +109,7 @@ class NodeExecutorRegistry:
         from ..data_processors.math_processor import MathDataProcessor
         from ..data_processors.array_processor import ArrayDataProcessor
         from ..data_processors.node_reference_processor import NodeReferenceDataProcessor
+        from ..data_processors.random_processor import RandomDataProcessor
         
         # Import logic processors
         from ..logic_processors.condition_processor import ConditionProcessor
@@ -128,6 +129,7 @@ class NodeExecutorRegistry:
             MathDataProcessor(self.workflow_runner),
             ArrayDataProcessor(self.workflow_runner),
             NodeReferenceDataProcessor(self.workflow_runner),
+            RandomDataProcessor(self.workflow_runner),
             ConditionProcessor(self.workflow_runner),
             LogicalGateProcessor(self.workflow_runner),
             LLMProcessor(self.workflow_runner),

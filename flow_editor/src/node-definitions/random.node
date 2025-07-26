@@ -1,0 +1,49 @@
+{
+  "id": "random",
+  "name": "Random Number",
+  "description": "Generate random numbers within a specified range",
+  "icon": "fas fa-dice",
+  "color": "warning",
+  "category": "data",
+  "execution_mode": "both",
+  "inputs": [
+    {"id": "trigger", "name": "Trigger", "type": "data", "optional": true}
+  ],
+  "outputs": [
+    {"id": "number", "name": "Number", "type": "number"},
+    {"id": "text", "name": "Text", "type": "text"},
+    {"id": "data", "name": "Data", "type": "data"},
+    {"id": "integer", "name": "Integer", "type": "number"},
+    {"id": "float", "name": "Float", "type": "number"}
+  ],
+  "config": {
+    "min_value": {
+      "type": "number",
+      "label": "Minimum Value",
+      "value": 0,
+      "step": 0.01
+    },
+    "max_value": {
+      "type": "number",
+      "label": "Maximum Value", 
+      "value": 100,
+      "step": 0.01
+    },
+    "decimal_places": {
+      "type": "number",
+      "label": "Decimal Places",
+      "value": 0,
+      "min": 0,
+      "max": 10,
+      "step": 1
+    },
+    "output_type": {
+      "type": "select",
+      "label": "Output Type",
+      "value": "integer",
+      "options": ["integer", "float"]
+    }
+  },
+  "executor": "random_executor",
+  "template": "standard"
+}

@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "packed_at": "2025-07-26T11:56:15.227651",
-  "total_nodes": 19,
+  "packed_at": "2025-07-26T12:08:47.722831",
+  "total_nodes": 20,
   "nodes": {
     "array": {
       "id": "array",
@@ -966,6 +966,83 @@
         }
       },
       "executor": "node_reference_executor",
+      "template": "standard"
+    },
+    "random": {
+      "id": "random",
+      "name": "Random Number",
+      "description": "Generate random numbers within a specified range",
+      "icon": "fas fa-dice",
+      "color": "warning",
+      "category": "data",
+      "execution_mode": "both",
+      "inputs": [
+        {
+          "id": "trigger",
+          "name": "Trigger",
+          "type": "data",
+          "optional": true
+        }
+      ],
+      "outputs": [
+        {
+          "id": "number",
+          "name": "Number",
+          "type": "number"
+        },
+        {
+          "id": "text",
+          "name": "Text",
+          "type": "text"
+        },
+        {
+          "id": "data",
+          "name": "Data",
+          "type": "data"
+        },
+        {
+          "id": "integer",
+          "name": "Integer",
+          "type": "number"
+        },
+        {
+          "id": "float",
+          "name": "Float",
+          "type": "number"
+        }
+      ],
+      "config": {
+        "min_value": {
+          "type": "number",
+          "label": "Minimum Value",
+          "value": 0,
+          "step": 0.01
+        },
+        "max_value": {
+          "type": "number",
+          "label": "Maximum Value",
+          "value": 100,
+          "step": 0.01
+        },
+        "decimal_places": {
+          "type": "number",
+          "label": "Decimal Places",
+          "value": 0,
+          "min": 0,
+          "max": 10,
+          "step": 1
+        },
+        "output_type": {
+          "type": "select",
+          "label": "Output Type",
+          "value": "integer",
+          "options": [
+            "integer",
+            "float"
+          ]
+        }
+      },
+      "executor": "random_executor",
       "template": "standard"
     },
     "repeater": {
