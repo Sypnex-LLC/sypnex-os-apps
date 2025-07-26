@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "packed_at": "2025-07-25T10:23:24.191941",
+  "packed_at": "2025-07-26T01:47:22.504245",
   "total_nodes": 16,
   "nodes": {
     "array": {
@@ -1173,7 +1173,8 @@
           "options": [
             "json",
             "text",
-            "binary"
+            "binary",
+            "blob"
           ]
         },
         "auto_reload": {
@@ -1225,7 +1226,8 @@
           "options": [
             "json",
             "text",
-            "binary"
+            "binary",
+            "blob"
           ]
         },
         "overwrite": {

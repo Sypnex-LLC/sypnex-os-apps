@@ -24,7 +24,7 @@
       "type": "select",
       "label": "Format",
       "value": "json",
-      "options": ["json", "text", "binary"]
+      "options": ["json", "text", "binary", "blob"]
     },
     "auto_reload": {
       "type": "select",

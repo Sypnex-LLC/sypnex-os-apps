@@ -23,7 +23,7 @@
       "type": "select",
       "label": "Format",
       "value": "json",
-      "options": ["json", "text", "binary"]
+      "options": ["json", "text", "binary", "blob"]
     },
     "overwrite": {
       "type": "select",

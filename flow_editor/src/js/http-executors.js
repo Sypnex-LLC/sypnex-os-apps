@@ -57,9 +57,23 @@ async function executeHttpNode(engine, node, inputData, executed) {
         const contentType = proxyData.headers['content-type'] || proxyData.headers['Content-Type'] || 'application/octet-stream';
         const blob = new Blob([bytes], { type: contentType });
 
-        // Return blob directly for backward compatibility with image/audio nodes
-        // The workflow execution will handle mapping to the correct ports
-        return blob;
+        // Return structured output for binary responses with all ports
+        return {
+            original_data: blob,
+            processed_data: blob,
+            response: blob,
+            status_code: proxyData.status || 200,
+            headers: proxyData.headers || {},
+            parsed_json: null,
+            // Also provide the raw response as 'data' for compatibility
+            data: blob,
+            // Add the missing output ports from node definition
+            text: null,
+            json: null,
+            url: url,
+            binary: bytes,  // Raw binary data as Uint8Array
+            blob: blob      // Blob object for compatibility
+        };
     }
 
     // For text responses, try to parse as JSON and return structured output
@@ -125,27 +139,19 @@ async function executeVfsLoadNode(engine, node, inputData, executed) {
             data = await sypnexAPI.readVirtualFileJSON(filePath);
         } else if (format === 'text') {
             data = await sypnexAPI.readVirtualFileText(filePath);
-        } else {
-            // For binary files, use the direct URL method
+        } else if (format === 'blob') {
+            // For blob format, read as text (data URLs are stored as text)
+            data = await sypnexAPI.readVirtualFileText(filePath);
+        } else if (format === 'binary') {
+            // For binary files, use the direct URL method to get Blob
             const fileUrl = sypnexAPI.getVirtualFileUrl(filePath);
-
-            // Check file extension to determine if it's audio
-            const extension = filePath.split('.').pop()?.toLowerCase();
-            const isAudioFile = ['mp3', 'wav', 'ogg', 'm4a', 'aac', 'flac'].includes(extension);
-            const isImageFile = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(extension);
-
-            if (isAudioFile) {
-            } else if (isImageFile) {
-            } else {
-            }
-
-            // Fetch the binary data as a Blob
             const response = await fetch(fileUrl);
             if (!response.ok) {
                 throw new Error(`Failed to fetch binary file: ${response.status} ${response.statusText}`);
             }
-
             data = await response.blob();
+        } else {
+            throw new Error('Unknown format: ' + format + '. Supported formats are: json, text, blob, binary');
         }
 
         // Store the loaded data for display in config panel
@@ -190,14 +196,25 @@ async function executeVfsSaveNode(engine, node, inputData, executed) {
         let data = inputData.data;
         let success = false;
 
-
         if (format === 'json') {
             success = await sypnexAPI.writeVirtualFileJSON(filePath, data);
         } else if (format === 'text') {
-            const textData = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
-            success = await sypnexAPI.writeVirtualFile(filePath, textData);
-        } else {
-            // For binary data (like Blobs), convert to data URL
+            if (typeof data === 'string') {
+                success = await sypnexAPI.writeVirtualFile(filePath, data);
+            } else {
+                throw new Error('Text format requires string data, received: ' + typeof data + '. Use JSON format for objects.');
+            }
+        } else if (format === 'binary') {
+            // Handle binary data properly using the binary upload endpoint
+            if (data instanceof Uint8Array) {
+                // Use the binary upload method for raw binary data
+                success = await sypnexAPI.writeVirtualFileBinary(filePath, data);
+            } else {
+                // Binary format only supports Uint8Array for raw binary data
+                throw new Error('Binary format requires Uint8Array data for raw binary, received: ' + typeof data + '. Use blob format for Blob data.');
+            }
+        } else if (format === 'blob') {
+            // Handle Blob to data URL conversion
             if (data instanceof Blob) {
                 // Convert Blob to data URL
                 const reader = new FileReader();
@@ -207,14 +224,12 @@ async function executeVfsSaveNode(engine, node, inputData, executed) {
                     reader.readAsDataURL(data);
                 });
                 success = await sypnexAPI.writeVirtualFile(filePath, dataUrl);
-            } else if (typeof data === 'string') {
-                // If it's already a data URL, save it directly
-                success = await sypnexAPI.writeVirtualFile(filePath, data);
             } else {
-                // Fallback to JSON string
-                const textData = JSON.stringify(data, null, 2);
-                success = await sypnexAPI.writeVirtualFile(filePath, textData);
+                throw new Error('Blob format requires Blob data, received: ' + typeof data);
             }
+        } else {
+            // Unknown format
+            throw new Error('Unknown format: ' + format + '. Supported formats are: json, text, binary, blob');
         }
 
         return { success: success };
