@@ -110,9 +110,10 @@ class VFSNodeExecutor(BaseNodeExecutor):
         file_path = config['file_path']['value']
         format_type = config['format']['value']
         overwrite = config['overwrite']['value'] == 'true'
+        append = config['append']['value'] == 'true'
         
         try:
-            print(f"  Saving to {file_path} (format: {format_type})")
+            print(f"  Saving to {file_path} (format: {format_type}, overwrite: {overwrite}, append: {append})")
             
             # Extract data from input_data using workflow-based approach
             actual_data = None
@@ -158,10 +159,11 @@ class VFSNodeExecutor(BaseNodeExecutor):
                 print(f"  🔍 Could not check file existence (assuming new file): {str(e)}")
                 file_exists = False
             
+            # Handle file existence logic (matching frontend behavior)
             if file_exists:
-                if not overwrite:
-                    return {'error': f'File exists and overwrite is false: {file_path}'}
-                else:
+                if not overwrite and not append:
+                    return {'error': f'File exists and neither overwrite nor append is enabled: {file_path}'}
+                elif overwrite and not append:
                     print(f"  🔄 File exists, deleting for overwrite...")
                     try:
                         delete_response = self.session.delete(f'{self.server_url}/api/virtual-files/delete{file_path}')
@@ -170,12 +172,48 @@ class VFSNodeExecutor(BaseNodeExecutor):
                     except Exception as e:
                         print(f"  ⚠️  Warning: Could not delete existing file: {str(e)}")
                         # Continue anyway - the create/upload might overwrite
+                # For append mode, we'll handle file deletion after reading the existing content
             
             # Handle each format explicitly (matching frontend logic)
             if format_type == 'json':
                 # JSON format expects objects, arrays, or JSON strings
+                content_data = actual_data
+                
+                # Handle append mode for JSON (matching frontend logic)
+                if append and not overwrite and file_exists:
+                    try:
+                        print(f"  📖 Reading existing JSON file for append...")
+                        read_response = self.session.get(f'{self.server_url}/api/virtual-files/read{file_path}')
+                        if read_response.status_code == 200:
+                            existing_file = read_response.json()
+                            existing_content = existing_file.get('content', '')
+                            existing_data = json.loads(existing_content) if existing_content else []
+                            
+                            if isinstance(existing_data, list):
+                                # If existing data is array, append to it
+                                existing_data.append(content_data)
+                                content_data = existing_data
+                            else:
+                                # If existing data is not array, create new array
+                                content_data = [existing_data, content_data]
+                            
+                            print(f"  📝 Appending to existing JSON array (now {len(content_data)} items)")
+                            
+                            # Delete existing file so we can create with new content
+                            print(f"  🗑️  Deleting existing file to replace with appended content...")
+                            delete_response = self.session.delete(f'{self.server_url}/api/virtual-files/delete{file_path}')
+                            if delete_response.status_code != 200:
+                                print(f"  ⚠️  Warning: Could not delete existing file: {delete_response.status_code}")
+                        else:
+                            # File doesn't exist or can't be read, create new array
+                            content_data = [content_data]
+                            print(f"  📝 Creating new JSON array for append")
+                    except Exception as e:
+                        print(f"  ⚠️  Warning: Could not read existing file for append: {e}")
+                        content_data = [content_data]
+                
                 import os
-                content_str = json.dumps(actual_data, indent=2) if not isinstance(actual_data, str) else actual_data
+                content_str = json.dumps(content_data, indent=2) if not isinstance(content_data, str) else content_data
                 save_data = {
                     'name': os.path.basename(file_path),
                     'parent_path': os.path.dirname(file_path) if os.path.dirname(file_path) != '' else '/',
@@ -186,6 +224,27 @@ class VFSNodeExecutor(BaseNodeExecutor):
             elif format_type == 'text':
                 # Text format - just convert to string, no interpretation
                 content_str = str(actual_data)
+                
+                # Handle append mode for text (matching frontend logic)
+                if append and not overwrite and file_exists:
+                    try:
+                        print(f"  📖 Reading existing text file for append...")
+                        read_response = self.session.get(f'{self.server_url}/api/virtual-files/read{file_path}')
+                        if read_response.status_code == 200:
+                            existing_file = read_response.json()
+                            existing_content = existing_file.get('content', '')
+                            content_str = existing_content + '\n' + content_str
+                            print(f"  📝 Appending to existing text file")
+                            
+                            # Delete existing file so we can create with new content
+                            print(f"  🗑️  Deleting existing file to replace with appended content...")
+                            delete_response = self.session.delete(f'{self.server_url}/api/virtual-files/delete{file_path}')
+                            if delete_response.status_code != 200:
+                                print(f"  ⚠️  Warning: Could not delete existing file: {delete_response.status_code}")
+                        else:
+                            print(f"  📝 File doesn't exist, creating new text file")
+                    except Exception as e:
+                        print(f"  ⚠️  Warning: Could not read existing file for append: {e}")
                 
                 import os
                 save_data = {

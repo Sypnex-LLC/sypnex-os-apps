@@ -80,7 +80,7 @@ class WorkflowExecutionManager:
         return all_results
     
     def execute_nodes_simple(self, nodes: List[Dict[str, Any]], workflow: Dict[str, Any] = None) -> list:
-        """Execute nodes with proper input synchronization (matching frontend logic)"""
+        """Execute nodes with proper input synchronization and for_each handling"""
         results = []
         node_results = {}
         node_input_buffer = {}  # Track inputs for multi-input nodes (like frontend)
@@ -132,8 +132,21 @@ class WorkflowExecutionManager:
                     
                     result = self.workflow_runner.execute_node(node, input_data, node_results, None)
                     if result:
-                        results.append({'node_id': node['id'], 'result': result})
-                        node_results[node['id']] = result
+                        # Check if this is a for_each control node
+                        if isinstance(result, dict) and result.get('for_each_control'):
+                            print(f"  🔄 {node['id']} is a for_each node - handling iteration")
+                            for_each_results = self._handle_for_each_execution(node, result, workflow, node_results, remaining_nodes)
+                            results.extend(for_each_results)
+                            # Remove the for_each node and all downstream nodes from remaining_nodes
+                            # as they've been handled by the for_each logic
+                            downstream_nodes = self._get_downstream_nodes(node['id'], workflow)
+                            for downstream_node in downstream_nodes:
+                                if downstream_node in remaining_nodes:
+                                    remaining_nodes.remove(downstream_node)
+                        else:
+                            results.append({'node_id': node['id'], 'result': result})
+                            node_results[node['id']] = result
+                        
                         executed_nodes.add(node['id'])
                         print(f"  ✓ {node['id']} completed successfully")
                         
@@ -238,3 +251,201 @@ class WorkflowExecutionManager:
         # Use the synchronized execution approach
         print(f"🎯 Executing {len(execution_nodes)} nodes with input synchronization")
         return self.execute_nodes_simple(execution_nodes, workflow)
+    
+    def _handle_for_each_execution(self, for_each_node: Dict[str, Any], for_each_result: Dict[str, Any], 
+                                   workflow: Dict[str, Any], node_results: Dict[str, Any], 
+                                   remaining_nodes: List[Dict[str, Any]]) -> list:
+        """Handle for_each node execution - iterate through array and execute downstream nodes"""
+        array_data = for_each_result['array_data']
+        stop_on_error = for_each_result['stop_on_error']
+        for_each_node_id = for_each_result['node_id']
+        
+        print(f"  🔄 for_each {for_each_node_id} starting iteration over {len(array_data)} items")
+        
+        all_results = []
+        
+        # Get all downstream nodes from the for_each node
+        downstream_nodes = self._get_downstream_nodes(for_each_node_id, workflow)
+        
+        # For each item in the array, execute the downstream nodes
+        for index, item in enumerate(array_data):
+            print(f"    🔄 for_each iteration {index + 1}/{len(array_data)}: {item}")
+            
+            try:
+                # Create the outputs that the for_each node provides for this iteration
+                iteration_outputs = {
+                    'current_item': item,
+                    'current_index': index,
+                    'completed': False  # Will be True only on the last iteration
+                }
+                
+                # Add the for_each node result to node_results for this iteration
+                iteration_node_results = node_results.copy()
+                iteration_node_results[for_each_node_id] = iteration_outputs
+                
+                # CRITICAL: Clear executed nodes for downstream nodes to allow re-execution
+                # Save the current executed nodes state
+                original_executed_nodes = self.workflow_runner.executed_nodes.copy()
+                
+                # Remove downstream nodes from executed_nodes to allow re-execution
+                downstream_node_ids = [node['id'] for node in downstream_nodes]
+                for downstream_id in downstream_node_ids:
+                    if downstream_id in self.workflow_runner.executed_nodes:
+                        self.workflow_runner.executed_nodes.remove(downstream_id)
+                
+                print(f"    🔄 Cleared {len(downstream_node_ids)} downstream nodes from executed list for iteration {index + 1}")
+                
+                # Execute downstream nodes with the current iteration data
+                iteration_results = self._execute_downstream_nodes(
+                    downstream_nodes, workflow, iteration_node_results
+                )
+                
+                # Restore the original executed nodes state (but keep the for_each node marked as executed)
+                self.workflow_runner.executed_nodes = original_executed_nodes
+                
+                # Add iteration context to results
+                for result in iteration_results:
+                    result['for_each_iteration'] = {
+                        'index': index,
+                        'item': item,
+                        'for_each_node': for_each_node_id
+                    }
+                
+                all_results.extend(iteration_results)
+                
+                print(f"    ✓ for_each iteration {index + 1} completed")
+                
+            except Exception as e:
+                error_msg = f"for_each iteration {index + 1} failed: {str(e)}"
+                print(f"    ✗ {error_msg}")
+                
+                all_results.append({
+                    'node_id': f"{for_each_node_id}_iteration_{index}",
+                    'result': {'error': error_msg},
+                    'for_each_iteration': {
+                        'index': index,
+                        'item': item,
+                        'for_each_node': for_each_node_id
+                    }
+                })
+                
+                if stop_on_error:
+                    print(f"    🛑 for_each stopping on error at iteration {index + 1}")
+                    break
+        
+        # Add the final completed signal
+        final_outputs = {
+            'current_item': None,
+            'current_index': len(array_data),
+            'completed': True
+        }
+        
+        all_results.append({
+            'node_id': for_each_node_id,
+            'result': final_outputs
+        })
+        
+        print(f"  ✅ for_each {for_each_node_id} completed all iterations")
+        return all_results
+    
+    def _get_downstream_nodes(self, node_id: str, workflow: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Get all nodes that are downstream from the given node"""
+        connections = workflow.get('connections', [])
+        nodes_dict = {node['id']: node for node in workflow.get('nodes', [])}
+        
+        # Find immediate downstream nodes
+        immediate_downstream = set()
+        for conn in connections:
+            if conn['from']['nodeId'] == node_id:
+                immediate_downstream.add(conn['to']['nodeId'])
+        
+        # Recursively find all downstream nodes
+        all_downstream = set()
+        to_process = list(immediate_downstream)
+        
+        while to_process:
+            current_node_id = to_process.pop(0)
+            if current_node_id not in all_downstream:
+                all_downstream.add(current_node_id)
+                
+                # Find nodes downstream from current node
+                for conn in connections:
+                    if conn['from']['nodeId'] == current_node_id:
+                        downstream_id = conn['to']['nodeId']
+                        if downstream_id not in all_downstream:
+                            to_process.append(downstream_id)
+        
+        # Return the actual node objects
+        return [nodes_dict[node_id] for node_id in all_downstream if node_id in nodes_dict]
+    
+    def _execute_downstream_nodes(self, downstream_nodes: List[Dict[str, Any]], 
+                                  workflow: Dict[str, Any], node_results: Dict[str, Any]) -> list:
+        """Execute downstream nodes in proper dependency order"""
+        if not downstream_nodes:
+            return []
+        
+        # Use the same execution logic as execute_nodes_simple but for downstream nodes only
+        results = []
+        remaining_nodes = downstream_nodes.copy()
+        # Create a fresh executed_nodes set for this iteration - only include the for_each node
+        executed_nodes = set()
+        # Add non-downstream nodes that were already executed to the executed set
+        for node_id in node_results.keys():
+            if not any(node['id'] == node_id for node in downstream_nodes):
+                executed_nodes.add(node_id)
+        
+        print(f"      🎯 Executing {len(downstream_nodes)} downstream nodes")
+        
+        while remaining_nodes:
+            ready_nodes = []
+            
+            for node in remaining_nodes:
+                connections = workflow.get('connections', [])
+                incoming_connections = [conn for conn in connections if conn['to']['nodeId'] == node['id']]
+                
+                if not incoming_connections:
+                    ready_nodes.append(node)
+                else:
+                    # Check if all required inputs are available
+                    connected_ports = set(conn['to']['portName'] for conn in incoming_connections)
+                    available_inputs = set()
+                    
+                    for conn in incoming_connections:
+                        from_node_id = conn['from']['nodeId']
+                        if from_node_id in executed_nodes or from_node_id in node_results:
+                            available_inputs.add(conn['to']['portName'])
+                    
+                    if connected_ports.issubset(available_inputs):
+                        ready_nodes.append(node)
+            
+            if not ready_nodes:
+                remaining_ids = [n['id'] for n in remaining_nodes]
+                print(f"      ⚠️ No downstream nodes ready. Remaining: {remaining_ids}")
+                print(f"      📊 Executed nodes: {executed_nodes}")
+                print(f"      📊 Node results available: {list(node_results.keys())}")
+                break
+            
+            # Execute ready nodes
+            for node in ready_nodes:
+                print(f"      Executing downstream {node['id']} ({node['type']})...")
+                try:
+                    input_data = self._collect_synchronized_inputs(node, workflow, node_results)
+                    
+                    result = self.workflow_runner.execute_node(node, input_data, node_results, None)
+                    if result:
+                        results.append({'node_id': node['id'], 'result': result})
+                        node_results[node['id']] = result
+                        executed_nodes.add(node['id'])
+                        print(f"      ✓ downstream {node['id']} completed")
+                    else:
+                        executed_nodes.add(node['id'])
+                        print(f"      ⚡ downstream {node['id']} skipped")
+                        
+                except Exception as e:
+                    print(f"      ✗ downstream {node['id']} failed: {str(e)}")
+                    results.append({'node_id': node['id'], 'result': {'error': str(e)}})
+                    executed_nodes.add(node['id'])
+                
+                remaining_nodes.remove(node)
+        
+        return results

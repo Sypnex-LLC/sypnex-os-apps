@@ -97,6 +97,8 @@ class NodeExecutorRegistry:
         """Register all available executors"""
         from .http_executor import HTTPNodeExecutor
         from .vfs_executor import VFSNodeExecutor
+        from .vfs_directory_list_executor import VFSDirectoryListNodeExecutor
+        from .for_each_executor import ForEachNodeExecutor
         from .timer_executor import TimerNodeExecutor
         from .text_executor import TextNodeExecutor
         from .unknown_executor import UnknownNodeExecutor
@@ -116,6 +118,8 @@ class NodeExecutorRegistry:
         executors = [
             HTTPNodeExecutor(self.workflow_runner),
             VFSNodeExecutor(self.workflow_runner),
+            VFSDirectoryListNodeExecutor(self.workflow_runner),
+            ForEachNodeExecutor(self.workflow_runner),
             TimerNodeExecutor(self.workflow_runner),
             TextNodeExecutor(self.workflow_runner),
             JSONDataProcessor(self.workflow_runner),
