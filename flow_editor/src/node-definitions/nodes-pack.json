@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "packed_at": "2025-07-26T10:31:55.485080",
-  "total_nodes": 18,
+  "packed_at": "2025-07-26T11:56:15.227651",
+  "total_nodes": 19,
   "nodes": {
     "array": {
       "id": "array",
@@ -888,6 +888,84 @@
         }
       },
       "executor": "math_executor",
+      "template": "standard"
+    },
+    "node_reference": {
+      "id": "node_reference",
+      "name": "Node Reference",
+      "description": "Access output data from any previously executed node in the workflow",
+      "icon": "fas fa-link",
+      "color": "info",
+      "category": "data",
+      "execution_mode": "both",
+      "inputs": [
+        {
+          "id": "trigger",
+          "name": "Trigger",
+          "type": "data",
+          "optional": true
+        }
+      ],
+      "outputs": [
+        {
+          "id": "data",
+          "name": "Data",
+          "type": "data"
+        },
+        {
+          "id": "text",
+          "name": "Text",
+          "type": "text"
+        },
+        {
+          "id": "json",
+          "name": "JSON",
+          "type": "json"
+        },
+        {
+          "id": "number",
+          "name": "Number",
+          "type": "number"
+        },
+        {
+          "id": "boolean",
+          "name": "Boolean",
+          "type": "boolean"
+        },
+        {
+          "id": "binary",
+          "name": "Binary",
+          "type": "binary"
+        },
+        {
+          "id": "original",
+          "name": "Original",
+          "type": "data"
+        }
+      ],
+      "config": {
+        "source_node_id": {
+          "type": "select",
+          "label": "Source Node",
+          "value": "",
+          "options": [],
+          "placeholder": "Select a node to reference"
+        },
+        "output_port_id": {
+          "type": "select",
+          "label": "Output Port",
+          "value": "",
+          "options": [],
+          "placeholder": "Select an output port"
+        },
+        "fallback_value": {
+          "type": "text",
+          "label": "Fallback Value",
+          "value": "",
+          "placeholder": "Value to use if reference fails"
+        }
+      },
+      "executor": "node_reference_executor",
       "template": "standard"
     },
     "repeater": {

@@ -47,6 +47,8 @@ class ExecutionEngine {
             window.dataExecutors.executeArrayNode(this, node, inputData, executed));
         this.registry.registerExecutor('string_executor', (node, inputData, executed) => 
             window.dataExecutors.executeStringNode(this, node, inputData, executed));
+        this.registry.registerExecutor('node_reference_executor', (node, inputData, executed) => 
+            window.dataExecutors.executeNodeReferenceNode(this, node, inputData, executed));
             
         this.registry.registerExecutor('llm_chat_executor', (node, inputData, executed) => 
             window.aiExecutors.executeLlmChatNode(this, node, inputData, executed));

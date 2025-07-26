@@ -491,6 +491,118 @@ function escapeRegex(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+// Node Reference Node Executor
+async function executeNodeReferenceNode(engine, node, inputData, executed) {
+    const sourceNodeId = node.config.source_node_id.value;
+    const outputPortId = node.config.output_port_id.value;
+    const fallbackValue = node.config.fallback_value.value || null;
+
+    // Validate inputs
+    if (!sourceNodeId) {
+        console.warn('Node Reference: No source node selected');
+        return {
+            data: fallbackValue,
+            text: String(fallbackValue || ''),
+            json: fallbackValue,
+            number: isNaN(Number(fallbackValue)) ? 0 : Number(fallbackValue),
+            boolean: Boolean(fallbackValue),
+            binary: null,
+            original: fallbackValue,
+            error: 'No source node selected'
+        };
+    }
+
+    if (!outputPortId) {
+        console.warn('Node Reference: No output port selected');
+        return {
+            data: fallbackValue,
+            text: String(fallbackValue || ''),
+            json: fallbackValue,
+            number: isNaN(Number(fallbackValue)) ? 0 : Number(fallbackValue),
+            boolean: Boolean(fallbackValue),
+            binary: null,
+            original: fallbackValue,
+            error: 'No output port selected'
+        };
+    }
+
+    try {
+        // Get the referenced data using the existing function
+        const referencedData = getOutputPortData(sourceNodeId, outputPortId);
+        
+        if (referencedData === null || referencedData === undefined) {
+            console.warn(`Node Reference: No data found for node ${sourceNodeId}, port ${outputPortId}`);
+            const fallback = fallbackValue !== '' ? fallbackValue : null;
+            
+            return {
+                data: fallback,
+                text: String(fallback || ''),
+                json: fallback,
+                number: isNaN(Number(fallback)) ? 0 : Number(fallback),
+                boolean: Boolean(fallback),
+                binary: null,
+                original: fallback,
+                error: `No data found for node ${sourceNodeId}, port ${outputPortId}`
+            };
+        }
+
+        // Successfully got the data - format it for all output types
+        let textValue = String(referencedData);
+        let jsonValue = referencedData;
+        let numberValue = 0;
+        let booleanValue = Boolean(referencedData);
+
+        // Handle different data types appropriately
+        if (typeof referencedData === 'number') {
+            numberValue = referencedData;
+        } else if (typeof referencedData === 'string') {
+            const parsed = Number(referencedData);
+            numberValue = isNaN(parsed) ? 0 : parsed;
+        }
+
+        // For JSON output, try to preserve object structure
+        if (typeof referencedData === 'object') {
+            jsonValue = referencedData;
+            textValue = JSON.stringify(referencedData, null, 2);
+        } else if (typeof referencedData === 'string') {
+            try {
+                // Try to parse as JSON
+                jsonValue = JSON.parse(referencedData);
+            } catch {
+                // Not valid JSON, keep as string
+                jsonValue = referencedData;
+            }
+        }
+
+        console.log(`Node Reference: Successfully retrieved data from ${sourceNodeId}.${outputPortId}:`, referencedData);
+
+        return {
+            data: referencedData,
+            text: textValue,
+            json: jsonValue,
+            number: numberValue,
+            boolean: booleanValue,
+            binary: (referencedData instanceof Blob || referencedData instanceof ArrayBuffer) ? referencedData : null,
+            original: referencedData
+        };
+
+    } catch (error) {
+        console.error('Node Reference execution error:', error);
+        const fallback = fallbackValue !== '' ? fallbackValue : null;
+        
+        return {
+            data: fallback,
+            text: String(fallback || ''),
+            json: fallback,
+            number: isNaN(Number(fallback)) ? 0 : Number(fallback),
+            boolean: Boolean(fallback),
+            binary: null,
+            original: fallback,
+            error: error.message
+        };
+    }
+}
+
 // Export to global scope
 window.dataExecutors = {
     executeTextNode,
@@ -498,5 +610,6 @@ window.dataExecutors = {
     executeRandomQuoteNode,
     executeMathNode,
     executeArrayNode,
-    executeStringNode
+    executeStringNode,
+    executeNodeReferenceNode
 };

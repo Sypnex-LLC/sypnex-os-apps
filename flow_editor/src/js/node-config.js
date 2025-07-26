@@ -287,10 +287,51 @@ async function showNodeConfig(nodeId) {
                 
                 if (config.type === 'select') {
                     configHtml += `<select id="config_${nodeId}_${key}">`;
-                    config.options.forEach(option => {
-                        const selected = node.config[key].value === option ? 'selected' : '';
-                        configHtml += `<option value="${option}" ${selected}>${option}</option>`;
-                    });
+                    
+                    // Special handling for node_reference node
+                    if (node.type === 'node_reference') {
+                        if (key === 'source_node_id') {
+                            // Populate with all available nodes (excluding this node)
+                            configHtml += `<option value="">Select a node...</option>`;
+                            for (const [availableNodeId, availableNode] of flowEditor.nodes) {
+                                if (availableNodeId !== nodeId) { // Don't include self
+                                    const availableNodeDef = nodeRegistry.getNodeType(availableNode.type);
+                                    const nodeName = availableNodeDef ? availableNodeDef.name : availableNode.type;
+                                    const selected = node.config[key].value === availableNodeId ? 'selected' : '';
+                                    configHtml += `<option value="${availableNodeId}" ${selected}>${nodeName} (${availableNodeId})</option>`;
+                                }
+                            }
+                        } else if (key === 'output_port_id') {
+                            // Populate with output ports of the selected source node
+                            configHtml += `<option value="">Select output port...</option>`;
+                            const selectedNodeId = node.config.source_node_id.value;
+                            if (selectedNodeId) {
+                                const selectedNode = flowEditor.nodes.get(selectedNodeId);
+                                if (selectedNode) {
+                                    const selectedNodeDef = nodeRegistry.getNodeType(selectedNode.type);
+                                    if (selectedNodeDef && selectedNodeDef.outputs) {
+                                        for (const output of selectedNodeDef.outputs) {
+                                            const selected = node.config[key].value === output.id ? 'selected' : '';
+                                            configHtml += `<option value="${output.id}" ${selected}>${output.name} (${output.type})</option>`;
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            // Regular select field
+                            config.options.forEach(option => {
+                                const selected = node.config[key].value === option ? 'selected' : '';
+                                configHtml += `<option value="${option}" ${selected}>${option}</option>`;
+                            });
+                        }
+                    } else {
+                        // Regular select field for other nodes
+                        config.options.forEach(option => {
+                            const selected = node.config[key].value === option ? 'selected' : '';
+                            configHtml += `<option value="${option}" ${selected}>${option}</option>`;
+                        });
+                    }
+                    
                     configHtml += `</select>`;
                 } else if (config.type === 'textarea') {
                     configHtml += `<textarea id="config_${nodeId}_${key}">${node.config[key].value}</textarea>`;
@@ -464,6 +505,35 @@ async function showNodeConfig(nodeId) {
                         const formatElement = document.getElementById(`display-format-${nodeId}`);
                         if (formatElement) {
                             formatElement.textContent = e.target.value;
+                        }
+                    }
+                    
+                    // Special handling for node_reference source node changes
+                    if (node.type === 'node_reference' && key === 'source_node_id') {
+                        // Update the output port dropdown when source node changes
+                        const outputPortSelect = document.getElementById(`config_${nodeId}_output_port_id`);
+                        if (outputPortSelect) {
+                            // Clear and repopulate output port options
+                            outputPortSelect.innerHTML = '<option value="">Select output port...</option>';
+                            
+                            const selectedNodeId = e.target.value;
+                            if (selectedNodeId) {
+                                const selectedNode = flowEditor.nodes.get(selectedNodeId);
+                                if (selectedNode) {
+                                    const selectedNodeDef = nodeRegistry.getNodeType(selectedNode.type);
+                                    if (selectedNodeDef && selectedNodeDef.outputs) {
+                                        for (const output of selectedNodeDef.outputs) {
+                                            const option = document.createElement('option');
+                                            option.value = output.id;
+                                            option.textContent = `${output.name} (${output.type})`;
+                                            outputPortSelect.appendChild(option);
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // Reset the output port value
+                            node.config.output_port_id.value = '';
                         }
                     }
                 });
