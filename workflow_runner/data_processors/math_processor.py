@@ -18,8 +18,18 @@ class MathDataProcessor(BaseNodeExecutor):
         """Execute math operations node - enhanced to match frontend behavior"""
         config = node['config']
         operation = config['operation']['value']
-        config_value_a = float(config['value_a']['value']) if 'value_a' in config else 0
-        config_value_b = float(config['value_b']['value']) if 'value_b' in config else 0
+        
+        # Safely extract config values, handling both numbers and dicts
+        def safe_float_extract(config_value, default=0):
+            if isinstance(config_value, dict):
+                return default  # Config value is likely a connection, use default
+            try:
+                return float(config_value)
+            except (ValueError, TypeError):
+                return default
+        
+        config_value_a = safe_float_extract(config['value_a']['value']) if 'value_a' in config else 0
+        config_value_b = safe_float_extract(config['value_b']['value']) if 'value_b' in config else 0
         decimal_places = int(config['decimal_places']['value']) if 'decimal_places' in config else 0
         
         try:
@@ -28,22 +38,75 @@ class MathDataProcessor(BaseNodeExecutor):
             value_b = config_value_b
             
             if isinstance(input_data, dict):
-                if 'value_a' in input_data:
-                    value_a = float(input_data['value_a']) if input_data['value_a'] is not None else config_value_a
-                elif 'number_a' in input_data:
-                    value_a = float(input_data['number_a']) if input_data['number_a'] is not None else config_value_a
+                # Handle structured workflow data
+                for port_name in ['value_a', 'number_a', 'data']:
+                    if port_name in input_data:
+                        port_data = input_data[port_name]
+                        
+                        # Handle nested workflow structure
+                        if isinstance(port_data, dict):
+                            if 'input_data' in port_data and isinstance(port_data['input_data'], dict):
+                                # Extract from nested structure like {'input_data': {'result': number}}
+                                inner_data = port_data['input_data']
+                                for field in ['result', 'data', 'value', 'number']:
+                                    if field in inner_data:
+                                        try:
+                                            value_a = float(inner_data[field])
+                                            print(f"  🔍 Extracted value_a={value_a} from input_data.{field}")
+                                            break
+                                        except (ValueError, TypeError):
+                                            continue
+                            else:
+                                # Try direct extraction from port_data
+                                for field in ['result', 'data', 'value', 'number']:
+                                    if field in port_data:
+                                        try:
+                                            value_a = float(port_data[field])
+                                            print(f"  🔍 Extracted value_a={value_a} from {port_name}.{field}")
+                                            break
+                                        except (ValueError, TypeError):
+                                            continue
+                        else:
+                            # Direct value
+                            try:
+                                value_a = float(port_data)
+                                print(f"  🔍 Used direct value_a={value_a} from {port_name}")
+                            except (ValueError, TypeError):
+                                continue
+                        break
                 
-                if 'value_b' in input_data:
-                    value_b = float(input_data['value_b']) if input_data['value_b'] is not None else config_value_b
-                elif 'number_b' in input_data:
-                    value_b = float(input_data['number_b']) if input_data['number_b'] is not None else config_value_b
-                
-                # Try to extract from other common fields
-                if 'data' in input_data and input_data['data'] is not None:
-                    try:
-                        value_a = float(input_data['data'])
-                    except (ValueError, TypeError):
-                        pass
+                # Similar handling for value_b
+                for port_name in ['value_b', 'number_b']:
+                    if port_name in input_data:
+                        port_data = input_data[port_name]
+                        
+                        if isinstance(port_data, dict):
+                            if 'input_data' in port_data and isinstance(port_data['input_data'], dict):
+                                inner_data = port_data['input_data']
+                                for field in ['result', 'data', 'value', 'number']:
+                                    if field in inner_data:
+                                        try:
+                                            value_b = float(inner_data[field])
+                                            print(f"  🔍 Extracted value_b={value_b} from input_data.{field}")
+                                            break
+                                        except (ValueError, TypeError):
+                                            continue
+                            else:
+                                for field in ['result', 'data', 'value', 'number']:
+                                    if field in port_data:
+                                        try:
+                                            value_b = float(port_data[field])
+                                            print(f"  🔍 Extracted value_b={value_b} from {port_name}.{field}")
+                                            break
+                                        except (ValueError, TypeError):
+                                            continue
+                        else:
+                            try:
+                                value_b = float(port_data)
+                                print(f"  🔍 Used direct value_b={value_b} from {port_name}")
+                            except (ValueError, TypeError):
+                                continue
+                        break
             
             print(f"  🧮 Math Op: {operation}, A={value_a}, B={value_b}")
             
@@ -84,11 +147,22 @@ class MathDataProcessor(BaseNodeExecutor):
             if decimal_places >= 0:
                 result = round(result, decimal_places)
             
+            # Format result properly based on decimal places
+            if decimal_places == 0:
+                # No decimals - format as integer
+                formatted_result = str(int(result))
+            elif decimal_places > 0:
+                # Specific decimal places
+                formatted_result = f"{result:.{decimal_places}f}"
+            else:
+                # Negative decimal places (shouldn't happen, but fallback)
+                formatted_result = str(result)
+            
             return {
                 'result': result,
                 'data': result,
-                'text': str(result),
-                'formatted': f"{result:.{decimal_places}f}" if decimal_places > 0 else str(result)
+                'text': formatted_result,
+                'formatted': formatted_result
             }
             
         except Exception as e:

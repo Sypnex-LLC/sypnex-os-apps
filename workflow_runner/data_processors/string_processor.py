@@ -3,6 +3,7 @@ String Data Processor for Enhanced Workflow Runner
 Handles string manipulation and operations
 """
 
+import json
 import re
 from typing import Dict, Any
 from ..node_executors.base_executor import BaseNodeExecutor
@@ -43,9 +44,25 @@ class StringDataProcessor(BaseNodeExecutor):
             elif input_data is not None:
                 text_a = input_data
             
-            # Convert to strings
-            text_a = str(text_a) if text_a is not None else ''
-            text_b = str(text_b) if text_b is not None else ''
+            # Convert to strings - handle arrays properly to match frontend
+            original_text_a = text_a
+            
+            if isinstance(text_a, list):
+                # For arrays, check if we should process as array or convert to string
+                if operation in ['split', 'regex_match']:
+                    # For operations that return arrays, pass array through unchanged
+                    # This matches frontend behavior where arrays are processed as arrays
+                    pass  # Keep text_a as list
+                else:
+                    # For other operations, convert to JSON format
+                    text_a = json.dumps(text_a)
+            else:
+                text_a = str(text_a) if text_a is not None else ''
+            
+            if isinstance(text_b, list):
+                text_b = json.dumps(text_b)
+            else:
+                text_b = str(text_b) if text_b is not None else ''
             
             print(f"  🔤 String Op: {operation}, textA='{text_a[:50]}...', textB='{text_b[:50]}...'")
             
@@ -54,7 +71,11 @@ class StringDataProcessor(BaseNodeExecutor):
             if operation == 'concatenate':
                 result = text_a + text_b
             elif operation == 'split':
-                result = text_a.split(separator)
+                if isinstance(original_text_a, list):
+                    # If input is already an array, pass it through (matching frontend behavior)
+                    result = original_text_a
+                else:
+                    result = text_a.split(separator)
             elif operation == 'replace':
                 if case_sensitive:
                     result = text_a.replace(search_text, replace_text)

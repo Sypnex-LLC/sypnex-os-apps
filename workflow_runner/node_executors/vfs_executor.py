@@ -114,9 +114,38 @@ class VFSNodeExecutor(BaseNodeExecutor):
         try:
             print(f"  Saving to {file_path} (format: {format_type})")
             
-            # Extract data from input_data (could be port-based dict)
-            actual_data = input_data.get('data') if isinstance(input_data, dict) else input_data
-            if actual_data is None:
+            # Extract data from input_data using workflow-based approach
+            actual_data = None
+            
+            if isinstance(input_data, dict):
+                # Handle structured workflow data - extract from specific ports
+                if 'data' in input_data:
+                    actual_data = input_data['data']
+                elif 'input_data' in input_data:
+                    # Handle nested workflow structure
+                    inner_data = input_data['input_data']
+                    if isinstance(inner_data, dict):
+                        # Look for common data fields in workflow results
+                        for field in ['result', 'data', 'array', 'content', 'output']:
+                            if field in inner_data:
+                                actual_data = inner_data[field]
+                                break
+                    else:
+                        actual_data = inner_data
+                
+                # If still no data found, use the whole input_data
+                if actual_data is None:
+                    actual_data = input_data
+            else:
+                # Direct data (not wrapped in workflow structure)
+                actual_data = input_data
+            
+            # For JSON format, ensure we don't corrupt array/object structures
+            if format_type == 'json' and actual_data is None:
+                # Only use the binary extraction as last resort for JSON
+                actual_data = DataUtils.extract_actual_data_for_vfs(input_data, node_results, parent_node_id)
+            elif format_type != 'json' and actual_data is None:
+                # For non-JSON formats, use the binary extraction logic
                 actual_data = DataUtils.extract_actual_data_for_vfs(input_data, node_results, parent_node_id)
             
             # Check if file exists using the proper info endpoint
@@ -155,15 +184,14 @@ class VFSNodeExecutor(BaseNodeExecutor):
                 save_response = self.session.post(f'{self.server_url}/api/virtual-files/create-file', json=save_data)
                 
             elif format_type == 'text':
-                # Text format requires string data
-                if not isinstance(actual_data, str):
-                    return {'error': f'Text format requires string data, received: {type(actual_data).__name__}. Use JSON format for objects.'}
+                # Text format - just convert to string, no interpretation
+                content_str = str(actual_data)
                 
                 import os
                 save_data = {
                     'name': os.path.basename(file_path),
                     'parent_path': os.path.dirname(file_path) if os.path.dirname(file_path) != '' else '/',
-                    'content': actual_data
+                    'content': content_str
                 }
                 save_response = self.session.post(f'{self.server_url}/api/virtual-files/create-file', json=save_data)
                 

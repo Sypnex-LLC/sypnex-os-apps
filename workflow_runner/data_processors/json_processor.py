@@ -91,7 +91,8 @@ class JSONDataProcessor(BaseNodeExecutor):
                 'data': formatted_value,
                 'text': formatted_value,
                 'json': value,
-                'extracted_value': formatted_value,
+                'extracted_value': value,  # Raw value (matching frontend behavior)
+                'formatted': formatted_value,  # Formatted string version
                 'field_path': field_path,
                 'original': json_data
             }
