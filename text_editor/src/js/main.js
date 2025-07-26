@@ -104,18 +104,14 @@ async function initTextEditor() {
 // Check for app intents (e.g., file to open from VFS)
 async function checkForAppIntent() {
     try {
-        console.log('Text Editor: Checking for app intent...');
         
         // Read intent from user preferences (where it's stored)
         const intentData = await sypnexAPI.getPreference('text_editor', '_pending_intent', null);
-        console.log('Text Editor: Intent data from preferences:', intentData);
         
         if (intentData && intentData.action === 'open_file') {
-            console.log('Text Editor: Processing file open intent:', intentData);
             
             const fileData = intentData.data;
             if (fileData && fileData.filePath) {
-                console.log('Text Editor: Loading file:', fileData.filePath);
                 
                 // Use existing file loading logic instead of duplicating it
                 await loadFileByPath(fileData.filePath);
@@ -123,12 +119,10 @@ async function checkForAppIntent() {
                 // Clear the intent since we consumed it (set to null)
                 await sypnexAPI.setPreference('text_editor', '_pending_intent', null);
                 
-                console.log('Text Editor: Successfully opened file from intent');
             } else {
                 console.warn('Text Editor: Invalid file data in intent:', fileData);
             }
         } else {
-            console.log('Text Editor: No intent found or wrong action type');
         }
     } catch (error) {
         console.error('Text Editor: Error checking for app intent:', error);

@@ -216,11 +216,9 @@ async function executeNodeSmart(node, inputPort, inputValue, executed, nodeInput
     // Get all connected input ports for this node
     const connectedInputPorts = getConnectedInputPorts(nodeId);
     
-    console.log(`executeNodeSmart: Node ${nodeId}, inputPort: ${inputPort}, connectedPorts: [${connectedInputPorts.join(', ')}]`);
     
     // If node has 0 or 1 input connections, execute immediately
     if (connectedInputPorts.length <= 1) {
-        console.log(`executeNodeSmart: Single input node, executing immediately`);
         return await executeNode(node, { [inputPort]: inputValue }, executed, nodeInputBuffer);
     }
     
@@ -244,14 +242,12 @@ async function executeNodeSmart(node, inputPort, inputValue, executed, nodeInput
     // Store this input
     buffer.receivedInputs[inputPort] = inputValue;
     
-    console.log(`Node ${nodeId}: Received input '${inputPort}' = '${JSON.stringify(inputValue)}'. Have: [${Object.keys(buffer.receivedInputs).join(', ')}], Need: [${buffer.connectedPorts.join(', ')}]`);
     
     // Check if we have all required inputs
     const hasAllInputs = buffer.connectedPorts.every(port => port in buffer.receivedInputs);
     
     if (!hasAllInputs) {
         // Still waiting for more inputs
-        console.log(`Node ${nodeId}: Waiting for more inputs...`);
         return null;
     }
     
@@ -261,7 +257,6 @@ async function executeNodeSmart(node, inputPort, inputValue, executed, nodeInput
         nodeElement.classList.remove('waiting-inputs');
     }
     
-    console.log(`Node ${nodeId}: All inputs ready, executing with synchronized data:`, buffer.receivedInputs);
     
     // Clear buffer for next execution
     nodeInputBuffer.delete(nodeId);
@@ -275,56 +270,42 @@ function getConnectedInputPorts(nodeId) {
     let connections = null;
     
     // Debug: Log what's available on flowEditor (try both window.flowEditor and flowEditor)
-    console.log(`getConnectedInputPorts: window.flowEditor exists:`, !!window.flowEditor);
-    console.log(`getConnectedInputPorts: flowEditor exists:`, typeof flowEditor !== 'undefined' && !!flowEditor);
     
     // Try to access flowEditor directly (not via window)
     let editor = null;
     if (typeof flowEditor !== 'undefined' && flowEditor) {
         editor = flowEditor;
-        console.log(`getConnectedInputPorts: Using direct flowEditor reference`);
     } else if (window.flowEditor) {
         editor = window.flowEditor;
-        console.log(`getConnectedInputPorts: Using window.flowEditor reference`);
     } else {
-        console.log(`getConnectedInputPorts: No flowEditor available for node ${nodeId}`);
         return [];
     }
     
-    console.log(`getConnectedInputPorts: editor keys:`, Object.keys(editor));
-    console.log(`getConnectedInputPorts: editor.connections exists:`, !!editor.connections);
     
     // Try multiple ways to access connections data
     if (editor.connections) {
         connections = editor.connections;
-        console.log(`getConnectedInputPorts: Using editor.connections`);
     } else if (editor.workflow && editor.workflow.connections) {
         connections = new Map(editor.workflow.connections.map(conn => [conn.id, conn]));
-        console.log(`getConnectedInputPorts: Using editor.workflow.connections`);
     } else {
-        console.log(`getConnectedInputPorts: No connections data available for node ${nodeId}`);
         return [];
     }
     
     const allConnections = Array.from(connections.values());
-    console.log(`getConnectedInputPorts: Node ${nodeId}, total connections: ${allConnections.length}`);
     
     // Log all connections for debugging
     allConnections.forEach((conn, index) => {
-        console.log(`  Connection ${index}: ${conn.from.nodeId}[${conn.from.portName}] -> ${conn.to.nodeId}[${conn.to.portName}]`);
     });
     
     const connectedPorts = allConnections
         .filter(conn => {
             const matches = conn.to.nodeId === nodeId;
             if (matches) {
-                console.log(`  MATCH: Connection to ${nodeId}: ${conn.from.nodeId}[${conn.from.portName}] -> ${conn.to.nodeId}[${conn.to.portName}]`);
             }
             return matches;
         })
         .map(conn => conn.to.portName);
         
-    console.log(`getConnectedInputPorts: Node ${nodeId} has connected ports: [${connectedPorts.join(', ')}]`);
     return connectedPorts;
 }
     

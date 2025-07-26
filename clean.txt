@@ -1,504 +1,81 @@
 Console.log Removal Log
 Generated on: clean_console_logs.py
-Total files scanned: 28
+Total files scanned: 27
 
 The following console.log statements were removed:
 
 ================================================================================
-FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\app_store\src\main.js
-================================================================================
-Line 1: console.log('App Store script loaded');
-Line 17:             console.log('App Store initialized with SypnexAPI');
-Line 94:             console.log('Raw available apps response:', data); // Debug log
-Line 102:                 console.log(`Processing available app: ${appId}, version: ${appData.app_info?.version}, full data:`, appData); // Debug log
-Line 115:             console.log('Final available apps map:', appsMap); // Debug log
-Line 126:             console.log('Raw installed apps response:', apps); // Debug log
-Line 132:                     console.log(`Processing installed app: ${app.id}, version: ${app.version}, full app data:`, app); // Debug log
-Line 140:             console.log('Final installed apps map:', installedMap); // Debug log
-Line 191:             console.log(`Version comparison for ${app.id}:`, {
-                availableVersion: app.version,
-                installedVersion: installedApp.version,
-                needsUpdate: needsUpdate
-            });
-
-Removed 9 console.log statement(s) from this file.
-
-================================================================================
-FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\flow_editor\src\js\ai-executors.js
-================================================================================
-Line 96:         console.log('Terminal command would execute:', finalCommand);
-
-Removed 1 console.log statement(s) from this file.
-
-================================================================================
-FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\flow_editor\src\js\canvas.js
-================================================================================
-Line 62:         console.log('Started connection from output:', nodeId, portName);
-Line 72:             console.log('Completed connection:', fromNodeId, fromPort, '->', nodeId, portName);
-Line 92:         console.log('Missing elements for connection:', connection.id);
-Line 101:         console.log('Missing node data for connection:', connection.id);
-Line 123:     console.log('Connection coords:', connection.id, 'from:', fromX, fromY, 'to:', toX, toY);
-Line 132:         console.log('Set path:', pathD);
-Line 134:         console.log('No path element found for connection:', connection.id);
-Line 204:         console.log(`Deleted node: ${nodeId}`);
-Line 215:     console.log(`Deleted connection: ${connectionId}`);
-Line 295:             console.log('Connection already exists');
-Line 310:     console.log(`Created connection: ${connectionId}`);
-Line 508:         console.log('Canvas cleared');
-
-Removed 12 console.log statement(s) from this file.
-
-================================================================================
 FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\flow_editor\src\js\data-executors.js
 ================================================================================
-Line 32:     console.log('JSON Extract input data:', inputData);
-Line 33:     console.log('JSON Extract selected jsonData:', jsonData);
-Line 34:     console.log('JSON Extract jsonData type:', typeof jsonData);
-Line 60:         console.log('JSON Extract debug:');
-Line 61:         console.log('  Field path:', fieldPath);
-Line 62:         console.log('  Raw extracted value:', extractedValue, 'Type:', typeof extractedValue);
-Line 63:         console.log('  Default value:', defaultValue);
-Line 64:         console.log('  Formatted value:', formattedValue, 'Type:', typeof formattedValue);
-Line 65:         console.log('  Returning:', {
-            original_data: jsonData,
-            extracted_value: formattedValue,
-            processed_data: formattedValue
-        });
-Line 100:     console.log('Random Line inputData:', inputData);
-Line 101:     console.log('Random Line inputData.text:', inputData.text);
-Line 102:     console.log('Random Line inputData.text type:', typeof inputData.text);
-Line 109:     console.log('Random Line processed text:', text);
-Line 110:     console.log('Random Line text length:', text.length);
-Line 113:     console.log('Random Line split lines:', lines.length, 'lines');
-Line 119:         console.log('Random Line after skipEmpty:', validLines.length, 'lines');
-Line 124:         console.log('Random Line after trimWhitespace:', validLines.length, 'lines');
-Line 128:         console.log('Random Line: No valid lines found');
-Line 135:     console.log('Random Line Math.random():', Math.random());
-Line 136:     console.log('Random Line validLines.length:', validLines.length);
-Line 137:     console.log('Random Line calculated index:', randomIndex, 'out of', validLines.length);
-Line 138:     console.log('Random Line selected line:', randomLine);
-Line 139:     console.log('Random Line all valid lines:', validLines);
-Line 143:         console.log('Random Line truncated to:', randomLine);
-Line 152:     console.log('Random Line returning:', result);
+Line 388:     console.log(`String Operations Node Debug:`, {
+        operation: operation,
+        inputData: inputData,
+        inputDataKeys: Object.keys(inputData),
+        textA: textA,
+        textB: textB,
+        configTextB: configTextB
+    });
 
-Removed 25 console.log statement(s) from this file.
-
-================================================================================
-FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\flow_editor\src\js\execution-engine.js
-================================================================================
-Line 71:             console.log('Repeater stopped:', node.id);
-Line 81: console.log('Creating global executionEngine instance...');
-Line 83: console.log('Global executionEngine created:', executionEngine);
-
-Removed 3 console.log statement(s) from this file.
-
-================================================================================
-FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\flow_editor\src\js\file-manager.js
-================================================================================
-Line 37:                     console.log('File selected for saving:', selectedPath);
-Line 40:                     console.log('File selection cancelled');
-Line 58:             console.log('Flow saved to localStorage:', flowData);
-Line 63:         console.log('Flow saved:', flowData);
-Line 105:                 console.log('File selected for saving as:', selectedPath);
-Line 108:                 console.log('File selection cancelled');
-Line 125:             console.log('Flow saved to localStorage:', flowData);
-Line 130:         console.log('Flow saved as:', flowData);
-Line 148:                 console.log('File selected for loading:', selectedPath);
-Line 151:                 console.log('File selection cancelled');
-Line 166:                 console.log('Failed to load from virtual file system, trying localStorage...');
-Line 176:                 console.log('Flow loaded from localStorage');
-Line 181:             console.log('Flow loaded:', flowData);
-
-Removed 13 console.log statement(s) from this file.
-
-================================================================================
-FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\flow_editor\src\js\flow-executors.js
-================================================================================
-Line 33:         console.log(`Display node using specified input port '${inputPort}':`, content);
-Line 49:         console.log('Display node auto-detected input port');
-Line 52:     console.log('Display node input data:', inputData);
-Line 53:     console.log('Display node selected content:', content);
-Line 54:     console.log('Display node content type:', typeof content);
-Line 120:             console.log('Repeater triggered:', node.id, 'count:', node.repeaterState.count);
-Line 158:     console.log('Condition node debug:');
-Line 159:     console.log('  Input value:', inputValue, 'Type:', typeof inputValue);
-Line 160:     console.log('  Compare value:', compareValue, 'Type:', typeof compareValue);
-Line 161:     console.log('  Input string:', inputStr, 'Length:', inputStr.length);
-Line 162:     console.log('  Compare string:', compareStr, 'Length:', compareStr.length);
-Line 163:     console.log('  Case sensitive:', caseSensitive);
-Line 169:         console.log('  After case conversion - Input:', inputStr, 'Compare:', compareStr);
-
-Removed 13 console.log statement(s) from this file.
+Removed 1 console.log statement(s) from this file.
 
 ================================================================================
 FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\flow_editor\src\js\http-executors.js
 ================================================================================
-Line 34:     console.log('HTTP node: Sending proxy request:', proxyRequest);
-Line 35:     console.log('HTTP node: Body type:', typeof processedBody);
-Line 36:     console.log('HTTP node: Body content:', processedBody);
-Line 37:     console.log('HTTP node: JSON stringified body:', JSON.stringify(proxyRequest));
-Line 53:         console.log('HTTP node: Processing binary response');
-Line 54:         console.log('HTTP node: Content type:', proxyData.headers['content-type'] || proxyData.headers['Content-Type']);
-Line 55:         console.log('HTTP node: Content length:', proxyData.content.length);
-Line 65:         console.log('HTTP node: Created Blob:', blob);
-Line 66:         console.log('HTTP node: Blob size:', blob.size);
-Line 67:         console.log('HTTP node: Blob type:', blob.type);
-Line 75:     console.log('HTTP node: Processing text response');
-Line 76:     console.log('HTTP node: Status code:', proxyData.status || 200);
-Line 77:     console.log('HTTP node: Content preview:', proxyData.content.substring(0, 200));
-Line 83:         console.log('HTTP node: Successfully parsed JSON response');
-Line 85:         console.log('HTTP node: Response is not valid JSON, parsed_json will be null');
-Line 110:     console.log('VFS Load executing:', filePath, 'format:', format);
-Line 117:             console.log('VFS Load JSON data:', data);
-Line 120:             console.log('VFS Load text data length:', data ? data.length : 0);
-Line 121:             console.log('VFS Load text data preview:', data ? data.substring(0, 100) + '...' : 'null');
-Line 124:             console.log('VFS Load binary file, using direct URL method');
-Line 126:             console.log('VFS Load binary file URL:', fileUrl);
-Line 134:                 console.log('VFS Load detected audio file:', extension);
-Line 136:                 console.log('VFS Load detected image file:', extension);
-Line 138:                 console.log('VFS Load detected binary file:', extension);
-Line 148:             console.log('VFS Load binary data as Blob:', data);
-Line 149:             console.log('VFS Load binary data type:', data.type);
-Line 150:             console.log('VFS Load binary data size:', data.size);
-Line 163:         console.log('VFS Load returning:', result);
-Line 183:         console.log('VFS Save input value instanceof Blob:', data instanceof Blob);
-Line 184:         console.log('VFS Save input data type:', typeof data);
-
-Removed 30 console.log statement(s) from this file.
-
-================================================================================
-FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\flow_editor\src\js\main.js
-================================================================================
-Line 2: console.log('Flow Editor app loading...');
-Line 36:     console.log('Flow Editor initializing...');
-Line 44:     console.log('SypnexAPI available:', sypnexAPI);
-Line 45:     console.log('App ID:', sypnexAPI.getAppId());
-Line 46:     console.log('Initialized:', sypnexAPI.isInitialized());
-Line 51:         console.log('Scale detection initialized');
-Line 56:         console.log('Testing VFS API...');
-Line 58:         console.log('VFS test result:', testResult);
-Line 100:     console.log('About to load nodes from VFS...');
-Line 102:     console.log('Finished loading nodes from VFS');
-Line 105:     console.log('About to populate toolbox...');
-Line 107:     console.log('Finished populating toolbox');
-Line 130:     console.log('Flow Editor initialization complete');
-Line 165:     console.log('Flow Editor cleanup completed');
-Line 173:             console.log('Connected to WebSocket server');
-Line 180:                 console.log('Received flow update:', data);
-Line 250:     console.log('Added node:', nodeId, type);
-Line 255:     console.log('Handling flow update:', data);
-Line 268: console.log('Flow Editor script loaded');
-
-Removed 19 console.log statement(s) from this file.
-
-================================================================================
-FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\flow_editor\src\js\media-executors.js
-================================================================================
-Line 67:     console.log('Audio node execution - inputData:', inputData);
-Line 68:     console.log('Audio node execution - audioData:', audioData);
-Line 69:     console.log('Audio data type:', typeof audioData);
-Line 70:     console.log('Audio data instanceof Blob:', audioData instanceof Blob);
-Line 91:         console.log('Set audio source from Blob');
-Line 92:         console.log('Audio element src:', node.audioElement.src);
-Line 97:             console.log('Set audio source from data URL');
-Line 103:             console.log('Set audio source from base64 data');
-Line 107:             console.log('Set audio source from URL');
-Line 109:         console.log('Audio element src:', node.audioElement.src);
-Line 110:         console.log('Audio data received:', audioData);
-Line 112:         console.log('Set audio source from unknown data type:', typeof audioData);
-Line 127:             console.log('Auto-play started');
-Line 144:         console.log('Converted Blob to data URL for save:', dataUrlForSave.substring(0, 50) + '...');
-
-Removed 14 console.log statement(s) from this file.
-
-================================================================================
-FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\flow_editor\src\js\node-config.js
-================================================================================
-Line 228:                 console.log('Changing input target:', nodeId, currentInputPort, '→', selectedInputPort);
-Line 265:                 console.log('Output mapping change:', nodeId, outputPort, '→', selectedOutputPort, 'to', targetNodeId);
-Line 317:                     console.log('Updated config:', nodeId, key, e.target.value);
+Line 126:     console.log('VFS Load Debug:', {
+        originalPath: node.config.file_path.value,
+        processedPath: filePath,
+        format: format,
+        dateTemplates: dateTemplates
+    });
+Line 136:         console.log('VFS Load attempting to read:', filePath, 'format:', format);
+Line 161:         console.log('VFS Load success:', {
+            filePath: filePath,
+            dataType: typeof data,
+            dataLength: data ? data.length : 0,
+            dataPreview: data ? (typeof data === 'string' ? data.substring(0, 100) : JSON.stringify(data).substring(0, 100)) : null
+        });
 
 Removed 3 console.log statement(s) from this file.
-
-================================================================================
-FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\flow_editor\src\js\node-registry.js
-================================================================================
-Line 5:         console.log('NodeRegistry constructor called');
-Line 9:         console.log('NodeRegistry initialized');
-Line 16:             console.log('Loading nodes from VFS packed file...');
-Line 20:             console.log(`Loading packed nodes from: ${packFilePath}`);
-Line 25:             console.log(`Loaded packed nodes (version ${packData.version}), total nodes: ${packData.total_nodes}`);
-Line 30:                 console.log(`Registered node: ${nodeId}`);
-Line 34:             console.log(`Loaded ${this.nodeTypes.size} node types:`, Array.from(this.nodeTypes.keys()));
-Line 44:             console.log(`Loading node from: ${filePath}`);
-Line 48:             console.log(`Loaded node: ${nodeDef.id}`);
-Line 80: console.log('Creating global nodeRegistry instance...');
-Line 82: console.log('Global nodeRegistry created:', nodeRegistry);
-
-Removed 11 console.log statement(s) from this file.
-
-================================================================================
-FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\flow_editor\src\js\node-renderer.js
-================================================================================
-Line 116: console.log('Creating global nodeRenderer instance...');
-Line 118: console.log('Global nodeRenderer created:', nodeRenderer);
-
-Removed 2 console.log statement(s) from this file.
-
-================================================================================
-FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\flow_editor\src\js\tag-manager.js
-================================================================================
-Line 28:     console.log('Added tag:', tag);
-
-Removed 1 console.log statement(s) from this file.
-
-================================================================================
-FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\flow_editor\src\js\ui-manager.js
-================================================================================
-Line 4:     console.log('populateToolbox called');
-Line 6:     console.log('Toolbox element:', toolbox);
-Line 22:     console.log('All loaded nodes:', allNodes);
-Line 32:     console.log('Node categories:', categories);
-Line 64:     console.log('Toolbox populated with', allNodes.length, 'nodes');
-
-Removed 5 console.log statement(s) from this file.
-
-================================================================================
-FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\flow_editor\src\js\utils.js
-================================================================================
-Line 12:             // console.log('No app window found, assuming 100% scale');
-Line 25:                 // console.log(`Detected app scale: ${scaleValue}% (${appScale})`);
-Line 43:                     // console.log(`Detected app scale from transform: ${appScale}`);
-Line 49:         // console.log('No scale detected, using 100%');
-Line 121:                     console.log(`App scale changed from ${oldScale} to ${newScale}`);
-Line 333:     console.log('replaceTemplatePlaceholders called with:', { body, templateData, bodyType: typeof body, templateDataType: typeof templateData });
-Line 336:         console.log('Body is empty, returning as-is');
-Line 357:         console.log('Body is neither string nor object, returning as-is');
-Line 361:     console.log('Body string before replacement:', bodyString, 'isJsonString:', isJsonString);
-Line 367:         console.log('Starting template replacement with templateData:', templateData);
-Line 371:             console.log('Processing simple field replacements for object templateData');
-Line 372:             console.log('Template data keys:', Object.keys(templateData));
-Line 373:             console.log('Looking for patterns like {{field}} in body string:', bodyString);
-Line 377:             console.log('Using regex:', placeholderRegex);
-Line 381:             console.log('Regex matches found:', matches);
-Line 384:                 console.log('Found pattern {{' + fieldPath + '}}, extracting value...');
-Line 386:                 console.log('Extracted value for', fieldPath, ':', value);
-Line 387:                 console.log('Value type:', typeof value);
-Line 401:                     console.log('Replacing', match, 'with:', replacement);
-Line 404:                     console.log('Field not found, keeping original:', match);
-Line 410:             console.log('Processing string templateData, replacing {{VALUE}}');
-Line 414:         console.log('Template replacement result:', {
-            before: beforeReplace,
-            after: bodyString,
-            replaced: beforeReplace !== bodyString,
-            templateData: templateData
-        });
-Line 421:         console.log('No template data provided, skipping replacement');
-Line 439:     console.log('getNestedValue called with:', { obj, path });
-Line 441:         console.log('Checking key:', key, 'in:', current);
-Line 443:         console.log('Value for key', key, ':', value);
-Line 446:     console.log('getNestedValue result for path', path, ':', result);
-Line 514:     console.log('Playing audio for node:', nodeId);
-Line 527:     console.log('Stopped audio for node:', nodeId);
-Line 573:     console.log('Showing full image for node:', nodeId);
-Line 586:         console.log('Repeater started:', nodeId);
-Line 603:     console.log('Repeater stopped:', nodeId);
-Line 613:     console.log(`Updating input mapping: ${nodeId}.${inputPort} ← ${selectedOutputPort}`);
-Line 644:     console.log(`Updating output mapping: ${nodeId}.${outputPort} → ${targetNodeId} (new output: ${selectedOutputPort})`);
-
-Removed 34 console.log statement(s) from this file.
 
 ================================================================================
 FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\flow_editor\src\js\workflow.js
 ================================================================================
-Line 6:         console.log('Workflow already running');
-Line 27:             console.log(`Checking node ${node.type} (${node.id}): inputs=${nodeDef.inputs.length}, outputs=${nodeDef.outputs.length}`);
-Line 33:                     console.log(`Repeater ${node.id}: isRunning=${isRunning}, repeaterState=`, node.repeaterState);
-Line 39:                 console.log(`${node.type} ${node.id}: hasConnectedOutputs=${hasConnectedOutputs}`);
-Line 50:                 console.log(`Node ${node.type} (${node.id}): no inputs, hasConnectedOutputs=${hasConnectedOutputs}`);
-Line 63:                 console.log(`Node ${node.type} (${node.id}): has optional inputs, hasConnectedOutputs=${hasConnectedOutputs}`);
-Line 68:             console.log(`Node ${node.type} (${node.id}): has required inputs, not a start node`);
-Line 119:         console.log(`Node ${node.id} already executed, skipping to prevent cycles`);
-Line 134:             console.log(`Node ${node.id} returned stop execution signal, stopping workflow`);
-Line 147:         console.log(`Node ${node.id} has ${connectedNodes.length} connected nodes`);
-Line 152:                 console.log(`Skipping connected node ${connectedNode.node.id} to prevent cycle`);
-Line 156:             console.log(`=== Processing connection ${node.id} -> ${connectedNode.node.id} ===`);
-Line 157:             console.log(`Connection details: ${connectedNode.outputPort} -> ${connectedNode.inputPort}`);
-Line 161:             console.log(`Node ${node.id} output:`, output);
-Line 162:             console.log(`Node ${node.id} output type:`, typeof output);
-Line 163:             console.log(`Source output port:`, connectedNode.outputPort);
-Line 164:             console.log(`Target input port:`, connectedNode.inputPort);
-Line 169:                 console.log(`Node ${node.id} -> ${connectedNode.node.id}: Passing Blob directly =`, inputValue);
-Line 172:                 console.log(`Node ${node.id} output object keys:`, Object.keys(output));
-Line 173:                 console.log(`Node ${node.id} output object values:`, Object.values(output));
-Line 177:                     console.log(`Node ${node.id} -> ${connectedNode.node.id}: DIRECT MAPPING ${connectedNode.outputPort} -> ${connectedNode.inputPort} =`, inputValue);
-Line 178:                     console.log(`Input value type:`, typeof inputValue);
-Line 179:                     console.log(`Input value is null:`, inputValue === null);
-Line 180:                     console.log(`Input value is undefined:`, inputValue === undefined);
-Line 185:                     console.log(`Skipping connection ${node.id} -> ${connectedNode.node.id} due to missing output port`);
-Line 190:                 console.log(`Node ${node.id} -> ${connectedNode.node.id}: Passing simple value =`, inputValue);
-Line 193:             console.log(`Final input value for ${connectedNode.node.id}:`, inputValue);
-Line 194:             console.log(`Input value type:`, typeof inputValue);
-Line 195:             console.log(`Input value instanceof Blob:`, inputValue instanceof Blob);
-Line 377:     console.log('Workflow execution stopped');
+Line 219:     console.log(`executeNodeSmart: Node ${nodeId}, inputPort: ${inputPort}, connectedPorts: [${connectedInputPorts.join(', ')}]`);
+Line 223:         console.log(`executeNodeSmart: Single input node, executing immediately`);
+Line 247:     console.log(`Node ${nodeId}: Received input '${inputPort}' = '${JSON.stringify(inputValue)}'. Have: [${Object.keys(buffer.receivedInputs).join(', ')}], Need: [${buffer.connectedPorts.join(', ')}]`);
+Line 254:         console.log(`Node ${nodeId}: Waiting for more inputs...`);
+Line 264:     console.log(`Node ${nodeId}: All inputs ready, executing with synchronized data:`, buffer.receivedInputs);
+Line 278:     console.log(`getConnectedInputPorts: window.flowEditor exists:`, !!window.flowEditor);
+Line 279:     console.log(`getConnectedInputPorts: flowEditor exists:`, typeof flowEditor !== 'undefined' && !!flowEditor);
+Line 285:         console.log(`getConnectedInputPorts: Using direct flowEditor reference`);
+Line 288:         console.log(`getConnectedInputPorts: Using window.flowEditor reference`);
+Line 290:         console.log(`getConnectedInputPorts: No flowEditor available for node ${nodeId}`);
+Line 294:     console.log(`getConnectedInputPorts: editor keys:`, Object.keys(editor));
+Line 295:     console.log(`getConnectedInputPorts: editor.connections exists:`, !!editor.connections);
+Line 300:         console.log(`getConnectedInputPorts: Using editor.connections`);
+Line 303:         console.log(`getConnectedInputPorts: Using editor.workflow.connections`);
+Line 305:         console.log(`getConnectedInputPorts: No connections data available for node ${nodeId}`);
+Line 310:     console.log(`getConnectedInputPorts: Node ${nodeId}, total connections: ${allConnections.length}`);
+Line 314:         console.log(`  Connection ${index}: ${conn.from.nodeId}[${conn.from.portName}] -> ${conn.to.nodeId}[${conn.to.portName}]`);
+Line 321:                 console.log(`  MATCH: Connection to ${nodeId}: ${conn.from.nodeId}[${conn.from.portName}] -> ${conn.to.nodeId}[${conn.to.portName}]`);
+Line 327:     console.log(`getConnectedInputPorts: Node ${nodeId} has connected ports: [${connectedPorts.join(', ')}]`);
 
-Removed 30 console.log statement(s) from this file.
-
-================================================================================
-FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\llm_chat\src\script.js
-================================================================================
-Line 2: console.log('LLM Chat script loading...');
-Line 50:     console.log('Initializing LLM Chat...');
-Line 61:     console.log('Chat elements found:', {
-        chatMessages: !!chatMessages,
-        chatInput: !!chatInput,
-        sendButton: !!sendButton,
-        clearButton: !!clearButton,
-        personaSelect: !!personaSelect,
-        ttsToggle: !!ttsToggle,
-        stopTtsButton: !!stopTtsButton
-    });
-Line 74:         console.log('Send button onclick set');
-Line 79:         console.log('Clear button onclick set');
-Line 84:         console.log('Persona select onchange set');
-Line 89:         console.log('TTS toggle onclick set');
-Line 94:         console.log('Stop TTS button onclick set');
-Line 110:     console.log('LLM Chat initialization complete');
-Line 130:     console.log('Sending message:', message);
-Line 175:         console.log('AI response received:', data);
-Line 204:     console.log('Clearing chat...');
-Line 209:     console.log('Chat cleared successfully');
-Line 217:     console.log('Switching persona to:', newPersona);
-Line 223:     console.log('Persona switched successfully');
-Line 408:         console.log('Note: TTS requires an external TTS service running at:', TTS_ENDPOINT);
-
-Removed 16 console.log statement(s) from this file.
-
-================================================================================
-FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\text_editor\src\js\code-validation.js
-================================================================================
-Line 3:     console.log('📦 loadPyodide called, current state:', textEditor.pyodideLoaded);
-Line 6:         console.log('✅ Pyodide already loaded, returning existing instance');
-Line 11:         console.log('🚀 Starting Pyodide loading process...');
-Line 18:         console.log('📚 Pyodide library loaded, initializing instance...');
-Line 25:         console.log('🐍 Pyodide initialized, installing Python validation function...');
-Line 56:         console.log('✅ Pyodide loaded and configured successfully!');
-Line 72:     console.log('🔬 validatePythonSyntax called');
-Line 73:     console.log('Validation enabled:', textEditor.validationEnabled);
-Line 76:         console.log('❌ Validation disabled - returning valid');
-Line 81:         console.log('📦 Loading Pyodide...');
-Line 83:         console.log('✅ Pyodide loaded, validating code...');
-Line 90:         console.log('🎯 Python validation result:', jsResult);
-Line 96:         console.log('🔄 Falling back to basic syntax validation...');
-Line 105:     console.log('🔧 Using basic Python validation fallback');
-Line 184:     console.log(`🎯 Basic validation found ${errors.length} errors`);
-Line 194:     console.log('🔍 scheduleValidation called');
-Line 195:     console.log('Current file path:', textEditor.filePath);
-Line 196:     console.log('Is Python file:', isPythonFile(textEditor.filePath));
-Line 197:     console.log('Validation enabled:', textEditor.validationEnabled);
-Line 206:         console.log('❌ Skipping validation - not Python file or validation disabled');
-Line 212:     console.log('✅ Scheduling Python validation...');
-Line 217:         console.log('🐍 About to validate Python code:', code.substring(0, 100) + '...');
-Line 221:             console.log('📝 Empty code - clearing errors');
-Line 228:             console.log('🚀 Calling validatePythonSyntax...');
-Line 230:             console.log('📊 Validation result:', result);
-Line 254:     console.log(`Validation complete: ${errors.length} errors found`);
-Line 287:     console.log(`Error on line ${lineNumber}: ${message}`);
-
-Removed 27 console.log statement(s) from this file.
-
-================================================================================
-FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\text_editor\src\js\editor-manager.js
-================================================================================
-Line 143:     console.log(`Auto-save enabled every ${textEditor.settings.autoSaveInterval} seconds`);
-
-Removed 1 console.log statement(s) from this file.
-
-================================================================================
-FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\text_editor\src\js\file-manager.js
-================================================================================
-Line 20:                 console.log('File selected for loading:', selectedPath);
-Line 23:                 console.log('File selection cancelled');
-Line 80:                     console.log('File selected for saving:', selectedPath);
-Line 83:                     console.log('File selection cancelled');
-Line 125:                 console.log('File selected for saving as:', selectedPath);
-Line 128:                 console.log('File selection cancelled');
-
-Removed 6 console.log statement(s) from this file.
+Removed 19 console.log statement(s) from this file.
 
 ================================================================================
 FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\text_editor\src\js\main.js
 ================================================================================
-Line 2: console.log('Text Editor app loading...');
-Line 3: console.log('Document ready state:', document.readyState);
-Line 4: console.log('Document body:', document.body);
-Line 5: console.log('Window sypnexAPI:', typeof window.sypnexAPI);
-Line 42:     console.log('Text Editor initializing...');
-Line 50:     console.log('SypnexAPI available:', sypnexAPI);
-Line 51:     console.log('App ID:', sypnexAPI.getAppId());
-Line 55:     console.log('App container found:', !!appContainer);
-Line 57:         console.log('App container content:', appContainer.innerHTML.substring(0, 200) + '...');
-Line 88:     console.log('DOM elements found:', {
-        textarea: !!textEditor.textarea,
-        lineNumbers: !!textEditor.lineNumbers,
-        newFileBtn: !!newFileBtn,
-        loadFileBtn: !!loadFileBtn,
-        saveFileBtn: !!saveFileBtn,
-        saveAsFileBtn: !!saveAsFileBtn,
-        currentFilenameEl: !!currentFilenameEl,
-        syntaxHighlightingToggle: !!syntaxHighlightingToggle,
-        modifiedStatusEl: !!modifiedStatusEl
-    });
-Line 122:     console.log('Text Editor initialization complete');
-Line 127: console.log('Text Editor script loaded');
-Line 128: console.log('=== TEXT EDITOR DEBUG INFO ===');
-Line 129: console.log('Document ready state:', document.readyState);
-Line 130: console.log('Document body exists:', !!document.body);
-Line 131: console.log('Window sypnexAPI type:', typeof window.sypnexAPI);
-Line 132: console.log('Global sypnexAPI type:', typeof sypnexAPI);
-Line 133: console.log('App container exists:', !!document.querySelector('.app-container'));
-Line 134: console.log('Text editor textarea exists:', !!document.getElementById('text-editor'));
-Line 135: console.log('Line numbers exists:', !!document.getElementById('line-numbers'));
-Line 136: console.log('=== END DEBUG INFO ===');
+Line 107:         console.log('Text Editor: Checking for app intent...');
+Line 111:         console.log('Text Editor: Intent data from preferences:', intentData);
+Line 114:             console.log('Text Editor: Processing file open intent:', intentData);
+Line 118:                 console.log('Text Editor: Loading file:', fileData.filePath);
+Line 126:                 console.log('Text Editor: Successfully opened file from intent');
+Line 131:             console.log('Text Editor: No intent found or wrong action type');
 
-Removed 21 console.log statement(s) from this file.
-
-================================================================================
-FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\text_editor\src\js\settings-manager.js
-================================================================================
-Line 17:         console.log('Settings loaded:', textEditor.settings);
-
-Removed 1 console.log statement(s) from this file.
-
-================================================================================
-FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\text_editor\src\js\syntax-highlighting.js
-================================================================================
-Line 6:         console.log('Loading Prism.js for syntax highlighting...');
-Line 44:         console.log('✅ Prism.js with all language grammars loaded successfully');
-Line 138:     console.log('✅ Highlighted backdrop created (overlay method)');
-Line 162:     console.log('✅ Backdrop highlighting updated');
-Line 185:         console.log(`✅ Syntax highlighting enabled for ${language} file`);
-
-Removed 5 console.log statement(s) from this file.
-
-================================================================================
-FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\text_editor\src\js\terminal-manager.js
-================================================================================
-Line 11:     console.log('Initializing integrated terminal...');
-Line 31:     console.log('Integrated terminal initialized');
-Line 216:         console.log('Terminal WebSocket connected');
-
-Removed 3 console.log statement(s) from this file.
-
-================================================================================
-FILE: C:\Users\bruce\OneDrive\Desktop\AI Research\sypnex-os-apps\text_editor\src\js\ui-manager.js
-================================================================================
-Line 55:         console.log('🔍 Manual validation triggered');
-
-Removed 1 console.log statement(s) from this file.
+Removed 6 console.log statement(s) from this file.
 
 ================================================================================
 SUMMARY
 ================================================================================
-Files processed: 28
-Files modified: 26
+Files processed: 27
+Files modified: 4

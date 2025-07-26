@@ -123,17 +123,10 @@ async function executeVfsLoadNode(engine, node, inputData, executed) {
         filePath = filePath.replaceAll(template, value);
     }
 
-    console.log('VFS Load Debug:', {
-        originalPath: node.config.file_path.value,
-        processedPath: filePath,
-        format: format,
-        dateTemplates: dateTemplates
-    });
 
     try {
         let data = null;
 
-        console.log('VFS Load attempting to read:', filePath, 'format:', format);
 
         if (format === 'json') {
             data = await sypnexAPI.readVirtualFileJSON(filePath);
@@ -158,12 +151,6 @@ async function executeVfsLoadNode(engine, node, inputData, executed) {
         node.lastLoadedFile = filePath;
         node.lastLoadedData = data;
 
-        console.log('VFS Load success:', {
-            filePath: filePath,
-            dataType: typeof data,
-            dataLength: data ? data.length : 0,
-            dataPreview: data ? (typeof data === 'string' ? data.substring(0, 100) : JSON.stringify(data).substring(0, 100)) : null
-        });
 
         // Return structured output with appropriate port names
         const result = {

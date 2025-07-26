@@ -385,14 +385,6 @@ async function executeStringNode(engine, node, inputData, executed) {
     let textB = inputData.text_b || configTextB || '';
 
     // Debug logging for input synchronization
-    console.log(`String Operations Node Debug:`, {
-        operation: operation,
-        inputData: inputData,
-        inputDataKeys: Object.keys(inputData),
-        textA: textA,
-        textB: textB,
-        configTextB: configTextB
-    });
 
     // Convert to strings
     if (typeof textA !== 'string') textA = String(textA);
