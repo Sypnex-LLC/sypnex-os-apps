@@ -1,10 +1,34 @@
 // Show node configuration
-function showNodeConfig(nodeId) {
+async function showNodeConfig(nodeId) {
     const node = flowEditor.nodes.get(nodeId);
     if (!node) return;
     
     const nodeDef = nodeRegistry.getNodeType(node.type);
     if (!nodeDef) return;
+
+    // Load saved configuration section states
+    let sectionStates = {};
+    try {
+        if (typeof sypnexAPI !== 'undefined' && sypnexAPI.getSetting) {
+            // Load states for all possible sections
+            const sections = ['node-content', 'input-connections', 'output-connections', 'node-settings', 'output-data'];
+            for (const sectionId of sections) {
+                // Default to expanded for node-content, collapsed for others
+                const defaultExpanded = sectionId === 'node-content';
+                sectionStates[sectionId] = await sypnexAPI.getSetting(`config_section_${sectionId}`, defaultExpanded);
+            }
+        }
+    } catch (error) {
+        console.warn('Failed to load config section states:', error);
+        // Use defaults if loading fails
+        sectionStates = {
+            'node-content': true,
+            'input-connections': false,
+            'output-connections': false,
+            'node-settings': false,
+            'output-data': false
+        };
+    }
     
     // Show config panel with node configuration
     const configPanel = document.getElementById('node-config');
@@ -111,13 +135,18 @@ function showNodeConfig(nodeId) {
         
         // Wrap special content in a collapsible section if present
         if (hasSpecialContent) {
+            const isExpanded = sectionStates['node-content'];
+            const headerClass = isExpanded ? '' : 'collapsed';
+            const iconClass = isExpanded ? 'fas fa-chevron-down' : 'fas fa-chevron-right';
+            const contentStyle = isExpanded ? '' : ' style="display: none;"';
+            
             configHtml += `
                 <div class="config-section">
-                    <div class="config-section-header" data-section="node-content">
-                        <i class="fas fa-chevron-down"></i>
+                    <div class="config-section-header ${headerClass}" data-section="node-content">
+                        <i class="${iconClass}"></i>
                         <span>Node Content</span>
                     </div>
-                    <div class="config-section-content" id="node-content-content">
+                    <div class="config-section-content" id="node-content-content"${contentStyle}>
                         ${specialContentHtml}
                     </div>
                 </div>
@@ -129,14 +158,19 @@ function showNodeConfig(nodeId) {
             .filter(conn => conn.to.nodeId === nodeId);
         
         if (inputConnections.length > 0) {
+            const isExpanded = sectionStates['input-connections'];
+            const headerClass = isExpanded ? '' : 'collapsed';
+            const iconClass = isExpanded ? 'fas fa-chevron-down' : 'fas fa-chevron-right';
+            const contentStyle = isExpanded ? '' : ' style="display: none;"';
+            
             configHtml += `
                 <div class="config-section">
-                    <div class="config-section-header collapsed" data-section="input-connections">
-                        <i class="fas fa-chevron-right"></i>
+                    <div class="config-section-header ${headerClass}" data-section="input-connections">
+                        <i class="${iconClass}"></i>
                         <span>Input Connections</span>
                         <small class="config-count">(${inputConnections.length})</small>
                     </div>
-                    <div class="config-section-content" id="input-connections-content" style="display: none;">
+                    <div class="config-section-content" id="input-connections-content"${contentStyle}>
                         <div class="input-mappings-config">
             `;
             
@@ -178,14 +212,19 @@ function showNodeConfig(nodeId) {
             .filter(conn => conn.from.nodeId === nodeId);
         
         if (outputConnections.length > 0) {
+            const isExpanded = sectionStates['output-connections'];
+            const headerClass = isExpanded ? '' : 'collapsed';
+            const iconClass = isExpanded ? 'fas fa-chevron-down' : 'fas fa-chevron-right';
+            const contentStyle = isExpanded ? '' : ' style="display: none;"';
+            
             configHtml += `
                 <div class="config-section">
-                    <div class="config-section-header collapsed" data-section="output-connections">
-                        <i class="fas fa-chevron-right"></i>
+                    <div class="config-section-header ${headerClass}" data-section="output-connections">
+                        <i class="${iconClass}"></i>
                         <span>Output Connections</span>
                         <small class="config-count">(${outputConnections.length})</small>
                     </div>
-                    <div class="config-section-content" id="output-connections-content" style="display: none;">
+                    <div class="config-section-content" id="output-connections-content"${contentStyle}>
                         <div class="output-mappings-config">
             `;
             
@@ -225,14 +264,19 @@ function showNodeConfig(nodeId) {
         // Generate configuration fields - grouped for better organization
         const configEntries = Object.entries(nodeDef.config);
         if (configEntries.length > 0) {
+            const isExpanded = sectionStates['node-settings'];
+            const headerClass = isExpanded ? '' : 'collapsed';
+            const iconClass = isExpanded ? 'fas fa-chevron-down' : 'fas fa-chevron-right';
+            const contentStyle = isExpanded ? '' : ' style="display: none;"';
+            
             configHtml += `
                 <div class="config-section">
-                    <div class="config-section-header collapsed" data-section="node-settings">
-                        <i class="fas fa-chevron-right"></i>
+                    <div class="config-section-header ${headerClass}" data-section="node-settings">
+                        <i class="${iconClass}"></i>
                         <span>Node Settings</span>
                         <small class="config-count">(${configEntries.length})</small>
                     </div>
-                    <div class="config-section-content" id="node-settings-content" style="display: none;">
+                    <div class="config-section-content" id="node-settings-content"${contentStyle}>
             `;
             
             for (const [key, config] of configEntries) {
@@ -274,14 +318,19 @@ function showNodeConfig(nodeId) {
             const outputs = nodeDef.outputs || [];
             
             if (outputs.length > 0) {
+                const isExpanded = sectionStates['output-data'];
+                const headerClass = isExpanded ? '' : 'collapsed';
+                const iconClass = isExpanded ? 'fas fa-chevron-down' : 'fas fa-chevron-right';
+                const contentStyle = isExpanded ? '' : ' style="display: none;"';
+                
                 configHtml += `
                     <div class="config-section">
-                        <div class="config-section-header collapsed" data-section="output-data">
-                            <i class="fas fa-chevron-right"></i>
+                        <div class="config-section-header ${headerClass}" data-section="output-data">
+                            <i class="${iconClass}"></i>
                             <span>Output Data</span>
                             <small class="config-count">(${outputs.length} ports)</small>
                         </div>
-                        <div class="config-section-content" id="output-data-content" style="display: none;">
+                        <div class="config-section-content" id="output-data-content"${contentStyle}>
                             <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
                                 Last executed: ${new Date(node.lastExecutionTime).toLocaleString()}
                             </div>
@@ -421,10 +470,10 @@ function showNodeConfig(nodeId) {
             }
         }
         
-        // Add collapsible section functionality
+        // Add collapsible section functionality with persistence
         const sectionHeaders = configPanel.querySelectorAll('.config-section-header');
         sectionHeaders.forEach(header => {
-            header.addEventListener('click', (e) => {
+            header.addEventListener('click', async (e) => {
                 e.preventDefault();
                 const sectionId = header.getAttribute('data-section');
                 const content = document.getElementById(`${sectionId}-content`);
@@ -443,6 +492,16 @@ function showNodeConfig(nodeId) {
                         header.classList.add('collapsed');
                         content.style.display = 'none';
                         icon.className = 'fas fa-chevron-right';
+                    }
+                    
+                    // Save the state to app settings (true = expanded, false = collapsed)
+                    try {
+                        if (typeof sypnexAPI !== 'undefined' && sypnexAPI.setSetting) {
+                            const isExpanded = !header.classList.contains('collapsed');
+                            await sypnexAPI.setSetting(`config_section_${sectionId}`, isExpanded);
+                        }
+                    } catch (error) {
+                        console.warn('Failed to save config section state:', error);
                     }
                 }
             });
