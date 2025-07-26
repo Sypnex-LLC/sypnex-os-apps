@@ -1,0 +1,115 @@
+<div class="app-container">
+    <div class="app-header">
+        <div class="header-content">
+            <div class="header-text">
+                <h2><i class="fas fa-cogs"></i> Flow Runner</h2>
+                <p>Monitor and manage background workflow execution</p>
+            </div>
+            <div class="header-controls">
+                <div class="stats-display">
+                    <span id="job-stats" class="stats-text">Loading stats...</span>
+                </div>
+                <button id="refresh-jobs" class="btn btn-primary">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+                <button id="submit-job" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Submit Job
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-content">
+        <!-- Loading State -->
+        <div id="loading-state" class="loading-state">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+            </div>
+            <p>Loading jobs...</p>
+        </div>
+
+        <!-- Error State -->
+        <div id="error-state" class="error-state" style="display: none;">
+            <div class="error-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <p id="error-message">Failed to load jobs</p>
+            <button id="retry-button" class="btn btn-secondary">
+                <i class="fas fa-redo"></i> Retry
+            </button>
+        </div>
+
+        <!-- Jobs Grid -->
+        <div id="jobs-container" class="jobs-container" style="display: none;">
+            <div id="jobs-grid" class="jobs-grid">
+                <!-- Jobs will be populated dynamically -->
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="empty-state" style="display: none;">
+            <div class="empty-icon">
+                <i class="fas fa-tasks"></i>
+            </div>
+            <h3>No Jobs Found</h3>
+            <p>No workflow jobs have been submitted yet.</p>
+            <button id="empty-submit-job" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Submit Your First Job
+            </button>
+        </div>
+    </div>
+
+    <!-- Job Submission Modal -->
+    <div id="job-submit-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-plus"></i> Submit New Job</h3>
+                <button id="close-modal" class="modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="job-form">
+                    <div class="form-group">
+                        <label for="workflow-path">Workflow Path:</label>
+                        <input type="text" id="workflow-path" class="form-control" 
+                               placeholder="/path/to/workflow.json" required>
+                        <small class="form-help">Path to the workflow JSON file (VFS path)</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="sypnex-os-url">Sypnex OS URL:</label>
+                        <input type="text" id="sypnex-os-url" class="form-control" 
+                               value="{{SYPNEX_OS_API}}" required>
+                        <small class="form-help">URL of the Sypnex OS instance</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button id="cancel-submit" class="btn btn-secondary">Cancel</button>
+                <button id="confirm-submit" class="btn btn-success">
+                    <i class="fas fa-play"></i> Submit Job
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Job Details Modal -->
+    <div id="job-details-modal" class="modal" style="display: none;">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3><i class="fas fa-info-circle"></i> Job Details</h3>
+                <button id="close-details-modal" class="modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="job-details-content">
+                    <!-- Job details will be populated dynamically -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="close-details" class="btn btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
