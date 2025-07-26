@@ -21,6 +21,15 @@
       "label": "Stop on Error",
       "value": "true",
       "options": ["true", "false"]
+    },
+    "iteration_delay": {
+      "type": "number",
+      "label": "Iteration Delay (ms)",
+      "value": 0,
+      "min": 0,
+      "max": 60000,
+      "step": 100,
+      "placeholder": "Delay between iterations in milliseconds"
     }
   },
   "executor": "for_each_executor",

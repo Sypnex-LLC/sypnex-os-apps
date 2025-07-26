@@ -258,9 +258,11 @@ class WorkflowExecutionManager:
         """Handle for_each node execution - iterate through array and execute downstream nodes"""
         array_data = for_each_result['array_data']
         stop_on_error = for_each_result['stop_on_error']
+        iteration_delay = for_each_result.get('iteration_delay', 0.0)
         for_each_node_id = for_each_result['node_id']
         
         print(f"  🔄 for_each {for_each_node_id} starting iteration over {len(array_data)} items")
+        print(f"  ⏱️ iteration_delay: {iteration_delay}s")
         
         all_results = []
         
@@ -275,7 +277,7 @@ class WorkflowExecutionManager:
                 # Create the outputs that the for_each node provides for this iteration
                 iteration_outputs = {
                     'current_item': item,
-                    'current_index': index,
+                    'current_index': str(index),  # Convert to string for compatibility with text-based nodes
                     'completed': False  # Will be True only on the last iteration
                 }
                 
@@ -314,6 +316,11 @@ class WorkflowExecutionManager:
                 all_results.extend(iteration_results)
                 
                 print(f"    ✓ for_each iteration {index + 1} completed")
+                
+                # Apply iteration delay if configured (skip delay on last iteration)
+                if iteration_delay > 0 and index < len(array_data) - 1:
+                    print(f"    ⏱️ Waiting {iteration_delay}s before next iteration...")
+                    time.sleep(iteration_delay)
                 
             except Exception as e:
                 error_msg = f"for_each iteration {index + 1} failed: {str(e)}"

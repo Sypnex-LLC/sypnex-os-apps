@@ -247,6 +247,9 @@ async function executeLogicalGateNode(engine, node, inputData, executed) {
 async function executeForEachNode(engine, node, inputData, executed) {
     const stopOnError = node.config.stop_on_error.value === 'true';
     
+    // Get the iteration delay from config (in milliseconds)
+    const iterationDelay = node.config.iteration_delay?.value || 0;
+    
     // Get the array from input
     let array = inputData.array;
     
@@ -263,7 +266,8 @@ async function executeForEachNode(engine, node, inputData, executed) {
     console.log('For Each Debug:', {
         arrayLength: array.length,
         arrayPreview: array.slice(0, 3),
-        stopOnError: stopOnError
+        stopOnError: stopOnError,
+        iterationDelay: iterationDelay
     });
 
     // Initialize iteration state if not exists
@@ -324,7 +328,8 @@ async function executeForEachNode(engine, node, inputData, executed) {
                         if (connectedNodeInfo.outputPort === 'current_item') {
                             inputValue = currentItem;
                         } else if (connectedNodeInfo.outputPort === 'current_index') {
-                            inputValue = currentIndex;
+                            // Convert index to string for compatibility with text-based nodes
+                            inputValue = String(currentIndex);
                         } else {
                             inputValue = currentItem; // Default to current item
                         }
@@ -419,13 +424,14 @@ async function executeForEachNode(engine, node, inputData, executed) {
                     }
                 }
             }
-        }, 100); // Process every 100ms
+        }, iterationDelay); // Use configurable iteration delay
         
         // Don't return any data immediately - let the interval handle all executions
         return {
             started: true,
             total_items: array.length,
-            message: 'For Each iteration started'
+            iteration_delay: iterationDelay,
+            message: `For Each iteration started with ${iterationDelay}ms delay`
         };
     }
 

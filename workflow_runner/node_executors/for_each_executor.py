@@ -20,6 +20,10 @@ class ForEachNodeExecutor(BaseNodeExecutor):
             config = node['config']
             stop_on_error = config.get('stop_on_error', {}).get('value', 'true').lower() == 'true'
             
+            # Get the iteration delay from config (in milliseconds, convert to seconds for backend)
+            iteration_delay_ms = config.get('iteration_delay', {}).get('value', 0)
+            iteration_delay = float(iteration_delay_ms) / 1000.0 if iteration_delay_ms else 0.0
+            
             # Get the array to iterate over from input_data (matching frontend logic)
             array_data = None
             if input_data and isinstance(input_data, dict):
@@ -32,6 +36,7 @@ class ForEachNodeExecutor(BaseNodeExecutor):
             
             print(f"  for_each processing array with {len(array_data)} items")
             print(f"  stop_on_error: {stop_on_error}")
+            print(f"  iteration_delay: {iteration_delay}s ({iteration_delay_ms}ms)")
             
             # Return a special marker indicating this is a for_each control node
             # The execution manager will handle the actual iteration
@@ -39,6 +44,7 @@ class ForEachNodeExecutor(BaseNodeExecutor):
                 'for_each_control': True,
                 'array_data': array_data,
                 'stop_on_error': stop_on_error,
+                'iteration_delay': iteration_delay,
                 'node_id': node['id'],
                 'total_items': len(array_data)
             }
