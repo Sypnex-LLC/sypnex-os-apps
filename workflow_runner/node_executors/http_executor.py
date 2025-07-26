@@ -66,54 +66,50 @@ class HTTPNodeExecutor(BaseNodeExecutor):
                 if is_binary:
                     import base64
                     binary_data = base64.b64decode(proxy_result.get('content', ''))
+                    content_type = proxy_result.get('headers', {}).get('content-type', 'application/octet-stream')
                     print(f"  📦 [PROXY] Received binary data: {len(binary_data)} bytes, type: {content_type}")
-                    # Decide output port based on content-type
-                    if 'image' in content_type:
-                        return {
-                            'image_data': binary_data,
-                            'data': binary_data,
-                            'binary_data': binary_data,
-                            'content_type': content_type
-                        }
-                    elif 'audio' in content_type:
-                        return {
-                            'audio_data': binary_data,
-                            'data': binary_data,
-                            'binary_data': binary_data,
-                            'content_type': content_type
-                        }
-                    else:
-                        return {
-                            'data': binary_data,
-                            'binary_data': binary_data,
-                            'content_type': content_type
-                        }
+                    
+                    # Return structured output for binary responses with all ports (matching frontend)
+                    return {
+                        'original_data': binary_data,
+                        'processed_data': binary_data,
+                        'response': binary_data,
+                        'status_code': proxy_result.get('status', 200),
+                        'headers': proxy_result.get('headers', {}),
+                        'parsed_json': None,
+                        'data': binary_data,
+                        'text': None,
+                        'json': None,
+                        'url': proxy_payload['url'],
+                        'binary': binary_data,  # Raw binary data as bytes
+                        'blob': binary_data     # For backend compatibility, use same as binary
+                    }
                 else:
                     # For text responses, content is already text
                     text_content = proxy_result.get('content', '')
+                    content_type = proxy_result.get('headers', {}).get('content-type', 'text/plain')
                     print(f"  🌐 [PROXY] Text content: {text_content[:200]}...")
                     parsed_json = None
                     
-                    # Try to parse as JSON regardless of content-type
+                    # Try to parse as JSON
                     try:
                         parsed_json = json.loads(text_content)
-                        print(f"  🌐 [PROXY] Successfully parsed JSON: {parsed_json}")
+                        print(f"  🌐 [PROXY] Successfully parsed JSON")
                     except json.JSONDecodeError:
-                        print(f"  🌐 [PROXY] Failed to parse as JSON: {text_content[:100]}...")
-                        # Only try content-type based parsing if direct parsing failed
-                        if 'json' in content_type.lower():
-                            try:
-                                parsed_json = json.loads(text_content)
-                                print(f"  🌐 [PROXY] Parsed JSON via content-type: {parsed_json}")
-                            except json.JSONDecodeError:
-                                pass
+                        print(f"  🌐 [PROXY] Not JSON content")
                     
+                    # Return structured output for text responses (matching frontend)
                     return {
+                        'original_data': text_content,
+                        'processed_data': parsed_json if parsed_json is not None else text_content,
                         'response': text_content,
-                        'data': text_content,
+                        'status_code': proxy_result.get('status', 200),
+                        'headers': proxy_result.get('headers', {}),
                         'parsed_json': parsed_json,
-                        'json': parsed_json,  # Add json output to match frontend expectations
-                        'content_type': content_type
+                        'data': text_content,
+                        'text': text_content,
+                        'json': parsed_json,
+                        'url': proxy_payload['url']
                     }
             else:
                 return {
