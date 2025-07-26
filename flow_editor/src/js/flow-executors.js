@@ -276,6 +276,7 @@ async function executeForEachNode(engine, node, inputData, executed) {
             currentIndex: 0,
             array: array,
             isIterating: false,
+            isExecutingIteration: false,
             interval: null
         };
     }
@@ -286,9 +287,16 @@ async function executeForEachNode(engine, node, inputData, executed) {
         node.forEachState.currentIndex = 0;
         node.forEachState.array = array;
 
-        // Start the interval to process each item like Repeater
+        // Start the iteration processing with proper timing
         node.forEachState.interval = setInterval(async () => {
+            // Skip if previous iteration is still running
+            if (node.forEachState.isExecutingIteration) {
+                console.log('For Each: Skipping iteration - previous still running');
+                return;
+            }
+            
             if (node.forEachState.currentIndex < node.forEachState.array.length) {
+                node.forEachState.isExecutingIteration = true;
                 const currentItem = node.forEachState.array[node.forEachState.currentIndex];
                 const currentIndex = node.forEachState.currentIndex;
                 
@@ -366,8 +374,15 @@ async function executeForEachNode(engine, node, inputData, executed) {
                             throw nodeError;
                         }
                     }
+                    
+                    // Mark this iteration as complete
+                    node.forEachState.isExecutingIteration = false;
+                    
                 } catch (error) {
                     console.error('Error executing for each iteration:', error);
+                    
+                    // Mark this iteration as complete even on error
+                    node.forEachState.isExecutingIteration = false;
                     
                     // Mark any still-running connected nodes as error
                     const connectedNodes = [];

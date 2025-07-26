@@ -21,6 +21,16 @@ class StringDataProcessor(BaseNodeExecutor):
         operation = config['operation']['value']
         config_text_b = config['text_b']['value']
         separator = config['separator']['value'] if 'separator' in config else ','
+        
+        # Debug: Show what separator looks like before processing
+        print(f"  🔍 Original separator: {repr(separator)}")
+        
+        # Process escape sequences in separator (e.g., \n, \r\n, \t, etc.)
+        separator = separator.replace('\\n', '\n').replace('\\r', '\r').replace('\\t', '\t').replace('\\\\', '\\')
+        
+        # Debug: Show what separator looks like after processing
+        print(f"  🔍 Processed separator: {repr(separator)}")
+        
         search_text = config['search_text']['value'] if 'search_text' in config else ''
         replace_text = config['replace_text']['value'] if 'replace_text' in config else ''
         start_index = int(config['start_index']['value']) if 'start_index' in config else 0
@@ -75,7 +85,9 @@ class StringDataProcessor(BaseNodeExecutor):
                     # If input is already an array, pass it through (matching frontend behavior)
                     result = original_text_a
                 else:
+                    print(f"  🔍 Splitting text: {repr(text_a)} with separator: {repr(separator)}")
                     result = text_a.split(separator)
+                    print(f"  🔍 Split result: {result}")
             elif operation == 'replace':
                 if case_sensitive:
                     result = text_a.replace(search_text, replace_text)

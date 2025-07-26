@@ -372,7 +372,15 @@ function performFilterOperation(value, filterValue, operator) {
 async function executeStringNode(engine, node, inputData, executed) {
     const operation = node.config.operation.value;
     const configTextB = node.config.text_b.value;
-    const separator = node.config.separator.value || ',';
+    
+    // Process escape sequences in separator (e.g., \n, \r\n, \t, etc.)
+    let separator = node.config.separator.value || ',';
+    separator = separator
+        .replace(/\\n/g, '\n')
+        .replace(/\\r/g, '\r')
+        .replace(/\\t/g, '\t')
+        .replace(/\\\\/g, '\\');
+    
     const searchText = node.config.search_text.value;
     const replaceText = node.config.replace_text.value;
     const startIndex = parseInt(node.config.start_index.value) || 0;
