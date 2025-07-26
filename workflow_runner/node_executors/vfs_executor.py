@@ -186,123 +186,53 @@ class VFSNodeExecutor(BaseNodeExecutor):
                 save_response = self.session.post(f'{self.server_url}/api/virtual-files/upload-file', files=files, data=data)
                 
             elif format_type == 'blob':
-                # Blob format - handle multiple data types intelligently
+                # Blob format - extract binary data from workflow-provided structured input
                 blob_data = None
                 
-                # Check if we got a structured input dict (from workflow execution)
-                # First check: if input_data has a 'data' field, check if it contains structured workflow data
-                if isinstance(input_data, dict) and 'data' in input_data:
-                    data_field = input_data['data']
+                # The input_data comes from workflow connections and is properly mapped by execution manager
+                # In workflow execution, this will always be a structured dict
+                workflow_data = input_data.get('data') if isinstance(input_data, dict) else actual_data
+                
+                print(f"  🔍 Processing blob format for {node['id']}, input type: {type(workflow_data)}")
+                
+                if isinstance(workflow_data, dict):
+                    # Handle dict from workflow - extract binary data from structured result
+                    print(f"  🔍 Workflow data is dict with keys: {list(workflow_data.keys())}")
                     
-                    # Check if the data field contains structured workflow execution data
-                    if isinstance(data_field, dict) and 'input_data' in data_field:
-                        # This is structured workflow execution data - extract the actual node output
-                        inner_data = data_field['input_data']
-                        print(f"  🔍 Found structured workflow data in 'data' field, processing inner node data")
+                    # Check if this is a structured workflow result with 'input_data' field
+                    if 'input_data' in workflow_data:
+                        inner_data = workflow_data['input_data']
+                        print(f"  🔍 Found input_data field, type: {type(inner_data)}")
                         
-                        # The inner_data should be the actual node output (like HTTP response dict)
-                        if isinstance(inner_data, dict):
-                            # Handle HTTP response dict - extract binary data from any binary field
-                            binary_data = None
-                            
-                            # Check all possible binary fields
-                            for field_name in ['data', 'binary', 'image_data', 'audio_data', 'blob']:
+                        if isinstance(inner_data, bytes):
+                            # Direct binary data in input_data
+                            import base64
+                            blob_data = f"data:application/octet-stream;base64,{base64.b64encode(inner_data).decode('utf-8')}"
+                            print(f"  🔄 Extracted binary data from 'input_data' field and converted to blob format")
+                        elif isinstance(inner_data, dict):
+                            # Check for binary data in specific workflow port fields
+                            binary_found = False
+                            for field_name in ['data', 'audio_data', 'image_data']:
                                 if field_name in inner_data and isinstance(inner_data[field_name], bytes):
-                                    binary_data = inner_data[field_name]
-                                    print(f"  🔄 Found binary data in workflow input '{field_name}' field for {node['id']}")
-                                    break
-                                elif field_name == 'blob' and field_name in inner_data and isinstance(inner_data[field_name], str):
-                                    blob_data = inner_data[field_name]
-                                    print(f"  � Using workflow input blob field as data URL for {node['id']}")
+                                    import base64
+                                    blob_data = f"data:application/octet-stream;base64,{base64.b64encode(inner_data[field_name]).decode('utf-8')}"
+                                    print(f"  🔄 Extracted binary data from 'input_data.{field_name}' field and converted to blob format")
+                                    binary_found = True
                                     break
                             
-                            if binary_data:
-                                # Convert bytes to data URL
-                                import base64
-                                blob_data = f"data:application/octet-stream;base64,{base64.b64encode(binary_data).decode('utf-8')}"
-                            elif blob_data is None:
-                                return {'error': f'Blob format: could not find binary data in workflow input. Available fields: {list(inner_data.keys())}'}
+                            if not binary_found:
+                                return {'error': f'Blob format: input_data contains no binary data in expected ports. Type: {type(inner_data)}, Keys: {list(inner_data.keys())}'}
                         else:
-                            return {'error': f'Blob format: workflow input inner_data is not a dict: {type(inner_data)}'}
-                
-                # Second check: if input_data itself has 'input_data' field (direct structured data)
-                elif isinstance(input_data, dict) and 'input_data' in input_data:
-                    # This is structured workflow execution data - extract the actual node output
-                    inner_data = input_data['input_data']
-                    print(f"  🔍 Found structured input, processing inner node data")
-                    
-                    # The inner_data should be the actual node output (like HTTP response dict)
-                    if isinstance(inner_data, dict):
-                        # Handle HTTP response dict - extract binary data from 'data' field 
-                        if 'data' in inner_data and isinstance(inner_data['data'], bytes):
-                            binary_data = inner_data['data']
-                            print(f"  🔄 Found binary data in structured input 'data' field for {node['id']}")
-                            # Convert bytes to data URL
-                            import base64
-                            blob_data = f"data:application/octet-stream;base64,{base64.b64encode(binary_data).decode('utf-8')}"
-                        # Check other possible binary fields
-                        elif 'binary' in inner_data and isinstance(inner_data['binary'], bytes):
-                            binary_data = inner_data['binary']
-                            print(f"  � Found binary data in structured input 'binary' field for {node['id']}")
-                            import base64
-                            blob_data = f"data:application/octet-stream;base64,{base64.b64encode(binary_data).decode('utf-8')}"
-                        elif 'blob' in inner_data:
-                            if isinstance(inner_data['blob'], bytes):
-                                binary_data = inner_data['blob']
-                                print(f"  � Found binary data in structured input 'blob' field for {node['id']}")
-                                import base64
-                                blob_data = f"data:application/octet-stream;base64,{base64.b64encode(binary_data).decode('utf-8')}"
-                            elif isinstance(inner_data['blob'], str):
-                                blob_data = inner_data['blob']
-                                print(f"  🔍 Using structured input blob field as data URL for {node['id']}")
-                        else:
-                            return {'error': f'Blob format: could not find binary data in structured input. Available fields: {list(inner_data.keys())}'}
+                            return {'error': f'Blob format: input_data contains no binary data. Type: {type(inner_data)}, Keys: {list(inner_data.keys()) if isinstance(inner_data, dict) else "N/A"}'}
                     else:
-                        return {'error': f'Blob format: structured input inner_data is not a dict: {type(inner_data)}'}
-                
-                # If we didn't get structured input, process actual_data directly
-                elif isinstance(actual_data, str):
-                    # Assume it's already a data URL
-                    blob_data = actual_data
-                    print(f"  🔍 Using string data as blob data URL for {node['id']}")
-                elif isinstance(actual_data, bytes):
-                    # Convert bytes to data URL (edge case when binary data needs to be saved as blob)
-                    import base64
-                    blob_data = f"data:application/octet-stream;base64,{base64.b64encode(actual_data).decode('utf-8')}"
-                    print(f"  🔄 Auto-converted binary data to blob format for {node['id']}")
-                elif isinstance(actual_data, dict):
-                    # Handle HTTP response dict - extract binary data from various fields
-                    binary_data = None
-                    
-                    # First priority: 'data' field (this is what image display passes through)
-                    if 'data' in actual_data and isinstance(actual_data['data'], bytes):
-                        binary_data = actual_data['data']
-                        print(f"  🔄 Found binary data in 'data' field (image display passthrough) for {node['id']}")
-                    # Second priority: 'binary' field (from HTTP node)
-                    elif 'binary' in actual_data and isinstance(actual_data['binary'], bytes):
-                        binary_data = actual_data['binary']
-                        print(f"  🔄 Found binary data in 'binary' field for {node['id']}")
-                    # Third priority: 'blob' field (already processed)
-                    elif 'blob' in actual_data:
-                        if isinstance(actual_data['blob'], bytes):
-                            binary_data = actual_data['blob']
-                            print(f"  🔄 Found binary data in 'blob' field for {node['id']}")
-                        elif isinstance(actual_data['blob'], str):
-                            blob_data = actual_data['blob']
-                            print(f"  🔍 Using blob field as data URL for {node['id']}")
-                    
-                    if binary_data:
-                        # Convert bytes to data URL
-                        import base64
-                        blob_data = f"data:application/octet-stream;base64,{base64.b64encode(binary_data).decode('utf-8')}"
-                        print(f"  🔄 Auto-converted binary field to blob format for {node['id']}")
-                    elif blob_data is None:
-                        return {'error': f'Blob format: could not find binary data in dict. Available fields: {list(actual_data.keys())}'}
+                        return {'error': f'Blob format: workflow dict contains no binary data in expected structure. Available keys: {list(workflow_data.keys())}'}
+                        
                 else:
-                    return {'error': f'Blob format requires string (data URL), bytes, or dict with binary data, received: {type(actual_data).__name__}'}
+                    # This shouldn't happen in normal workflow execution, but handle it just in case
+                    return {'error': f'Blob format: expected workflow dict structure, received: {type(workflow_data).__name__}'}
                 
                 if blob_data is None:
-                    return {'error': f'Blob format: failed to process data into blob format'}
+                    return {'error': f'Blob format: failed to process workflow data into blob format'}
                 
                 import os
                 save_data = {
