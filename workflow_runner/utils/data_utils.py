@@ -108,8 +108,6 @@ class DataUtils:
     @staticmethod
     def extract_actual_data_for_vfs(input_data, node_results=None, parent_node_id=None):
         """Robustly extract binary or text data for VFS save, even if input is None or a dict with None values."""
-        print(f"  🔍 [VFS EXTRACT] input_data type: {type(input_data)}")
-        print(f"  🔍 [VFS EXTRACT] input_data: {input_data}")
         
         def recursive_search_for_binary_data(data, depth=0):
             if depth > 3:  # Prevent infinite recursion

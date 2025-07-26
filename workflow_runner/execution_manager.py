@@ -80,100 +80,146 @@ class WorkflowExecutionManager:
         return all_results
     
     def execute_nodes_simple(self, nodes: List[Dict[str, Any]], workflow: Dict[str, Any] = None) -> list:
-        """Execute nodes in simple sequence with smart input synchronization"""
+        """Execute nodes with proper input synchronization (matching frontend logic)"""
         results = []
         node_results = {}
+        node_input_buffer = {}  # Track inputs for multi-input nodes (like frontend)
         
-        for node in nodes:
-            print(f"  Executing {node['id']} ({node['type']})...")
-            try:
-                # Prepare input data from connections if workflow is provided
-                input_data = None
-                parent_node_id = None
-                
+        # Build a queue of nodes to execute, starting with nodes that have no inputs
+        remaining_nodes = nodes.copy()
+        executed_nodes = set()
+        
+        while remaining_nodes:
+            # Find nodes that are ready to execute
+            ready_nodes = []
+            
+            for node in remaining_nodes:
                 if workflow:
                     connections = workflow.get('connections', [])
-                    
-                    # Find all connections going TO this node
                     incoming_connections = [conn for conn in connections if conn['to']['nodeId'] == node['id']]
                     
-                    if incoming_connections:
-                        # Smart input synchronization - wait for all inputs like frontend
+                    if not incoming_connections:
+                        # No input connections - ready to execute
+                        ready_nodes.append(node)
+                    else:
+                        # Check if all required inputs are available
                         connected_ports = set(conn['to']['portName'] for conn in incoming_connections)
-                        received_inputs = {}
+                        available_inputs = set()
                         
-                        print(f"  🔍 Node {node['id']} expects inputs on ports: {list(connected_ports)}")
-                        
-                        # Collect all available inputs
                         for conn in incoming_connections:
                             from_node_id = conn['from']['nodeId']
-                            from_port = conn['from']['portName']
-                            to_port = conn['to']['portName']
-                            
-                            if from_node_id in node_results:
-                                from_result = node_results[from_node_id]
-                                # Extract the specific output port value
-                                if from_port in from_result:
-                                    received_inputs[to_port] = from_result[from_port]
-                                    print(f"    ✓ Got input for port '{to_port}' from {from_node_id}[{from_port}]")
-                                else:
-                                    # Fallback to common output mappings
-                                    fallback_mappings = {
-                                        'data': ['data', 'result', 'output', 'value'],
-                                        'text': ['text', 'result', 'data', 'content'],
-                                        'trigger': ['trigger', 'elapsed', 'data'],
-                                        'json': ['json', 'parsed_json', 'result', 'data'],
-                                        'value': ['value', 'result', 'data'],
-                                        'extracted_value': ['extracted_value', 'result', 'data']
-                                    }
-                                    
-                                    found = False
-                                    possible_fields = fallback_mappings.get(from_port, [from_port, 'data', 'result'])
-                                    
-                                    for field in possible_fields:
-                                        if field in from_result:
-                                            received_inputs[to_port] = from_result[field]
-                                            print(f"    ✓ Mapped {from_node_id}[{field}] to port '{to_port}'")
-                                            found = True
-                                            break
-                                    
-                                    if not found:
-                                        # Use the entire result as fallback
-                                        received_inputs[to_port] = from_result
-                                        print(f"    ⚠️ Used entire result from {from_node_id} for port '{to_port}'")
+                            if from_node_id in executed_nodes:
+                                available_inputs.add(conn['to']['portName'])
                         
-                        # Check if we have all required inputs (like frontend logic)
-                        missing_ports = connected_ports - received_inputs.keys()
-                        
-                        if missing_ports:
-                            print(f"  ⏳ Node {node['id']} waiting for inputs on ports: {list(missing_ports)}")
-                            # In a real scenario, we'd wait, but for simplicity, we'll continue with available inputs
-                        
-                        input_data = received_inputs if received_inputs else None
-                        parent_node_id = incoming_connections[0]['from']['nodeId'] if incoming_connections else None
-                        
-                        print(f"  🔍 Final input data for {node['id']}: {input_data}")
-                
-                result = self.workflow_runner.execute_node(node, input_data, node_results, parent_node_id)
-                if result:
-                    results.append({'node_id': node['id'], 'result': result})
-                    node_results[node['id']] = result
-                    print(f"  ✓ {node['id']} completed successfully")
-                    
-                    # Check for stop execution flag
-                    if isinstance(result, dict) and result.get('__stop_execution'):
-                        print(f"  🛑 Execution stopped by {node['id']}")
-                        break
+                        # Node is ready if all connected input ports have data available
+                        if connected_ports.issubset(available_inputs):
+                            ready_nodes.append(node)
                 else:
-                    print(f"  ⚡ {node['id']} skipped (frontend-only)")
-            except Exception as e:
-                print(f"  ✗ {node['id']} failed: {str(e)}")
-                results.append({'node_id': node['id'], 'result': {'error': str(e)}})
+                    # No workflow connections - execute all nodes
+                    ready_nodes.append(node)
+            
+            if not ready_nodes:
+                # No nodes ready - check for cycles or missing dependencies
+                remaining_ids = [n['id'] for n in remaining_nodes]
+                print(f"⚠️ No nodes ready to execute. Remaining: {remaining_ids}")
+                break
+            
+            # Execute ready nodes
+            for node in ready_nodes:
+                print(f"  Executing {node['id']} ({node['type']})...")
+                try:
+                    input_data = self._collect_synchronized_inputs(node, workflow, node_results)
+                    
+                    result = self.workflow_runner.execute_node(node, input_data, node_results, None)
+                    if result:
+                        results.append({'node_id': node['id'], 'result': result})
+                        node_results[node['id']] = result
+                        executed_nodes.add(node['id'])
+                        print(f"  ✓ {node['id']} completed successfully")
+                        
+                        # Check for stop execution flag
+                        if isinstance(result, dict) and result.get('__stop_execution'):
+                            print(f"  🛑 Execution stopped by {node['id']}")
+                            return results
+                    else:
+                        executed_nodes.add(node['id'])  # Mark as executed even if skipped
+                        print(f"  ⚡ {node['id']} skipped (frontend-only)")
+                        
+                except Exception as e:
+                    print(f"  ✗ {node['id']} failed: {str(e)}")
+                    results.append({'node_id': node['id'], 'result': {'error': str(e)}})
+                    executed_nodes.add(node['id'])  # Mark as executed to avoid infinite loop
+                
+                # Remove from remaining nodes
+                remaining_nodes.remove(node)
         
         return results
     
+    def _collect_synchronized_inputs(self, node: Dict[str, Any], workflow: Dict[str, Any], node_results: Dict[str, Any]) -> Dict[str, Any]:
+        """Collect synchronized inputs for a node (matching frontend executeNodeSmart logic)"""
+        if not workflow:
+            return None
+            
+        connections = workflow.get('connections', [])
+        incoming_connections = [conn for conn in connections if conn['to']['nodeId'] == node['id']]
+        
+        if not incoming_connections:
+            return None
+        
+        # Collect inputs for each connected port (like frontend)
+        connected_ports = set(conn['to']['portName'] for conn in incoming_connections)
+        received_inputs = {}
+        
+        print(f"  🔍 Node {node['id']} expects inputs on ports: {list(connected_ports)}")
+        
+        # Collect all available inputs
+        for conn in incoming_connections:
+            from_node_id = conn['from']['nodeId']
+            from_port = conn['from']['portName']
+            to_port = conn['to']['portName']
+            
+            if from_node_id in node_results:
+                from_result = node_results[from_node_id]
+                # Extract the specific output port value
+                if from_port in from_result:
+                    received_inputs[to_port] = from_result[from_port]
+                    print(f"    ✓ Got input for port '{to_port}' from {from_node_id}[{from_port}]")
+                else:
+                    # Fallback to common output mappings
+                    fallback_mappings = {
+                        'data': ['data', 'result', 'output', 'value'],
+                        'text': ['text', 'result', 'data', 'content'],
+                        'trigger': ['trigger', 'elapsed', 'data'],
+                        'json': ['json', 'parsed_json', 'result', 'data'],
+                        'value': ['value', 'result', 'data'],
+                        'extracted_value': ['extracted_value', 'result', 'data']
+                    }
+                    
+                    found = False
+                    possible_fields = fallback_mappings.get(from_port, [from_port, 'data', 'result'])
+                    
+                    for field in possible_fields:
+                        if field in from_result:
+                            received_inputs[to_port] = from_result[field]
+                            print(f"    ✓ Mapped {from_node_id}[{field}] to port '{to_port}'")
+                            found = True
+                            break
+                    
+                    if not found:
+                        # Use the entire result as fallback
+                        received_inputs[to_port] = from_result
+                        print(f"    ⚠️ Used entire result from {from_node_id} for port '{to_port}'")
+        
+        # Verify we have ALL required inputs (strict synchronization like frontend)
+        missing_ports = connected_ports - received_inputs.keys()
+        if missing_ports:
+            raise Exception(f"Node {node['id']} missing required inputs on ports: {list(missing_ports)}")
+        
+        print(f"  🔍 Final synchronized input data for {node['id']}: {received_inputs}")
+        return received_inputs
+    
     def execute_workflow_once(self, workflow: Dict[str, Any]) -> list:
-        """Execute workflow once (original parallel execution logic)"""
+        """Execute workflow once with proper input synchronization (matching frontend logic)"""
         # Build execution graph, skipping frontend-only nodes
         dependencies, dependents, frontend_only_nodes, repeater_nodes = ExecutionUtils.build_execution_graph(
             workflow, self.workflow_runner.load_node_definition
@@ -181,138 +227,14 @@ class WorkflowExecutionManager:
         nodes = {node['id']: node for node in workflow.get('nodes', [])}
         connections = workflow.get('connections', [])
         
-        # Find start nodes (no dependencies)
-        start_nodes = [node_id for node_id, deps in dependencies.items() if not deps]
+        # Filter out excluded nodes
+        excluded_nodes = frontend_only_nodes | repeater_nodes
+        execution_nodes = [node for node in workflow.get('nodes', []) if node['id'] not in excluded_nodes]
         
-        if not start_nodes:
-            print("❌ No start nodes found")
+        if not execution_nodes:
+            print("❌ No executable nodes found")
             return []
         
-        # Store node results
-        node_results = {}
-        executed = set()
-        results = []
-        
-        # Execute start nodes first
-        print(f"🎯 Executing start nodes: {start_nodes}")
-        start_futures = []
-        for node_id in start_nodes:
-            node = nodes[node_id]
-            future = self.workflow_runner.executor.submit(
-                self.workflow_runner.execute_node, node, None, node_results, None
-            )
-            start_futures.append((node_id, future))
-        
-        # Wait for start nodes to complete
-        for node_id, future in start_futures:
-            result = future.result()
-            if result:
-                node_results[node_id] = result
-                executed.add(node_id)
-                results.append({'node_id': node_id, 'result': result})
-                
-                # Check for stop execution flag
-                if isinstance(result, dict) and result.get('__stop_execution'):
-                    print(f"  🛑 Execution stopped by {node_id}")
-                    return results
-        
-        # Continue with dependent nodes
-        while len(executed) < len(dependencies):
-            ready_nodes = ExecutionUtils.find_ready_nodes(dependencies, executed)
-            
-            if not ready_nodes:
-                # Check for cycles or unreachable nodes
-                remaining = set(dependencies.keys()) - executed
-                if remaining:
-                    print(f"⚠️  Warning: Unreachable nodes: {remaining}")
-                break
-            
-            print(f"🔄 Executing {len(ready_nodes)} nodes in parallel: {ready_nodes}")
-            
-            # Execute ready nodes in parallel
-            futures = []
-            for node_id in ready_nodes:
-                node = nodes[node_id]
-                # Prepare input data from connections, rewiring through frontend-only nodes
-                input_data = None
-                parent_node_id = None
-                
-                # Group connections by input port to handle multiple connections
-                port_connections = {}
-                for conn in connections:
-                    if conn['to']['nodeId'] == node_id:
-                        input_port = conn['to']['portName']
-                        if input_port not in port_connections:
-                            port_connections[input_port] = []
-                        port_connections[input_port].append(conn)
-                
-                # Process each input port
-                if port_connections:
-                    input_data = {}
-                    for input_port, conns in port_connections.items():
-                        if len(conns) == 1:
-                            # Single connection - use the value directly
-                            conn = conns[0]
-                            from_node = conn['from']['nodeId']
-                            # Rewire: if from_node is frontend-only, walk back to last backend node
-                            actual_from = from_node
-                            if from_node in frontend_only_nodes:
-                                # Find the last backend node upstream
-                                def walk_upstream(fnode):
-                                    for c in connections:
-                                        if c['to']['nodeId'] == fnode:
-                                            up = c['from']['nodeId']
-                                            if up in frontend_only_nodes:
-                                                return walk_upstream(up)
-                                            return up
-                                    return None
-                                actual_from = walk_upstream(from_node)
-                            parent_node_id = actual_from
-                            if actual_from in node_results:
-                                output_port = conn['from']['portName']
-                                if output_port in node_results[actual_from]:
-                                    input_data[input_port] = node_results[actual_from][output_port]
-                        else:
-                            # Multiple connections - combine them (use the last one for now)
-                            print(f"  🔗 Multiple connections to {input_port}: {len(conns)} connections")
-                            for conn in conns:
-                                from_node = conn['from']['nodeId']
-                                # Rewire: if from_node is frontend-only, walk back to last backend node
-                                actual_from = from_node
-                                if from_node in frontend_only_nodes:
-                                    # Find the last backend node upstream
-                                    def walk_upstream(fnode):
-                                        for c in connections:
-                                            if c['to']['nodeId'] == fnode:
-                                                up = c['from']['nodeId']
-                                                if up in frontend_only_nodes:
-                                                    return walk_upstream(up)
-                                                return up
-                                        return None
-                                    actual_from = walk_upstream(from_node)
-                                parent_node_id = actual_from
-                                if actual_from in node_results:
-                                    output_port = conn['from']['portName']
-                                    if output_port in node_results[actual_from]:
-                                        input_data[input_port] = node_results[actual_from][output_port]
-                                        print(f"  🔗 Using {actual_from}.{output_port} for {input_port}")
-                
-                future = self.workflow_runner.executor.submit(
-                    self.workflow_runner.execute_node, node, input_data, node_results, parent_node_id
-                )
-                futures.append((node_id, future))
-            
-            # Wait for all ready nodes to complete
-            for node_id, future in futures:
-                result = future.result()
-                if result:
-                    node_results[node_id] = result
-                    executed.add(node_id)
-                    results.append({'node_id': node_id, 'result': result})
-                    
-                    # Check for stop execution flag
-                    if isinstance(result, dict) and result.get('__stop_execution'):
-                        print(f"  🛑 Execution stopped by {node_id}")
-                        return results
-        
-        return results
+        # Use the synchronized execution approach
+        print(f"🎯 Executing {len(execution_nodes)} nodes with input synchronization")
+        return self.execute_nodes_simple(execution_nodes, workflow)
