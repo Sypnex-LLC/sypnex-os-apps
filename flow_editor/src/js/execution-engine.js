@@ -29,6 +29,8 @@ class ExecutionEngine {
             window.flowExecutors.executeLogicalGateNode(this, node, inputData, executed));
         this.registry.registerExecutor('for_each_executor', (node, inputData, executed) => 
             window.flowExecutors.executeForEachNode(this, node, inputData, executed));
+        this.registry.registerExecutor('delay_executor', (node, inputData, executed) => 
+            window.flowExecutors.executeDelayNode(this, node, inputData, executed));
             
         this.registry.registerExecutor('audio_executor', (node, inputData, executed) => 
             window.mediaExecutors.executeAudioNode(this, node, inputData, executed));

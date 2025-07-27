@@ -8,6 +8,7 @@ from .vfs_executor import VFSNodeExecutor
 from .vfs_directory_list_executor import VFSDirectoryListNodeExecutor
 from .for_each_executor import ForEachNodeExecutor
 from .timer_executor import TimerNodeExecutor
+from .delay_executor import DelayNodeExecutor
 from .text_executor import TextNodeExecutor
 from .unknown_executor import UnknownNodeExecutor
 
@@ -18,7 +19,8 @@ __all__ = [
     'VFSNodeExecutor',
     'VFSDirectoryListNodeExecutor',
     'ForEachNodeExecutor',
-    'TimerNodeExecutor', 
+    'TimerNodeExecutor',
+    'DelayNodeExecutor',
     'TextNodeExecutor',
     'UnknownNodeExecutor'
 ]

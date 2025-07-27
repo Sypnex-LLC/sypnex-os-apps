@@ -525,6 +525,41 @@ async function executeForEachNode(engine, node, inputData, executed) {
     };
 }
 
+// Delay Node Executor
+async function executeDelayNode(engine, node, inputData, executed) {
+    const delayMs = parseInt(node.config.delay_ms?.value || node.config.delay_ms || 1000);
+    
+    console.log(`Delay node starting ${delayMs}ms delay`);
+    
+    // Get the input data to pass through after delay
+    let dataToPassThrough = inputData.data;
+    
+    // If no specific data input, use the first available input
+    if (dataToPassThrough === undefined) {
+        const inputKeys = Object.keys(inputData);
+        if (inputKeys.length > 0) {
+            dataToPassThrough = inputData[inputKeys[0]];
+        }
+    }
+    
+    // Wait for the specified delay
+    await new Promise(resolve => {
+        setTimeout(() => {
+            console.log(`Delay node completed after ${delayMs}ms`);
+            resolve();
+        }, delayMs);
+    });
+    
+    // Return the same data that was input
+    return {
+        data: dataToPassThrough,
+        original_data: dataToPassThrough,
+        processed_data: dataToPassThrough,
+        delay_ms: delayMs,
+        timestamp: Date.now()
+    };
+}
+
 // Export to global scope
 window.flowExecutors = {
     executeTimerNode,
@@ -532,5 +567,6 @@ window.flowExecutors = {
     executeRepeaterNode,
     executeConditionNode,
     executeLogicalGateNode,
-    executeForEachNode
+    executeForEachNode,
+    executeDelayNode
 };

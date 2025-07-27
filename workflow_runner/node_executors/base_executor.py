@@ -100,6 +100,7 @@ class NodeExecutorRegistry:
         from .vfs_directory_list_executor import VFSDirectoryListNodeExecutor
         from .for_each_executor import ForEachNodeExecutor
         from .timer_executor import TimerNodeExecutor
+        from .delay_executor import DelayNodeExecutor
         from .text_executor import TextNodeExecutor
         from .unknown_executor import UnknownNodeExecutor
         
@@ -123,6 +124,7 @@ class NodeExecutorRegistry:
             VFSDirectoryListNodeExecutor(self.workflow_runner),
             ForEachNodeExecutor(self.workflow_runner),
             TimerNodeExecutor(self.workflow_runner),
+            DelayNodeExecutor(self.workflow_runner),
             TextNodeExecutor(self.workflow_runner),
             JSONDataProcessor(self.workflow_runner),
             StringDataProcessor(self.workflow_runner),

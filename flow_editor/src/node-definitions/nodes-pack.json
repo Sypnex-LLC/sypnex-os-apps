@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "packed_at": "2025-07-27T03:58:02.568271",
-  "total_nodes": 20,
+  "packed_at": "2025-07-27T05:00:46.821090",
+  "total_nodes": 21,
   "nodes": {
     "array": {
       "id": "array",
@@ -273,6 +273,40 @@
       },
       "executor": "condition_executor",
       "template": "standard"
+    },
+    "delay": {
+      "id": "delay",
+      "name": "Delay",
+      "description": "Delays the flow execution",
+      "icon": "fas fa-clock",
+      "color": "warning",
+      "category": "flow",
+      "execution_mode": "both",
+      "inputs": [
+        {
+          "id": "data",
+          "name": "Data",
+          "type": "data"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "data",
+          "name": "Data",
+          "type": "data"
+        }
+      ],
+      "executor": "delay_executor",
+      "config": {
+        "delay_ms": {
+          "type": "number",
+          "label": "Delay (milliseconds)",
+          "value": 1000,
+          "min": 0,
+          "max": 60000,
+          "step": 100
+        }
+      }
     },
     "display": {
       "id": "display",
