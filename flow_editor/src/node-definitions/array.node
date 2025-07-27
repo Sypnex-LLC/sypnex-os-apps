@@ -8,7 +8,8 @@
   "execution_mode": "both",
   "inputs": [
     {"id": "array", "name": "Array", "type": "json"},
-    {"id": "data", "name": "Data", "type": "data"}
+    {"id": "data", "name": "Data", "type": "data"},
+    {"id": "object", "name": "Object", "type": "json"}
   ],
   "outputs": [
     {"id": "result", "name": "Result", "type": "json"},
@@ -23,7 +24,7 @@
       "type": "select",
       "label": "Operation",
       "value": "map",
-      "options": ["map", "filter", "length", "join", "first", "last", "slice", "reverse", "sort", "unique"]
+      "options": ["map", "filter", "length", "join", "first", "last", "slice", "reverse", "sort", "unique", "object_keys", "object_values", "object_entries"]
     },
     "field_path": {
       "type": "text",

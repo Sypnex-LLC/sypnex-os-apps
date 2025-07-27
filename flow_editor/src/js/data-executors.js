@@ -236,19 +236,37 @@ async function executeArrayNode(engine, node, inputData, executed) {
 
     // Get array from input
     let array = inputData.array || inputData.data;
+    let object = inputData.object || inputData.data;
     
-    // Parse if it's a string
-    if (typeof array === 'string') {
-        try {
-            array = JSON.parse(array);
-        } catch (e) {
-            console.error('Failed to parse array:', e);
-            return { result: null, error: 'Invalid array data' };
+    // For object operations, we work with objects instead of arrays
+    if (['object_keys', 'object_values', 'object_entries'].includes(operation)) {
+        // Parse object if it's a string
+        if (typeof object === 'string') {
+            try {
+                object = JSON.parse(object);
+            } catch (e) {
+                console.error('Failed to parse object:', e);
+                return { result: null, error: 'Invalid object data' };
+            }
         }
-    }
 
-    if (!Array.isArray(array)) {
-        return { result: null, error: 'Input is not an array' };
+        if (typeof object !== 'object' || Array.isArray(object) || object === null) {
+            return { result: null, error: 'Input is not an object' };
+        }
+    } else {
+        // Parse array if it's a string (existing logic)
+        if (typeof array === 'string') {
+            try {
+                array = JSON.parse(array);
+            } catch (e) {
+                console.error('Failed to parse array:', e);
+                return { result: null, error: 'Invalid array data' };
+            }
+        }
+
+        if (!Array.isArray(array)) {
+            return { result: null, error: 'Input is not an array' };
+        }
     }
 
     let result = null;
@@ -312,12 +330,29 @@ async function executeArrayNode(engine, node, inputData, executed) {
                     result = [...new Set(array)];
                 }
                 break;
+            case 'object_keys':
+                result = Object.keys(object);
+                break;
+            case 'object_values':
+                result = Object.values(object);
+                break;
+            case 'object_entries':
+                result = Object.entries(object).map(([key, value]) => ({
+                    key: key,
+                    value: value
+                }));
+                break;
             default:
                 result = array;
         }
 
         // Store for display in config panel
-        node.lastArray = array;
+        if (['object_keys', 'object_values', 'object_entries'].includes(operation)) {
+            node.lastArray = object;
+            node.lastObject = object;
+        } else {
+            node.lastArray = array;
+        }
         node.lastResult = result;
         node.lastOperation = operation;
 

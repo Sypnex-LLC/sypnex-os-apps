@@ -27,18 +27,64 @@ class ArrayDataProcessor(BaseNodeExecutor):
         slice_end = int(config['slice_end']['value']) if 'slice_end' in config else 0
         
         try:
-            # Get array from input
+            # Get array or object from input
             array = None
+            obj = None
             
             if isinstance(input_data, dict):
                 if 'array' in input_data:
                     array = input_data['array']
+                elif 'object' in input_data:
+                    obj = input_data['object']
                 elif 'data' in input_data:
-                    array = input_data['data']
+                    # Data could be either array or object
+                    data = input_data['data']
+                    if isinstance(data, list):
+                        array = data
+                    elif isinstance(data, dict):
+                        obj = data
+                    else:
+                        array = data  # Default to array handling
             elif input_data is not None:
-                array = input_data
+                if isinstance(input_data, list):
+                    array = input_data
+                elif isinstance(input_data, dict):
+                    obj = input_data
+                else:
+                    array = input_data
             
-            # Parse if it's a string
+            # Handle object operations
+            if operation in ['object_keys', 'object_values', 'object_entries']:
+                # Parse object if it's a string
+                if isinstance(obj, str):
+                    try:
+                        obj = json.loads(obj)
+                    except json.JSONDecodeError:
+                        return {'error': 'Invalid object data'}
+                
+                if not isinstance(obj, dict):
+                    return {'error': 'Input is not an object'}
+                
+                print(f"  🗂️ Object Op: {operation}, keys={list(obj.keys())}")
+                
+                if operation == 'object_keys':
+                    result = list(obj.keys())
+                elif operation == 'object_values':
+                    result = list(obj.values())
+                elif operation == 'object_entries':
+                    result = [{'key': key, 'value': value} for key, value in obj.items()]
+                
+                return {
+                    'result': result,
+                    'data': result,
+                    'text': json.dumps(result),
+                    'length': len(result),
+                    'first': result[0] if result else None,
+                    'last': result[-1] if result else None
+                }
+            
+            # Handle array operations (existing logic)
+            # Parse array if it's a string
             if isinstance(array, str):
                 try:
                     array = json.loads(array)

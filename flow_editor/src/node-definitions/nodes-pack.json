@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "packed_at": "2025-07-26T12:08:47.722831",
+  "packed_at": "2025-07-27T03:58:02.568271",
   "total_nodes": 20,
   "nodes": {
     "array": {
@@ -21,6 +21,11 @@
           "id": "data",
           "name": "Data",
           "type": "data"
+        },
+        {
+          "id": "object",
+          "name": "Object",
+          "type": "json"
         }
       ],
       "outputs": [
@@ -70,7 +75,10 @@
             "slice",
             "reverse",
             "sort",
-            "unique"
+            "unique",
+            "object_keys",
+            "object_values",
+            "object_entries"
           ]
         },
         "field_path": {
