@@ -12,6 +12,18 @@ import time
 import base64
 from datetime import datetime
 
+# Developer Token for API Authentication
+# Generated using: python generate_dev_token.py --username dev --days 365 --secret "sypnex-super-secret-key-change-in-production" --quiet
+DEV_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImRldiIsImNyZWF0ZWRfYXQiOjE3NTM2MjIyNDMuMTM4NDY4NSwiZXhwIjoxNzg1MTU4MjQzLjEzODQ2ODUsImlzcyI6ImRldi1zZXJ2ZXIiLCJpYXQiOjE3NTM2MjIyNDMuMTM4NDY4NSwiZGV2X3Rva2VuIjp0cnVlfQ.4ekmb7E0-imeMh2d1piDEXfw7voJWRhRnr1avTw5G0g"
+
+# Standard headers for API requests
+def get_auth_headers():
+    """Get headers with authentication token"""
+    return {
+        'X-Session-Token': DEV_TOKEN,
+        'Content-Type': 'application/json'
+    }
+
 def pack_app_local(app_name, source_dir="."):
     """Pack an app locally (no API needed)"""
     
@@ -257,8 +269,12 @@ def dev_deploy(app_name, source_dir=".", server_url="http://127.0.0.1:5000", wat
             'package': (f'{app_name}_packaged.app', package_json, 'application/json')
         }
         
-        # Send to install API
-        install_response = requests.post(f'{server_url}/api/user-apps/install', files=files)
+        # Send to install API with authentication
+        install_response = requests.post(
+            f'{server_url}/api/user-apps/install', 
+            files=files,
+            headers={'X-Session-Token': DEV_TOKEN}
+        )
         
         if install_response.status_code == 200:
             install_result = install_response.json()
@@ -268,7 +284,10 @@ def dev_deploy(app_name, source_dir=".", server_url="http://127.0.0.1:5000", wat
             # Step 3: Auto-refresh user apps
             print(f"\n🔄 Step 3: Refreshing user apps...")
             try:
-                refresh_response = requests.post(f'{server_url}/api/user-apps/refresh')
+                refresh_response = requests.post(
+                    f'{server_url}/api/user-apps/refresh',
+                    headers={'X-Session-Token': DEV_TOKEN}
+                )
                 if refresh_response.status_code == 200:
                     refresh_result = refresh_response.json()
                     print(f"✅ User apps refreshed successfully")
@@ -321,7 +340,10 @@ def deploy_all_apps(source_dir=".", server_url="http://127.0.0.1:5000"):
     if success_count > 0:
         print(f"\n🔄 Final refresh of user apps...")
         try:
-            refresh_response = requests.post(f'{server_url}/api/user-apps/refresh')
+            refresh_response = requests.post(
+                f'{server_url}/api/user-apps/refresh',
+                headers={'X-Session-Token': DEV_TOKEN}
+            )
             if refresh_response.status_code == 200:
                 refresh_result = refresh_response.json()
                 print(f"✅ Final refresh completed")

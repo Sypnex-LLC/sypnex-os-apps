@@ -14,6 +14,10 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
+# Developer Token for API Authentication
+# Generated using: python generate_dev_token.py --username dev --days 365 --secret "sypnex-super-secret-key-change-in-production" --quiet
+DEV_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImRldiIsImNyZWF0ZWRfYXQiOjE3NTM2MjIyNDMuMTM4NDY4NSwiZXhwIjoxNzg1MTU4MjQzLjEzODQ2ODUsImlzcyI6ImRldi1zZXJ2ZXIiLCJpYXQiOjE3NTM2MjIyNDMuMTM4NDY4NSwiZGV2X3Rva2VuIjp0cnVlfQ.4ekmb7E0-imeMh2d1piDEXfw7voJWRhRnr1avTw5G0g"
+
 
 class EnhancedWorkflowRunner:
     """Enhanced workflow runner with real-time feedback and better data handling"""
@@ -46,6 +50,12 @@ class EnhancedWorkflowRunner:
     def _create_optimized_session(self):
         """Create an optimized requests session with connection pooling and retries"""
         session = requests.Session()
+        
+        # Add authentication headers for all requests
+        session.headers.update({
+            'X-Session-Token': DEV_TOKEN,
+            'Content-Type': 'application/json'
+        })
         
         # Configure retry strategy
         retry_strategy = Retry(

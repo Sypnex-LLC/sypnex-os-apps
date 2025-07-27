@@ -39,20 +39,31 @@ async function executeLlmChatNode(engine, node, inputData, executed) {
             messages.push({ role: 'user', content: prompt });
         }
 
-        const response = await fetch(`${endpoint}/chat/completions`, {
+        const response = await sypnexAPI.proxyHTTP({
+            url: `${endpoint}/chat/completions`,
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
+            body: {
                 model: model,
                 messages: messages,
                 temperature: temperature,
                 max_tokens: maxTokens
-            })
+            }
         });
 
-        const data = await response.json();
+        // Handle proxy response format
+        if (!response || response.status < 200 || response.status >= 300) {
+            throw new Error(`Proxy request failed: ${response?.status || 'Unknown error'}`);
+        }
+
+        if (response.error) {
+            throw new Error(`LLM request failed: ${response.error}`);
+        }
+
+        // Parse the JSON response content from proxy
+        const data = JSON.parse(response.content);
 
         if (data.error) {
             throw new Error(data.error.message || 'LLM API error');
