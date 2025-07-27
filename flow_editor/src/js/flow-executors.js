@@ -349,12 +349,26 @@ async function executeForEachNode(engine, node, inputData, executed) {
                         try {
                             // Use the workflow execution system to ensure downstream nodes execute
                             // This will trigger the complete execution chain (llm → http → etc.)
+                            // Use fresh executed set for each iteration, but copy relevant buffer data
+                            const iterationExecuted = new Set();
+                            const iterationInputBuffer = new Map();
+                            
+                            // Copy any existing buffer data from global buffer that might be needed
+                            if (window.globalNodeInputBuffer) {
+                                for (const [nodeId, bufferData] of window.globalNodeInputBuffer.entries()) {
+                                    iterationInputBuffer.set(nodeId, {
+                                        receivedInputs: { ...bufferData.receivedInputs },
+                                        connectedPorts: [...bufferData.connectedPorts]
+                                    });
+                                }
+                            }
+                            
                             await executeNodeSmart(
                                 connectedNodeInfo.node, 
                                 connectedNodeInfo.inputPort, 
                                 inputValue, 
-                                new Set(), // Fresh executed set for this iteration
-                                new Map()  // Fresh input buffer for this iteration
+                                iterationExecuted, // Use fresh executed set for each iteration
+                                iterationInputBuffer  // Use buffer with pre-existing data from main workflow
                             );
                             
                             // Mark node as completed after successful execution

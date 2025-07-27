@@ -263,6 +263,7 @@ class WorkflowExecutionManager:
         
         print(f"  🔄 for_each {for_each_node_id} starting iteration over {len(array_data)} items")
         print(f"  ⏱️ iteration_delay: {iteration_delay}s")
+        print(f"  📋 Pre-existing node results (static data): {list(node_results.keys())}")
         
         all_results = []
         
@@ -282,10 +283,13 @@ class WorkflowExecutionManager:
                 }
                 
                 # Add the for_each node result to node_results for this iteration
+                # CRITICAL: Copy the existing node_results (like global buffer in frontend)
+                # This preserves data from static nodes executed before the for_each
                 iteration_node_results = node_results.copy()
                 iteration_node_results[for_each_node_id] = iteration_outputs
                 
-                # CRITICAL: Clear executed nodes for downstream nodes to allow re-execution
+                # CRITICAL: Create fresh execution context for each iteration
+                # This allows downstream nodes to re-execute each iteration
                 # Save the current executed nodes state
                 original_executed_nodes = self.workflow_runner.executed_nodes.copy()
                 
@@ -296,6 +300,7 @@ class WorkflowExecutionManager:
                         self.workflow_runner.executed_nodes.remove(downstream_id)
                 
                 print(f"    🔄 Cleared {len(downstream_node_ids)} downstream nodes from executed list for iteration {index + 1}")
+                print(f"    📋 Available node results for iteration: {list(iteration_node_results.keys())}")
                 
                 # Execute downstream nodes with the current iteration data
                 iteration_results = self._execute_downstream_nodes(

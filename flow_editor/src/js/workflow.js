@@ -104,6 +104,9 @@ async function executeWorkflow(startNodes) {
     const executed = new Set();
     const nodeInputBuffer = new Map(); // Track inputs for multi-input nodes
     
+    // Store globally so For Each can access it
+    window.globalNodeInputBuffer = nodeInputBuffer;
+    
     for (const startNode of startNodes) {
         const result = await executeNode(startNode, {}, executed, nodeInputBuffer);
         if (result) results.push(result);
