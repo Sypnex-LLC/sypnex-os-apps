@@ -105,31 +105,19 @@ class EnhancedWorkflowRunner:
             raise Exception(f"Error loading workflow: {e}")
     
     def load_node_definition(self, node_type: str) -> Dict[str, Any]:
-        """Load node definition from VFS"""
+        """Load node definition from VFS packed nodes file"""
         if node_type in self.node_definitions:
             return self.node_definitions[node_type]
         
-        try:
-            node_def_path = f"/nodes/{node_type}.node"
-            response = self.session.get(f'{self.server_url}/api/virtual-files/read{node_def_path}')
-            
-            if response.status_code == 200:
-                file_data = response.json()
-                node_def = json.loads(file_data['content'])
-                self.node_definitions[node_type] = node_def
-                return node_def
-            else:
-                default_def = {
-                    "id": node_type,
-                    "execution_mode": "both",
-                    "inputs": [],
-                    "outputs": []
-                }
-                self.node_definitions[node_type] = default_def
-                return default_def
-                
-        except Exception as e:
-            print(f"Warning: Could not load node definition for {node_type}: {e}")
+        # Load all node definitions from packed file if not already loaded
+        if not hasattr(self, '_packed_nodes_loaded'):
+            self._load_packed_nodes()
+        
+        # Return the requested node definition or default
+        if node_type in self.node_definitions:
+            return self.node_definitions[node_type]
+        else:
+            print(f"Warning: Node type '{node_type}' not found in packed nodes")
             default_def = {
                 "id": node_type,
                 "execution_mode": "both",
@@ -138,6 +126,32 @@ class EnhancedWorkflowRunner:
             }
             self.node_definitions[node_type] = default_def
             return default_def
+    
+    def _load_packed_nodes(self):
+        """Load all node definitions from the packed nodes file"""
+        try:
+            pack_file_path = "/nodes/nodes-pack.json"
+            response = self.session.get(f'{self.server_url}/api/virtual-files/read{pack_file_path}')
+            
+            if response.status_code == 200:
+                file_data = response.json()
+                pack_data = json.loads(file_data['content'])
+                
+                # Load all nodes from the pack
+                nodes = pack_data.get('nodes', {})
+                for node_id, node_def in nodes.items():
+                    self.node_definitions[node_id] = node_def
+                
+                print(f"🔍 Loaded {len(nodes)} node definitions from packed file")
+                self._packed_nodes_loaded = True
+                
+            else:
+                print(f"Warning: Could not load packed nodes file: {response.status_code}")
+                self._packed_nodes_loaded = True  # Mark as attempted to avoid retry loops
+                
+        except Exception as e:
+            print(f"Warning: Error loading packed nodes file: {e}")
+            self._packed_nodes_loaded = True  # Mark as attempted to avoid retry loops
     
     def execute_workflow_parallel(self, workflow: Dict[str, Any]) -> list:
         """Execute workflow with parallel processing and real-time feedback"""
