@@ -231,9 +231,16 @@ async function executeNodeSmart(node, inputPort, inputValue, executed, nodeInput
     // Get all connected input ports for this node
     const connectedInputPorts = getConnectedInputPorts(nodeId);
     
+    console.log(`🔧 executeNodeSmart for ${node.type} node ${nodeId}:`, {
+        inputPort,
+        inputValue,
+        connectedInputPorts,
+        connectedPortsCount: connectedInputPorts.length
+    });
     
     // If node has 0 or 1 input connections, execute immediately
     if (connectedInputPorts.length <= 1) {
+        console.log(`🚀 Executing immediately (${connectedInputPorts.length} connected ports)`);
         return await executeNode(node, { [inputPort]: inputValue }, executed, nodeInputBuffer);
     }
     
@@ -254,14 +261,34 @@ async function executeNodeSmart(node, inputPort, inputValue, executed, nodeInput
     
     const buffer = nodeInputBuffer.get(nodeId);
     
+    console.log(`🔧 Buffer update BEFORE for ${node.type} node ${nodeId}:`, {
+        inputPort,
+        inputValue,
+        receivedInputsBefore: { ...buffer.receivedInputs },
+        connectedPorts: buffer.connectedPorts,
+        receivedKeysBefore: Object.keys(buffer.receivedInputs),
+        missingPorts: buffer.connectedPorts.filter(port => !(port in buffer.receivedInputs))
+    });
+    
     // Store this input
     buffer.receivedInputs[inputPort] = inputValue;
     
+    console.log(`🔧 Buffer update AFTER for ${node.type} node ${nodeId}:`, {
+        receivedInputsAfter: { ...buffer.receivedInputs },
+        receivedKeysAfter: Object.keys(buffer.receivedInputs)
+    });
     
     // Check if we have all required inputs
     const hasAllInputs = buffer.connectedPorts.every(port => port in buffer.receivedInputs);
     
+    console.log(`🔧 Input check for ${node.type} node ${nodeId}:`, {
+        hasAllInputs,
+        requiredPorts: buffer.connectedPorts,
+        receivedPorts: Object.keys(buffer.receivedInputs)
+    });
+    
     if (!hasAllInputs) {
+        console.log(`⏳ Still waiting for inputs on ${node.type} node ${nodeId}`);
         // Still waiting for more inputs
         return null;
     }

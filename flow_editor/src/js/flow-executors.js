@@ -302,6 +302,49 @@ async function executeForEachNode(engine, node, inputData, executed) {
                 
                 console.log(`For Each iteration ${currentIndex + 1}/${node.forEachState.array.length}:`, currentItem);
 
+                // Clear buffer for multi-input nodes at start of each iteration
+                if (window.globalNodeInputBuffer) {
+                    // Clear any downstream multi-input node buffers to ensure fresh state for this iteration
+                    // But be more selective - only clear nodes that aren't immediate children
+                    const immediateChildIds = [];
+                    const allDownstreamIds = [];
+                    
+                    for (const connection of flowEditor.connections.values()) {
+                        if (connection.from.nodeId === node.id) {
+                            immediateChildIds.push(connection.to.nodeId);
+                        }
+                    }
+                    
+                    // Find all downstream nodes (children of children)
+                    const findAllDownstream = (nodeIds, visited = new Set()) => {
+                        for (const nodeId of nodeIds) {
+                            if (visited.has(nodeId)) continue;
+                            visited.add(nodeId);
+                            allDownstreamIds.push(nodeId);
+                            
+                            const childIds = [];
+                            for (const connection of flowEditor.connections.values()) {
+                                if (connection.from.nodeId === nodeId) {
+                                    childIds.push(connection.to.nodeId);
+                                }
+                            }
+                            findAllDownstream(childIds, visited);
+                        }
+                    };
+                    
+                    findAllDownstream(immediateChildIds);
+                    
+                    // Only clear buffers for downstream nodes that aren't immediate children
+                    const nodesToClear = allDownstreamIds.filter(id => !immediateChildIds.includes(id));
+                    
+                    for (const nodeId of nodesToClear) {
+                        if (window.globalNodeInputBuffer.has(nodeId)) {
+                            window.globalNodeInputBuffer.delete(nodeId);
+                            console.log(`🧹 Cleared buffer for downstream node ${nodeId} at start of iteration ${currentIndex + 1}`);
+                        }
+                    }
+                }
+
                 // Execute the connected workflow - use the execution engine directly
                 try {
                     // Find nodes connected to the current_item output port
@@ -329,6 +372,20 @@ async function executeForEachNode(engine, node, inputData, executed) {
                     }
 
                     // Execute each connected node with the appropriate data
+                    // Use shared buffer for the entire iteration so multi-input nodes can accumulate
+                    const iterationExecuted = new Set();
+                    const iterationInputBuffer = new Map();
+                    
+                    // Copy any existing buffer data from global buffer that might be needed
+                    if (window.globalNodeInputBuffer) {
+                        for (const [nodeId, bufferData] of window.globalNodeInputBuffer.entries()) {
+                            iterationInputBuffer.set(nodeId, {
+                                receivedInputs: { ...bufferData.receivedInputs },
+                                connectedPorts: [...bufferData.connectedPorts]
+                            });
+                        }
+                    }
+                    
                     for (const connectedNodeInfo of connectedNodes) {
                         let inputValue;
                         
@@ -349,26 +406,13 @@ async function executeForEachNode(engine, node, inputData, executed) {
                         try {
                             // Use the workflow execution system to ensure downstream nodes execute
                             // This will trigger the complete execution chain (llm → http → etc.)
-                            // Use fresh executed set for each iteration, but copy relevant buffer data
-                            const iterationExecuted = new Set();
-                            const iterationInputBuffer = new Map();
-                            
-                            // Copy any existing buffer data from global buffer that might be needed
-                            if (window.globalNodeInputBuffer) {
-                                for (const [nodeId, bufferData] of window.globalNodeInputBuffer.entries()) {
-                                    iterationInputBuffer.set(nodeId, {
-                                        receivedInputs: { ...bufferData.receivedInputs },
-                                        connectedPorts: [...bufferData.connectedPorts]
-                                    });
-                                }
-                            }
                             
                             await executeNodeSmart(
                                 connectedNodeInfo.node, 
                                 connectedNodeInfo.inputPort, 
                                 inputValue, 
-                                iterationExecuted, // Use fresh executed set for each iteration
-                                iterationInputBuffer  // Use buffer with pre-existing data from main workflow
+                                iterationExecuted, // Use shared executed set for this iteration
+                                iterationInputBuffer  // Use shared buffer for this iteration
                             );
                             
                             // Mark node as completed after successful execution

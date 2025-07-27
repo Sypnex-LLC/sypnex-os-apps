@@ -428,6 +428,13 @@ async function executeStringNode(engine, node, inputData, executed) {
     let textB = inputData.text_b || configTextB || '';
 
     // Debug logging for input synchronization
+    console.log('🔗 String Node Input Debug:', {
+        inputData: inputData,
+        textA: textA,
+        textB: textB,
+        configTextB: configTextB,
+        operation: operation
+    });
 
     // Convert to strings
     if (typeof textA !== 'string') textA = String(textA);
@@ -438,7 +445,7 @@ async function executeStringNode(engine, node, inputData, executed) {
     try {
         switch (operation) {
             case 'concatenate':
-                result = textA + textB;
+                result = textA + separator + textB;
                 break;
             case 'split':
                 result = textA.split(separator);
