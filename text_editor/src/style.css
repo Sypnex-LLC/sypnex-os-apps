@@ -269,31 +269,68 @@
     background: var(--primary-bg);
 }
 
-/* Scrollbar Styling */
+/* Scrollbar Styling - Improved UX */
 #text-editor::-webkit-scrollbar,
 .line-numbers::-webkit-scrollbar,
 .highlighted-editor::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 16px;  /* Increased from 8px for better usability */
+    height: 16px; /* Increased from 8px for better usability */
 }
 
 #text-editor::-webkit-scrollbar-track,
 .line-numbers::-webkit-scrollbar-track,
 .highlighted-editor::-webkit-scrollbar-track {
     background: var(--glass-bg);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 #text-editor::-webkit-scrollbar-thumb,
 .line-numbers::-webkit-scrollbar-thumb,
 .highlighted-editor::-webkit-scrollbar-thumb {
     background: var(--border-color);
-    border-radius: 4px;
+    border-radius: 8px;
+    border: 2px solid var(--glass-bg); /* Adds padding around the thumb for easier clicking */
+    min-height: 30px; /* Ensures minimum thumb size for easier grabbing */
+    transition: all 0.2s ease;
 }
 
 #text-editor::-webkit-scrollbar-thumb:hover,
 .line-numbers::-webkit-scrollbar-thumb:hover,
 .highlighted-editor::-webkit-scrollbar-thumb:hover {
     background: var(--accent-color);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05); /* Slight scale on hover for better feedback */
+}
+
+#text-editor::-webkit-scrollbar-thumb:active,
+.line-numbers::-webkit-scrollbar-thumb:active,
+.highlighted-editor::-webkit-scrollbar-thumb:active {
+    background: var(--accent-primary);
+    transform: scale(1.1);
+}
+
+/* Corner where horizontal and vertical scrollbars meet */
+#text-editor::-webkit-scrollbar-corner,
+.line-numbers::-webkit-scrollbar-corner,
+.highlighted-editor::-webkit-scrollbar-corner {
+    background: var(--glass-bg);
+}
+
+/* Firefox scrollbar styling */
+#text-editor,
+.line-numbers,
+.highlighted-editor {
+    scrollbar-width: auto; /* Use standard width, not thin */
+    scrollbar-color: var(--border-color) var(--glass-bg);
+}
+
+/* For better scrollbar interaction on all browsers */
+#text-editor,
+.line-numbers,
+.highlighted-editor {
+    /* Ensure scrollbars are always visible when content overflows */
+    overflow: auto;
 }
 
 /* App Toolbar */
