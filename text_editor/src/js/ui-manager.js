@@ -8,7 +8,6 @@ function setupEventHandlers() {
     wordWrapToggle?.addEventListener('click', toggleWordWrap);
     lineNumbersToggle?.addEventListener('click', toggleLineNumbers);
     syntaxHighlightingToggle?.addEventListener('click', toggleSyntaxHighlighting);
-    validationToggle?.addEventListener('click', toggleValidation);
     
     // Textarea events
     textEditor.textarea.addEventListener('input', handleTextChange);
@@ -49,17 +48,6 @@ function handleKeyDown(e) {
         loadFile();
     }
     
-    // Ctrl/Cmd + Shift + V: Force validation
-    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'V') {
-        e.preventDefault();
-        if (isPythonFile(textEditor.filePath)) {
-            scheduleValidation();
-            sypnexAPI.showNotification('Validation triggered manually', 'info');
-        } else {
-            sypnexAPI.showNotification('Not a Python file', 'warning');
-        }
-    }
-    
     // Tab handling
     if (e.key === 'Tab') {
         e.preventDefault();
@@ -80,7 +68,6 @@ function handleKeyDown(e) {
         if (textEditor.syntaxHighlightingEnabled) {
             updateHighlightedContent();
         }
-        scheduleValidation();
     }
 }
 
@@ -120,37 +107,6 @@ function toggleLineNumbers() {
     
     sypnexAPI.showNotification(
         `Line numbers ${textEditor.lineNumbersEnabled ? 'enabled' : 'disabled'}`,
-        'info'
-    );
-}
-
-
-// Toggle code validation
-async function toggleValidation() {
-    textEditor.validationEnabled = !textEditor.validationEnabled;
-    
-    // Save setting
-    try {
-        await sypnexAPI.setSetting('CODE_VALIDATION', textEditor.validationEnabled);
-    } catch (error) {
-        console.error('Failed to save validation setting:', error);
-    }
-    
-    // Update UI
-    if (validationToggle) {
-        validationToggle.classList.toggle('active', textEditor.validationEnabled);
-    }
-    
-    // Apply validation if enabled, otherwise clear errors
-    if (textEditor.validationEnabled) {
-        scheduleValidation();
-    } else {
-        clearErrorMarkers();
-        updateErrorCount(0);
-    }
-    
-    sypnexAPI.showNotification(
-        `Code validation ${textEditor.validationEnabled ? 'enabled' : 'disabled'}`,
         'info'
     );
 }

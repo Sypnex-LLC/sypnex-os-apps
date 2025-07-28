@@ -5,14 +5,12 @@ async function loadSettings() {
             autoSaveInterval: await sypnexAPI.getSetting('AUTO_SAVE_INTERVAL', 30),
             fontSize: await sypnexAPI.getSetting('FONT_SIZE', 14),
             tabSize: await sypnexAPI.getSetting('TAB_SIZE', 4),
-            syntaxHighlighting: await sypnexAPI.getSetting('SYNTAX_HIGHLIGHTING', true),
-            codeValidation: await sypnexAPI.getSetting('CODE_VALIDATION', true)
+            syntaxHighlighting: await sypnexAPI.getSetting('SYNTAX_HIGHLIGHTING', true)
         };
         
         // Apply settings
         textEditor.textarea.style.fontSize = textEditor.settings.fontSize + 'px';
         textEditor.textarea.style.tabSize = textEditor.settings.tabSize;
-        textEditor.validationEnabled = textEditor.settings.codeValidation;
         
     } catch (error) {
         console.error('Failed to load settings:', error);
@@ -21,10 +19,8 @@ async function loadSettings() {
             autoSaveInterval: 30,
             fontSize: 14,
             tabSize: 4,
-            syntaxHighlighting: true,
-            codeValidation: true
+            syntaxHighlighting: true
         };
-        textEditor.validationEnabled = true;
     }
 }
 

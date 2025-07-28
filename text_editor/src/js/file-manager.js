@@ -60,9 +60,6 @@ async function loadFileByPath(filePath) {
             updateHighlightedContent();
         }
 
-        // Schedule validation for Python files
-        scheduleValidation();
-
         sypnexAPI.showNotification(`File loaded: ${filePath}`, 'success');
 
     } catch (error) {

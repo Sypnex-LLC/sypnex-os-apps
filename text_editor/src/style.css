@@ -329,31 +329,7 @@
     100% { opacity: 1; }
 }
 
-/* Code Validation Error Styles */
-.line-error {
-    background-color: rgba(255, 107, 107, 0.2) !important;
-    color: #ff6b6b !important;
-    border-left: 3px solid #ff6b6b !important;
-    position: relative;
-}
-
-.line-error::before {
-    content: "⚠";
-    position: absolute;
-    left: 2px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #ff6b6b;
-    font-size: 10px;
-    z-index: 1;
-}
-
-/* Error count in status bar */
-.status-value {
-    transition: color 0.3s ease;
-}
-
-/* Active validation toggle button */
+/* Active toggle button */
 .app-btn.active {
     background: var(--accent-primary);
     color: white;

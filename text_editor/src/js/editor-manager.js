@@ -30,9 +30,6 @@ function handleTextChange() {
     updateLineNumbers();
     updateStatus();
     markAsModified();
-    
-    // Schedule validation for Python files
-    scheduleValidation();
 }
 
 // Focus appropriate editor
@@ -119,10 +116,6 @@ function clearEditor() {
     if (textEditor.syntaxHighlightingEnabled && textEditor.highlightedEditor) {
         updateHighlightedContent();
     }
-    
-    // Clear any existing errors
-    clearErrorMarkers();
-    updateErrorCount(0);
     
     // Focus the textarea (not the backdrop)
     focusEditor();

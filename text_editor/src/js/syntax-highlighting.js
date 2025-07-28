@@ -194,9 +194,6 @@ function handleSimpleInput() {
     
     // Immediate highlighting update for responsive feel
     updateHighlightedContent();
-    
-    // Schedule validation for Python files
-    scheduleValidation();
 }
 
 // Handle key events that might change content

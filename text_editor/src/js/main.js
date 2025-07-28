@@ -19,19 +19,13 @@ let textEditor = {
     originalTextareaStyles: null,
     debounceTimer: null,
     // Cursor position tracking
-    cursorPosition: 0,
-    // Code validation
-    pyodideLoaded: false,
-    validationEnabled: true,
-    validationDebounceTimer: null,
-    currentErrors: [],
-    errorMarkers: []
+    cursorPosition: 0
 };
 
 // DOM elements
 let newFileBtn, loadFileBtn, saveFileBtn, saveAsFileBtn;
-let currentFilenameEl, wordWrapToggle, lineNumbersToggle, syntaxHighlightingToggle, validationToggle;
-let modifiedStatusEl, errorCountEl;
+let currentFilenameEl, wordWrapToggle, lineNumbersToggle, syntaxHighlightingToggle;
+let modifiedStatusEl;
 
 // Initialize when DOM is ready
 async function initTextEditor() {
@@ -60,10 +54,8 @@ async function initTextEditor() {
     wordWrapToggle = document.getElementById('word-wrap-toggle');
     lineNumbersToggle = document.getElementById('line-numbers-toggle');
     syntaxHighlightingToggle = document.getElementById('syntax-highlighting-toggle');
-    validationToggle = document.getElementById('validation-toggle');
     
     modifiedStatusEl = document.getElementById('modified-status');
-    errorCountEl = document.getElementById('error-count');
     
     // Critical element checks
     if (!textEditor.textarea) {
@@ -89,9 +81,6 @@ async function initTextEditor() {
     // Set initial button states
     if (syntaxHighlightingToggle) {
         syntaxHighlightingToggle.classList.toggle('active', textEditor.settings.syntaxHighlighting);
-    }
-    if (validationToggle) {
-        validationToggle.classList.toggle('active', textEditor.validationEnabled);
     }
     
     // Text Editor loaded successfully (no notification needed)
