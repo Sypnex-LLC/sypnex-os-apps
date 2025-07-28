@@ -147,13 +147,8 @@ async function executeVfsLoadNode(engine, node, inputData, executed) {
             // For blob format, read as text (data URLs are stored as text)
             data = await sypnexAPI.readVirtualFileText(filePath);
         } else if (format === 'binary') {
-            // For binary files, use the direct URL method to get Blob
-            const fileUrl = sypnexAPI.getVirtualFileUrl(filePath);
-            const response = await fetch(fileUrl);
-            if (!response.ok) {
-                throw new Error(`Failed to fetch binary file: ${response.status} ${response.statusText}`);
-            }
-            data = await response.blob();
+            // For binary files, use the new SypnexAPI method to get Blob
+            data = await sypnexAPI.readVirtualFileBlob(filePath);
         } else {
             throw new Error('Unknown format: ' + format + '. Supported formats are: json, text, blob, binary');
         }

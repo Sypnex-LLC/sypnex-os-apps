@@ -50,12 +50,6 @@ async function saveFlow() {
             flowEditor.currentFilePath = filePath;
             updateFilenameDisplay();
             sypnexAPI.showNotification(`Flow saved to: ${filePath}`, 'success');
-        } else {
-            // Fallback to localStorage
-            localStorage.setItem('flow_editor_saved_flow', JSON.stringify(flowData));
-            if (sypnexAPI && sypnexAPI.showNotification) {
-                sypnexAPI.showNotification('Flow saved to local storage!', 'success');
-            }
         }
     } catch (error) {
         console.error('Failed to save flow:', error);
@@ -113,12 +107,6 @@ async function saveFlowAs() {
             flowEditor.currentFilePath = filePath;
             updateFilenameDisplay();
             sypnexAPI.showNotification(`Flow saved as: ${filePath}`, 'success');
-        } else {
-            // Fallback to localStorage
-            localStorage.setItem('flow_editor_saved_flow', JSON.stringify(flowData));
-            if (sypnexAPI && sypnexAPI.showNotification) {
-                sypnexAPI.showNotification('Flow saved to local storage!', 'success');
-            }
         }
     } catch (error) {
         console.error('Failed to save flow as:', error);
@@ -154,14 +142,6 @@ async function loadFlow() {
                 flowData = await sypnexAPI.readVirtualFileJSON(filePath);
             } catch (vfsError) {
                 throw vfsError;
-            }
-        }
-        
-        // Fallback to localStorage (for backward compatibility)
-        if (!flowData) {
-            const localData = localStorage.getItem('flow_editor_saved_flow');
-            if (localData) {
-                flowData = JSON.parse(localData);
             }
         }
         
