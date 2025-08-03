@@ -11,18 +11,20 @@ import requests
 import time
 import base64
 from datetime import datetime
+from pathlib import Path
 
-# Developer Token for API Authentication
-# Generated using: python generate_dev_token.py --username dev --days 365 --secret "sypnex-super-secret-key-change-in-production" --quiet
-DEV_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImRldiIsImNyZWF0ZWRfYXQiOjE3NTM2MjIyNDMuMTM4NDY4NSwiZXhwIjoxNzg1MTU4MjQzLjEzODQ2ODUsImlzcyI6ImRldi1zZXJ2ZXIiLCJpYXQiOjE3NTM2MjIyNDMuMTM4NDY4NSwiZGV2X3Rva2VuIjp0cnVlfQ.4ekmb7E0-imeMh2d1piDEXfw7voJWRhRnr1avTw5G0g"
+# Add parent directory to path for config import
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# Standard headers for API requests
-def get_auth_headers():
-    """Get headers with authentication token"""
-    return {
-        'X-Session-Token': DEV_TOKEN,
-        'Content-Type': 'application/json'
-    }
+try:
+    from config import config
+    # Use centralized config for authentication
+    def get_auth_headers():
+        """Get headers with authentication token from config"""
+        return config.get_auth_headers()
+except ImportError:
+    print("❌ Error: Could not import config module. Make sure you're running from the proper workspace.")
+    sys.exit(1)
 
 def pack_app_local(app_name, source_dir="."):
     """Pack an app locally (no API needed)"""
@@ -264,16 +266,22 @@ def dev_deploy(app_name, source_dir=".", server_url="http://127.0.0.1:5000", wat
         # Convert package to JSON string for multipart upload
         package_json = json.dumps(package)
         
-        # Create multipart form data
+        # Create multipart form data with the package as a binary file
+        package_bytes = json.dumps(package).encode('utf-8')
         files = {
-            'package': (f'{app_name}_packaged.app', package_json, 'application/json')
+            'package': (f'{app_name}_packaged.app', package_bytes, 'application/octet-stream')
         }
+        
+        # Get auth headers but remove Content-Type since requests will set it for multipart
+        auth_headers = get_auth_headers()
+        if 'Content-Type' in auth_headers:
+            del auth_headers['Content-Type']
         
         # Send to install API with authentication
         install_response = requests.post(
             f'{server_url}/api/user-apps/install', 
             files=files,
-            headers={'X-Session-Token': DEV_TOKEN}
+            headers=auth_headers
         )
         
         if install_response.status_code == 200:
@@ -286,7 +294,7 @@ def dev_deploy(app_name, source_dir=".", server_url="http://127.0.0.1:5000", wat
             try:
                 refresh_response = requests.post(
                     f'{server_url}/api/user-apps/refresh',
-                    headers={'X-Session-Token': DEV_TOKEN}
+                    headers=get_auth_headers()
                 )
                 if refresh_response.status_code == 200:
                     refresh_result = refresh_response.json()
@@ -342,7 +350,7 @@ def deploy_all_apps(source_dir=".", server_url="http://127.0.0.1:5000"):
         try:
             refresh_response = requests.post(
                 f'{server_url}/api/user-apps/refresh',
-                headers={'X-Session-Token': DEV_TOKEN}
+                headers=get_auth_headers()
             )
             if refresh_response.status_code == 200:
                 refresh_result = refresh_response.json()

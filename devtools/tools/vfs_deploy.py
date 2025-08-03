@@ -8,18 +8,20 @@ import os
 import sys
 import requests
 import json
+from pathlib import Path
 
-# Developer Token for API Authentication
-# Generate this from System Settings > Developer Mode > Copy Token
-DEV_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJydWNlIiwicHVycG9zZSI6ImRldmVsb3BtZW50IiwiY3JlYXRlZF9hdCI6MTc1NDI1NzAwOS44NjkwMjEyLCJleHAiOjE3ODU3OTMwMDkuODY5MDIxMiwiaXNzIjoiZGV2LWluc3RhbmNlLTEiLCJpYXQiOjE3NTQyNTcwMDkuODY5MDIxMn0.18e9k0DddkbHkNkK-5YpF7XF0CIrnr5XPRmfcTWmz0o"
+# Add parent directory to path for config import
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-# Standard headers for API requests
-def get_auth_headers():
-    """Get headers with authentication token"""
-    return {
-        'X-Session-Token': DEV_TOKEN,
-        'Content-Type': 'application/json'
-    }
+try:
+    from config import config
+    # Use centralized config for authentication
+    def get_auth_headers():
+        """Get headers with authentication token from config"""
+        return config.get_auth_headers()
+except ImportError:
+    print("❌ Error: Could not import config module. Make sure you're running from the proper workspace.")
+    sys.exit(1)
 
 def check_and_create_scripts_directory(server_url="http://localhost:5000"):
     """Check if /scripts directory exists, create it if it doesn't"""

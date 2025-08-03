@@ -2,6 +2,8 @@
 
 > **📦 Official Apps Repository**: You're in the right place! This repository contains ready-to-use applications, development utilities, and comprehensive guides for building on Sypnex OS.
 
+> **🛠️ Development Tools**: For streamlined development, use our [unified CLI](devtools/README.md) which provides a single interface for all development tasks.
+
 ## 🚀 Quick Start
 
 Create your first app in 3 simple steps:
@@ -75,27 +77,35 @@ console.log('My App script loaded');
 
 ### 5. Test Your App
 
-Use the development tools in this repository:
+**👉 [Development CLI Guide](devtools/README.md)** - Complete guide to unified development tools
+
+Use the modern CLI for streamlined development:
 
 ```bash
+# Navigate to development tools
+cd devtools
+
 # Create new app (scaffolds structure)
-python create_app.py my_app
+python sypnex.py create my_app
 
 # Deploy for development testing
-python dev_deploy.py my_app
+python sypnex.py deploy app my_app
 
 # Package for distribution
-python pack_app.py my_app
+python sypnex.py pack my_app
 ```
 
 ## 🛠️ Development Tools
 
-This repository includes powerful development tools to streamline your workflow:
+**Recommended: [Unified CLI](devtools/README.md)** - Single interface for all development tasks
 
-### App Scaffolding
+### Using the Modern CLI (Recommended)
 ```bash
+# Navigate to development tools
+cd devtools
+
 # Create a new app with proper structure
-python create_app.py my_awesome_app
+python sypnex.py create my_awesome_app
 
 # Creates:
 # my_awesome_app/
@@ -106,7 +116,26 @@ python create_app.py my_awesome_app
 #     └── main.js           # JavaScript logic
 ```
 
+### Legacy Individual Scripts
+For reference, the old individual scripts are still available:
+
 ### Development Deployment
+
+**Modern CLI (Recommended):**
+```bash
+cd devtools
+
+# Quick deployment for testing
+python sypnex.py deploy app my_app
+
+# Deploy all apps at once
+python sypnex.py deploy all
+
+# Watch for changes and auto-redeploy
+python sypnex.py deploy app my_app --watch
+```
+
+**Legacy Scripts:**
 ```bash
 # Quick deployment for testing
 python dev_deploy.py my_app
@@ -119,6 +148,18 @@ python dev_deploy.py my_app --watch
 ```
 
 ### Production Packaging
+
+**Modern CLI (Recommended):**
+```bash
+cd devtools
+
+# Package app for distribution
+python sypnex.py pack my_app
+
+# Creates distributable .app file in releases/
+```
+
+**Legacy Script:**
 ```bash
 # Package app for distribution
 python pack_app.py my_app
@@ -127,6 +168,16 @@ python pack_app.py my_app
 ```
 
 ### VFS Script Deployment
+
+**Modern CLI (Recommended):**
+```bash
+cd devtools
+
+# Deploy Python scripts to VFS
+python sypnex.py deploy vfs script.py
+```
+
+**Legacy Scripts:**
 ```bash
 # Deploy Python scripts to VFS
 python vfs_deploy.py script.py

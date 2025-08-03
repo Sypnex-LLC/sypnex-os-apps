@@ -32,22 +32,6 @@ Official collection of applications and development tools for [Sypnex OS](https:
 - **🔧 Create App** - Scaffold new applications with proper structure
 - **📊 Enhanced Workflow Runner** - Execute and manage complex workflows
 
-## 🏗️ Project Structure
-
-```
-sypnex-os-apps/
-├── app_store/              # App marketplace and manager
-├── flow_editor/            # Visual workflow builder
-│   ├── src/               # Application source code
-│   └── node-definitions/  # Available workflow nodes
-├── llm_chat/              # AI chat application
-├── text_editor/           # Code editor application
-├── create_app.py          # App scaffolding tool
-├── pack_app.py           # App packaging utility
-├── dev_deploy.py         # Development deployment tool
-└── term_deploy.py        # Terminal script deployment
-```
-
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -57,66 +41,61 @@ sypnex-os-apps/
 ### Create Your First App
 
 ```bash
-# 1. Create a new app (scaffolds proper structure)
-python create_app.py my_awesome_app
+# 1. Navigate to development tools
+cd devtools
 
-# 2. Edit your app files:
+# 2. Create a new app (scaffolds proper structure)
+python sypnex.py create my_awesome_app
+
+# 3. Edit your app files:
 # my_awesome_app/my_awesome_app.app  # App metadata
 # my_awesome_app/src/index.html      # App interface  
 # my_awesome_app/src/style.css       # App styles
 # my_awesome_app/src/main.js         # App logic
 
-# 3. Deploy for testing
-python dev_deploy.py my_awesome_app
+# 4. Deploy for testing
+python sypnex.py deploy app my_awesome_app
 
-# 4. Package for distribution
-python pack_app.py my_awesome_app
+# 5. Package for distribution
+python sypnex.py pack my_awesome_app
 ```
 
-**👉 [Read the Complete Development Guide](USER_APP_DEVELOPMENT_GUIDE.md)** for detailed instructions, examples, and best practices.
+**👉 [Complete Development CLI Guide](devtools/README.md)** - Unified CLI for all development tools
+
+**👉 [Complete Development Guide](USER_APP_DEVELOPMENT_GUIDE.md)** - Detailed instructions, examples, and best practices
 
 ## 🛠️ Development Tools
 
-This repository includes powerful development tools to streamline your app development workflow:
+This repository includes a powerful unified CLI for streamlined app development:
 
-### App Development Workflow
+**👉 [Development CLI](devtools/README.md)** - Complete guide to the unified development tools
+
+### Quick Development Workflow
 
 ```bash
-# 1. Create - Generate new app template
-python create_app.py my_app
+# Navigate to development tools
+cd devtools
 
-# 2. Develop - Edit files in the src/ directory
+# 1. Create - Generate new app template
+python sypnex.py create my_app
+
+# 2. Develop - Edit files in your app's src/ directory
+
 # 3. Test - Quick development deployment
-python dev_deploy.py my_app
+python sypnex.py deploy app my_app
 
 # 4. Package - Create distributable packages  
-python pack_app.py my_app
+python sypnex.py pack my_app
 
 # 5. Deploy - Install through Sypnex OS App Store
 ```
 
-### Available Development Scripts
-
-| Script | Purpose | Usage |
-|--------|---------|-------|
-| **`create_app.py`** | Generate new app template | `python create_app.py my_app` |
-| **`dev_deploy.py`** | Quick development deployment | `python dev_deploy.py my_app` |
-| **`pack_app.py`** | Package apps for distribution | `python pack_app.py my_app` |
-| **`term_deploy.py`** | Deploy Python scripts to VFS | `python term_deploy.py script.py` |
-| **`enhanced_workflow_runner.py`** | Execute workflow files | `python enhanced_workflow_runner.py workflow.json` |
-
-### Development Deployment Options
-
-```bash
-# Deploy individual app for development
-python dev_deploy.py flow_editor
-
-# Deploy all apps at once
-python dev_deploy.py all
-
-# Watch for changes and auto-redeploy (great for active development)
-python dev_deploy.py flow_editor --watch
-```
+**Key Benefits:**
+- **Single CLI** - One command interface for all development tasks
+- **Centralized Config** - JWT tokens and settings in .env file  
+- **Auto-deploy** - Watch mode for live development
+- **Multi-target** - Deploy to local or remote instances
+- **Secure** - Tokens never committed to version control
 
 ## 📋 App Structure
 

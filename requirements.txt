@@ -1,0 +1,5 @@
+# Core dependencies for Sypnex OS development tools
+requests>=2.25.0
+
+# Optional: For .env file support (recommended)
+python-dotenv>=0.19.0
