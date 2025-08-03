@@ -599,6 +599,36 @@ await sypnexAPI.libraries.loadLibrary('chart', '3.9.1');
 - [Sypnex OS](https://github.com/Sypnex-LLC/sypnex-os) running locally
 - Python 3.7+ (for development tools)
 
+### Developer Authentication Setup
+
+The development deployment tools (`dev_deploy.py`, `term_deploy.py`) require authentication to deploy apps to your Sypnex OS instance.
+
+#### Getting Your Developer Token
+
+1. **Open System Settings** in your Sypnex OS instance
+2. **Enable Developer Mode** - This will show the developer token section
+3. **Copy the generated JWT token** - This token is valid for 1 year
+4. **Update your deployment script** with the token:
+
+```python
+# In dev_deploy.py, update the DEV_TOKEN variable:
+DEV_TOKEN = "your_generated_jwt_token_here"
+```
+
+#### Remote Deployment
+
+You can also deploy to remote Sypnex OS instances using the `--server` parameter:
+
+```bash
+# Deploy to remote instance
+python dev_deploy.py my_app --server https://your-instance.com/
+
+# Deploy all apps to remote instance  
+python dev_deploy.py all --server https://your-instance.com/
+```
+
+**Note**: Make sure your remote instance has Developer Mode enabled and use the corresponding JWT token.
+
 ### Development Workflow
 
 1. **Create** - Use `create_app.py` to scaffold new applications
