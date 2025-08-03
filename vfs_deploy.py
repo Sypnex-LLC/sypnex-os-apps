@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Term Deploy Script - Deploy Python files to VFS /scripts/ directory
-Usage: python term_deploy.py <python_file> [options]
+VFS Deploy Script - Deploy Python files to VFS /scripts/ directory
+Usage: python vfs_deploy.py <python_file> [options]
 """
 
 import os
@@ -9,11 +9,24 @@ import sys
 import requests
 import json
 
+# Developer Token for API Authentication
+# Generate this from System Settings > Developer Mode > Copy Token
+DEV_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJydWNlIiwicHVycG9zZSI6ImRldmVsb3BtZW50IiwiY3JlYXRlZF9hdCI6MTc1NDI1NzAwOS44NjkwMjEyLCJleHAiOjE3ODU3OTMwMDkuODY5MDIxMiwiaXNzIjoiZGV2LWluc3RhbmNlLTEiLCJpYXQiOjE3NTQyNTcwMDkuODY5MDIxMn0.18e9k0DddkbHkNkK-5YpF7XF0CIrnr5XPRmfcTWmz0o"
+
+# Standard headers for API requests
+def get_auth_headers():
+    """Get headers with authentication token"""
+    return {
+        'X-Session-Token': DEV_TOKEN,
+        'Content-Type': 'application/json'
+    }
+
 def check_and_create_scripts_directory(server_url="http://localhost:5000"):
     """Check if /scripts directory exists, create it if it doesn't"""
     try:
         # Try to get info about the /scripts directory
-        response = requests.get(f'{server_url}/api/virtual-files/info/scripts')
+        response = requests.get(f'{server_url}/api/virtual-files/info/scripts', 
+                              headers=get_auth_headers())
         
         if response.status_code == 200:
             print(f"✅ /scripts directory already exists")
@@ -22,7 +35,8 @@ def check_and_create_scripts_directory(server_url="http://localhost:5000"):
             # Directory doesn't exist, create it
             print(f"📁 Creating /scripts directory...")
             create_response = requests.post(f'{server_url}/api/virtual-files/create-folder', 
-                json={'name': 'scripts', 'parent_path': '/'})
+                json={'name': 'scripts', 'parent_path': '/'}, 
+                headers=get_auth_headers())
             
             if create_response.status_code == 200:
                 print(f"✅ Created /scripts directory")
@@ -49,7 +63,7 @@ def check_and_create_scripts_directory(server_url="http://localhost:5000"):
 def deploy_python_file(python_file, server_url="http://localhost:5000"):
     """Deploy a Python file to VFS /scripts/ directory"""
     
-    print(f"🚀 Term Deploy: {python_file}")
+    print(f"🚀 VFS Deploy: {python_file}")
     print(f"🌐 Server: {server_url}")
     
     # Check if file exists
@@ -84,7 +98,8 @@ def deploy_python_file(python_file, server_url="http://localhost:5000"):
                 'name': filename,
                 'parent_path': '/scripts',
                 'content': content
-            })
+            },
+            headers=get_auth_headers())
         
         if create_response.status_code == 200:
             result = create_response.json()
@@ -111,10 +126,10 @@ def main():
     """Main function"""
     if len(sys.argv) < 2:
         print("❌ Error: Python file is required")
-        print("Usage: python term_deploy.py <python_file> [options]")
+        print("Usage: python vfs_deploy.py <python_file> [options]")
         print("\nExamples:")
-        print("  python term_deploy.py test_workflow_runner.py")
-        print("  python term_deploy.py ../my_script.py --server http://localhost:5000")
+        print("  python vfs_deploy.py test_workflow_runner.py")
+        print("  python vfs_deploy.py ../my_script.py --server http://localhost:5000")
         print("\nOptions:")
         print("  --server <url>  # Server URL (default: http://localhost:5000)")
         return

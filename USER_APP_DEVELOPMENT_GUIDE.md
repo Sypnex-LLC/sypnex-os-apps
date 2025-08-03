@@ -126,10 +126,10 @@ python pack_app.py my_app
 # Creates distributable .app file in releases/
 ```
 
-### Terminal Script Deployment
+### VFS Script Deployment
 ```bash
 # Deploy Python scripts to VFS
-python term_deploy.py script.py
+python vfs_deploy.py script.py
 
 # Enhanced workflow execution
 python enhanced_workflow_runner.py workflow.json
@@ -601,7 +601,7 @@ await sypnexAPI.libraries.loadLibrary('chart', '3.9.1');
 
 ### Developer Authentication Setup
 
-The development deployment tools (`dev_deploy.py`, `term_deploy.py`) require authentication to deploy apps to your Sypnex OS instance.
+The development deployment tools (`dev_deploy.py`, `vfs_deploy.py`) require authentication to deploy apps to your Sypnex OS instance.
 
 #### Getting Your Developer Token
 
