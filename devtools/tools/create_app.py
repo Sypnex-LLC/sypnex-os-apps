@@ -9,7 +9,7 @@ import sys
 import json
 from pathlib import Path
 
-def create_app(app_name):
+def create_app(app_name, output_dir=None):
     """Create a new user app with the given name"""
     
     # Validate app name
@@ -27,24 +27,29 @@ def create_app(app_name):
             print(f"❌ Error: App name cannot contain '{char}'")
             return False
     
-    # Define paths - get script directory and build paths relative to it
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    app_dir = os.path.join(script_dir, app_name)
-    src_dir = os.path.join(app_dir, "src")
-    app_file = os.path.join(app_dir, f"{app_name}.app")
+    # Define paths - use provided output directory or default to script parent
+    if output_dir:
+        base_dir = Path(output_dir).resolve()
+    else:
+        # Default to current working directory when no output specified
+        base_dir = Path.cwd()
+    
+    app_dir = base_dir / app_name
+    src_dir = app_dir / "src"
+    app_file = app_dir / f"{app_name}.app"
     
     # Check if app already exists
-    if os.path.exists(app_dir):
+    if app_dir.exists():
         print(f"❌ Error: App '{app_name}' already exists at {app_dir}")
         return False
     
     try:
         # Create app directory
-        os.makedirs(app_dir)
+        app_dir.mkdir(parents=True, exist_ok=False)
         print(f"✅ Created app directory: {app_dir}")
         
         # Create src directory
-        os.makedirs(src_dir)
+        src_dir.mkdir(parents=True, exist_ok=False)
         print(f"✅ Created src directory: {src_dir}")
         
         # Create index.html
@@ -59,8 +64,7 @@ def create_app(app_name):
     </div>
 </div>"""
         
-        with open(os.path.join(src_dir, "index.html"), "w", encoding="utf-8") as f:
-            f.write(index_html_content)
+        (src_dir / "index.html").write_text(index_html_content, encoding="utf-8")
         print(f"✅ Created index.html")
         
         # Create style.css
@@ -69,8 +73,7 @@ def create_app(app_name):
 /* Add your custom styles below */
 """
         
-        with open(os.path.join(src_dir, "style.css"), "w", encoding="utf-8") as f:
-            f.write(style_css_content)
+        (src_dir / "style.css").write_text(style_css_content, encoding="utf-8")
         print(f"✅ Created style.css")
         
         # Create script.js
@@ -108,8 +111,7 @@ if (document.readyState === 'loading') {{
 // Add your custom JavaScript below
 """
         
-        with open(os.path.join(src_dir, "script.js"), "w", encoding="utf-8") as f:
-            f.write(script_js_content)
+        (src_dir / "script.js").write_text(script_js_content, encoding="utf-8")
         print(f"✅ Created script.js")
         
         # Create .app file
@@ -148,7 +150,7 @@ if (document.readyState === 'loading') {{
     except Exception as e:
         print(f"❌ Error creating app: {e}")
         # Clean up on error
-        if os.path.exists(app_dir):
+        if app_dir.exists():
             import shutil
             shutil.rmtree(app_dir)
             print(f"🧹 Cleaned up partial app directory")

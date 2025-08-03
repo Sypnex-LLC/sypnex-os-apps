@@ -27,18 +27,24 @@ This apps repository is part of the larger Sypnex OS ecosystem:
    git clone https://github.com/YOUR_USERNAME/sypnex-os-apps.git
    cd sypnex-os-apps
    ```
-3. **Ensure Sypnex OS is running**:
+3. **Set up the unified CLI**:
+   ```bash
+   cd devtools
+   cp .env.example .env
+   # Edit .env and set your SYPNEX_DEV_TOKEN from Sypnex OS Developer Mode
+   ```
+4. **Ensure Sypnex OS is running**:
    ```bash
    # In a separate directory with Sypnex OS
    python app.py
    ```
-4. **Create a new app**:
+5. **Create a new app anywhere**:
    ```bash
-   python create_app.py my_test_app
+   python sypnex.py create my_test_app --output "C:\my_projects"
    ```
-5. **Deploy for testing**:
+6. **Deploy for testing**:
    ```bash
-   python dev_deploy.py my_test_app
+   python sypnex.py deploy app "C:\my_projects\my_test_app"
    ```
 
 ## 🤖 Development Philosophy
@@ -113,13 +119,14 @@ We welcome new ideas. When suggesting features:
    ```
 
 2. **Develop your app** following our standards:
-   - Use the app scaffolding tool: `python create_app.py your_app`
+   - Navigate to devtools: `cd devtools`
+   - Use the unified CLI scaffolding: `python sypnex.py create your_app --output "C:\your_projects"`
    - Follow the [App Development Guide](USER_APP_DEVELOPMENT_GUIDE.md)
    - Use proper app structure and metadata
-   - Test frequently with `python dev_deploy.py your_app`
+   - Test frequently with `python sypnex.py deploy app "C:\your_projects\your_app"`
 
 3. **Test your changes**:
-   - Deploy with `python dev_deploy.py your_app`
+   - Deploy with `python sypnex.py deploy app "C:\your_projects\your_app"`
    - Test all app functionality in Sypnex OS
    - Check for console errors
    - Test app settings and configuration
@@ -127,7 +134,7 @@ We welcome new ideas. When suggesting features:
 
 4. **Package your app** (if submitting for inclusion):
    ```bash
-   python pack_app.py your_app
+   python sypnex.py pack "C:\your_projects\your_app"
    ```
 
 5. **Document your app**:
@@ -190,7 +197,8 @@ We welcome new ideas. When suggesting features:
 ## 🧪 Testing
 
 ### Manual Testing
-- Test your app in Sypnex OS environment using `python dev_deploy.py your_app`
+- Navigate to devtools: `cd devtools`
+- Test your app in Sypnex OS environment using `python sypnex.py deploy app "C:\your_projects\your_app"`
 - Verify all app functionality works as expected
 - Check for console errors or warnings
 - Test app settings and configuration

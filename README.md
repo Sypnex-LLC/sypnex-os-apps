@@ -44,20 +44,24 @@ Official collection of applications and development tools for [Sypnex OS](https:
 # 1. Navigate to development tools
 cd devtools
 
-# 2. Create a new app (scaffolds proper structure)
-python sypnex.py create my_awesome_app
+# 2. Configure your environment (one-time setup)
+cp .env.example .env
+# Edit .env and set your SYPNEX_DEV_TOKEN
 
-# 3. Edit your app files:
-# my_awesome_app/my_awesome_app.app  # App metadata
-# my_awesome_app/src/index.html      # App interface  
-# my_awesome_app/src/style.css       # App styles
-# my_awesome_app/src/main.js         # App logic
+# 3. Create a new app anywhere you want
+python sypnex.py create my_awesome_app --output "C:\my_projects"
 
-# 4. Deploy for testing
-python sypnex.py deploy app my_awesome_app
+# 4. Edit your app files:
+# C:\my_projects\my_awesome_app\my_awesome_app.app  # App metadata
+# C:\my_projects\my_awesome_app\src\index.html      # App interface  
+# C:\my_projects\my_awesome_app\src\style.css       # App styles
+# C:\my_projects\my_awesome_app\src\script.js       # App logic
 
-# 5. Package for distribution
-python sypnex.py pack my_awesome_app
+# 5. Deploy for testing (using explicit path)
+python sypnex.py deploy app "C:\my_projects\my_awesome_app"
+
+# 6. Package for distribution
+python sypnex.py pack "C:\my_projects\my_awesome_app"
 ```
 
 **👉 [Complete Development CLI Guide](devtools/README.md)** - Unified CLI for all development tools
@@ -76,22 +80,28 @@ This repository includes a powerful unified CLI for streamlined app development:
 # Navigate to development tools
 cd devtools
 
-# 1. Create - Generate new app template
-python sypnex.py create my_app
+# 1. Create - Generate new app template anywhere
+python sypnex.py create my_app --output "C:\your_projects"
 
 # 2. Develop - Edit files in your app's src/ directory
 
-# 3. Test - Quick development deployment
-python sypnex.py deploy app my_app
+# 3. Test - Quick development deployment with explicit path
+python sypnex.py deploy app "C:\your_projects\my_app"
 
 # 4. Package - Create distributable packages  
-python sypnex.py pack my_app
+python sypnex.py pack "C:\your_projects\my_app"
 
-# 5. Deploy - Install through Sypnex OS App Store
+# 5. Deploy files to VFS - Deploy scripts or files
+python sypnex.py deploy vfs "C:\your_scripts\script.py"
+
+# 6. Deploy all apps from a directory
+python sypnex.py deploy all "C:\your_projects"
 ```
 
 **Key Benefits:**
 - **Single CLI** - One command interface for all development tasks
+- **100% Decoupled** - Create apps anywhere, no project structure assumptions
+- **Explicit Paths** - Always specify exactly where your files are
 - **Centralized Config** - JWT tokens and settings in .env file  
 - **Auto-deploy** - Watch mode for live development
 - **Multi-target** - Deploy to local or remote instances
@@ -183,10 +193,12 @@ We welcome contributions to the Sypnex OS Apps ecosystem!
 ### Getting Started
 
 1. Fork this repository
-2. Create a new app using `python create_app.py your_app_name`
-3. Develop your app following our [Development Guide](USER_APP_DEVELOPMENT_GUIDE.md)
-4. Test using `python dev_deploy.py your_app_name`
-5. Submit a pull request
+2. Navigate to devtools: `cd devtools`
+3. Set up your environment: `cp .env.example .env` and configure
+4. Create a new app: `python sypnex.py create your_app_name --output "C:\your_projects"`
+5. Develop your app following our [Development Guide](USER_APP_DEVELOPMENT_GUIDE.md)
+6. Test using: `python sypnex.py deploy app "C:\your_projects\your_app_name"`
+7. Submit a pull request
 
 ### App Development Guidelines
 

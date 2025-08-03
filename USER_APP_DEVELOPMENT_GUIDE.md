@@ -2,11 +2,13 @@
 
 > **📦 Official Apps Repository**: You're in the right place! This repository contains ready-to-use applications, development utilities, and comprehensive guides for building on Sypnex OS.
 
-> **🛠️ Development Tools**: For streamlined development, use our [unified CLI](devtools/README.md) which provides a single interface for all development tasks.
+> **🛠️ Development Tools**: For streamlined development, use our [unified CLI](devtools/README.md) which provides a single interface for all development tasks with **100% decoupled** project structure - create apps anywhere!
+
+> **🎯 Key Innovation**: Our development CLI is completely decoupled from project structure. You can create, deploy, and manage apps from any location on your system - no assumptions about where your files should be!
 
 ## 🚀 Quick Start
 
-Create your first app in 3 simple steps:
+Create your first app in 3 simple steps (anywhere on your system!):
 
 ### 1. Create App Structure
 ```
@@ -652,73 +654,102 @@ await sypnexAPI.libraries.loadLibrary('chart', '3.9.1');
 
 ### Developer Authentication Setup
 
-The development deployment tools (`dev_deploy.py`, `vfs_deploy.py`) require authentication to deploy apps to your Sypnex OS instance.
+The unified CLI uses secure configuration to manage authentication tokens.
 
 #### Getting Your Developer Token
 
 1. **Open System Settings** in your Sypnex OS instance
 2. **Enable Developer Mode** - This will show the developer token section
 3. **Copy the generated JWT token** - This token is valid for 1 year
-4. **Update your deployment script** with the token:
+4. **Configure the CLI** with your token:
 
-```python
-# In dev_deploy.py, update the DEV_TOKEN variable:
-DEV_TOKEN = "your_generated_jwt_token_here"
+```bash
+# Navigate to devtools
+cd devtools
+
+# Copy the environment template
+cp .env.example .env
+
+# Edit .env file and set:
+# SYPNEX_DEV_TOKEN=your_generated_jwt_token_here
+# SYPNEX_SERVER=https://localhost:8080
+# SYPNEX_INSTANCE=local-dev
 ```
 
 #### Remote Deployment
 
-You can also deploy to remote Sypnex OS instances using the `--server` parameter:
+You can deploy to remote Sypnex OS instances using the `--server` parameter or by updating your .env file:
 
 ```bash
-# Deploy to remote instance
-python dev_deploy.py my_app --server https://your-instance.com/
+# Deploy to remote instance (override .env)
+python sypnex.py deploy app "C:\my_projects\my_app" --server https://your-instance.com/
 
 # Deploy all apps to remote instance  
-python dev_deploy.py all --server https://your-instance.com/
+python sypnex.py deploy all "C:\my_projects" --server https://your-instance.com/
+
+# Deploy VFS files to remote instance
+python sypnex.py deploy vfs "C:\scripts\script.py" --server https://your-instance.com/
 ```
 
 **Note**: Make sure your remote instance has Developer Mode enabled and use the corresponding JWT token.
 
 ### Development Workflow
 
-1. **Create** - Use `create_app.py` to scaffold new applications
+1. **Setup** - Configure the unified CLI (one-time setup)
    ```bash
-   python create_app.py my_awesome_app
+   cd devtools
+   cp .env.example .env
+   # Edit .env and set your SYPNEX_DEV_TOKEN
    ```
 
-2. **Develop** - Edit files in the `src/` directory
-3. **Test** - Use `dev_deploy.py` for quick deployment and testing
+2. **Create** - Use the unified CLI to scaffold new applications anywhere
    ```bash
-   python dev_deploy.py my_awesome_app
+   python sypnex.py create my_awesome_app --output "C:\my_projects"
+   ```
+
+3. **Develop** - Edit files in the `src/` directory of your app
+4. **Test** - Use the unified CLI for quick deployment and testing with explicit paths
+   ```bash
+   python sypnex.py deploy app "C:\my_projects\my_awesome_app"
    
    # Or with auto-watch for changes
-   python dev_deploy.py my_awesome_app --watch
+   python sypnex.py deploy app "C:\my_projects\my_awesome_app" --watch
    ```
 
-4. **Package** - Use `pack_app.py` to create distributable packages
+5. **Package** - Use the unified CLI to create distributable packages
    ```bash
-   python pack_app.py my_awesome_app
+   python sypnex.py pack "C:\my_projects\my_awesome_app"
    ```
 
-5. **Deploy** - Install through Sypnex OS App Store
+6. **Deploy Scripts** - Deploy Python scripts to VFS from anywhere
+   ```bash
+   python sypnex.py deploy vfs "C:\my_scripts\automation.py"
+   ```
+
+7. **Deploy** - Install through Sypnex OS App Store
 
 ### Development Deployment
 ```bash
-# Deploy individual app for development
-python dev_deploy.py flow_editor
+# Navigate to devtools first
+cd devtools
 
-# Deploy all apps at once
-python dev_deploy.py all
+# Deploy individual app for development (explicit path)
+python sypnex.py deploy app "C:\my_projects\flow_editor"
+
+# Deploy all apps from a directory
+python sypnex.py deploy all "C:\my_projects"
 
 # Watch for changes and auto-redeploy
-python dev_deploy.py flow_editor --watch
+python sypnex.py deploy app "C:\my_projects\flow_editor" --watch
 ```
 
 ### Production Deployment
 ```bash
-# Package an app for distribution
-python pack_app.py flow_editor
+# Navigate to devtools first
+cd devtools
+
+# Package an app for distribution (explicit path)
+python sypnex.py pack "C:\my_projects\flow_editor"
 
 # Install via Sypnex OS App Store
 # Upload the generated .app file through the UI
@@ -984,14 +1015,15 @@ console.log('Counter App script loaded');
 
 1. Create the app structure:
    ```bash
-   python create_app.py my_counter
+   cd devtools
+   python sypnex.py create my_counter --output "C:\my_projects"
    ```
 
 2. Replace the generated files with the example code above
 
 3. Deploy for testing:
    ```bash
-   python dev_deploy.py my_counter
+   python sypnex.py deploy app "C:\my_projects\my_counter"
    ```
 
 4. Open Sypnex OS and launch your counter app!
