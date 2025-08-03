@@ -7,7 +7,7 @@ Entry point for the modular workflow runner system
 import json
 import sys
 import time
-from workflow_runner import EnhancedWorkflowRunner
+from core import EnhancedWorkflowRunner
 
 
 def main():
