@@ -108,25 +108,4 @@ sypnex-os-apps/
 - Use different tokens for different environments
 - Tokens have 1-year expiration for security
 
-## 🚀 Migration from Old Scripts
-
-If you were using the old individual scripts:
-
-```bash
-# Old way:
-python dev_deploy.py my_app --server https://...
-python vfs_deploy.py script.py --server https://...
-python pack_app.py my_app
-python create_app.py my_app
-
-# New way:
-cd devtools
-python sypnex.py deploy app my_app --server https://...
-python sypnex.py deploy vfs script.py --server https://...
-python sypnex.py pack my_app
-python sypnex.py create my_app
-```
-
-The old scripts still work but are deprecated. The CLI provides a better, unified experience!
-
 Happy app building! 🎉
