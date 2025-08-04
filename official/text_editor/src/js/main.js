@@ -99,14 +99,14 @@ async function checkForAppIntent() {
         
         if (intentData && intentData.action === 'open_file') {
             
+            // Clear the intent immediately after reading it, regardless of success/failure
+            await sypnexAPI.setPreference('text_editor', '_pending_intent', null);
+            
             const fileData = intentData.data;
             if (fileData && fileData.filePath) {
                 
                 // Use existing file loading logic instead of duplicating it
                 await loadFileByPath(fileData.filePath);
-                
-                // Clear the intent since we consumed it (set to null)
-                await sypnexAPI.setPreference('text_editor', '_pending_intent', null);
                 
             } else {
                 console.warn('Text Editor: Invalid file data in intent:', fileData);
