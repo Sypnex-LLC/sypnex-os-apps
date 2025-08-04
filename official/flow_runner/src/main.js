@@ -4,7 +4,7 @@ class FlowRunner {
         this.jobs = new Map();
         this.stats = {};
         this.isLoading = false;
-        this.flowRunnerUrl = '{{FLOW_RUNNER_API}}'; // Will be templated by Sypnex OS
+        this.flowRunnerUrl = '/api/flow-runner'; // Use Sypnex OS proxy endpoints
         this.refreshInterval = null;
         
         this.init();
@@ -135,18 +135,22 @@ class FlowRunner {
 
     async fetchJobs() {
         try {
-            const response = await sypnexAPI.proxyGET(`${this.flowRunnerUrl}/api/jobs`);
+            const response = await sypnexAPI.proxyGET(`${this.flowRunnerUrl}/jobs`);
             
             // Handle different response formats
             let jobsData;
             
-            // If response has content field, parse it as JSON
+            // If response has content field, use it directly if it's an object, or parse it if it's a string
             if (response.content) {
-                try {
-                    jobsData = JSON.parse(response.content);
-                } catch (e) {
-                    console.warn('Failed to parse jobs response content as JSON:', e);
-                    jobsData = response;
+                if (typeof response.content === 'object') {
+                    jobsData = response.content;
+                } else {
+                    try {
+                        jobsData = JSON.parse(response.content);
+                    } catch (e) {
+                        console.warn('Failed to parse jobs response content as JSON:', e);
+                        jobsData = response;
+                    }
                 }
             } else if (response.success && response.data) {
                 // Format: { success: true, data: { jobs: [...] } }
@@ -184,18 +188,22 @@ class FlowRunner {
 
     async fetchStats() {
         try {
-            const response = await sypnexAPI.proxyGET(`${this.flowRunnerUrl}/api/stats`);
+            const response = await sypnexAPI.proxyGET(`${this.flowRunnerUrl}/stats`);
             
             // Handle different response formats
             let statsData;
             
-            // If response has content field, parse it as JSON
+            // If response has content field, use it directly if it's an object, or parse it if it's a string
             if (response.content) {
-                try {
-                    statsData = JSON.parse(response.content);
-                } catch (e) {
-                    console.warn('Failed to parse stats response content as JSON:', e);
-                    statsData = response;
+                if (typeof response.content === 'object') {
+                    statsData = response.content;
+                } else {
+                    try {
+                        statsData = JSON.parse(response.content);
+                    } catch (e) {
+                        console.warn('Failed to parse stats response content as JSON:', e);
+                        statsData = response;
+                    }
                 }
             } else if (response.success && response.data) {
                 // Format: { success: true, data: { total_jobs: 0, ... } }
@@ -258,6 +266,7 @@ class FlowRunner {
     }
 
     createJobCard(job) {
+        console.log('Creating job card for job:', job.id, 'with status:', job.status);
         const card = document.createElement('div');
         card.className = 'job-card';
         card.innerHTML = `
@@ -377,19 +386,23 @@ class FlowRunner {
 
     async cancelJob(jobId) {
         try {
-            const response = await sypnexAPI.proxyDELETE(`${this.flowRunnerUrl}/api/jobs/${jobId}`);
+            const response = await sypnexAPI.proxyDELETE(`${this.flowRunnerUrl}/jobs/${jobId}`);
             
             // Handle different response formats
             let success = false;
             let responseData = response;
             
-            // If response has content field, parse it as JSON
+            // If response has content field, use it directly if it's an object, or parse it if it's a string
             if (response.content) {
-                try {
-                    responseData = JSON.parse(response.content);
-                } catch (e) {
-                    console.warn('Failed to parse cancel response content as JSON:', e);
-                    responseData = response;
+                if (typeof response.content === 'object') {
+                    responseData = response.content;
+                } else {
+                    try {
+                        responseData = JSON.parse(response.content);
+                    } catch (e) {
+                        console.warn('Failed to parse cancel response content as JSON:', e);
+                        responseData = response;
+                    }
                 }
             }
             
@@ -426,19 +439,23 @@ class FlowRunner {
         }
 
         try {
-            const response = await sypnexAPI.proxyDELETE(`${this.flowRunnerUrl}/api/jobs/${jobId}/delete`);
+            const response = await sypnexAPI.proxyDELETE(`${this.flowRunnerUrl}/jobs/${jobId}/delete`);
             
             // Handle different response formats
             let success = false;
             let responseData = response;
             
-            // If response has content field, parse it as JSON
+            // If response has content field, use it directly if it's an object, or parse it if it's a string
             if (response.content) {
-                try {
-                    responseData = JSON.parse(response.content);
-                } catch (e) {
-                    console.warn('Failed to parse delete response content as JSON:', e);
-                    responseData = response;
+                if (typeof response.content === 'object') {
+                    responseData = response.content;
+                } else {
+                    try {
+                        responseData = JSON.parse(response.content);
+                    } catch (e) {
+                        console.warn('Failed to parse delete response content as JSON:', e);
+                        responseData = response;
+                    }
                 }
             }
             
@@ -488,8 +505,6 @@ class FlowRunner {
                     </span>
                     <span class="detail-label">Workflow Path:</span>
                     <span class="detail-value">${job.workflow_path}</span>
-                    <span class="detail-label">Sypnex OS URL:</span>
-                    <span class="detail-value">${job.sypnex_os_url}</span>
                 </div>
             </div>
 
@@ -539,10 +554,9 @@ class FlowRunner {
 
     async submitNewJob() {
         const workflowPath = document.getElementById('workflow-path').value.trim();
-        const sypnexOsUrl = document.getElementById('sypnex-os-url').value.trim();
 
-        if (!workflowPath || !sypnexOsUrl) {
-            sypnexAPI.showNotification('Please fill in all required fields', 'error');
+        if (!workflowPath) {
+            sypnexAPI.showNotification('Please specify a workflow path', 'error');
             return;
         }
 
@@ -554,11 +568,10 @@ class FlowRunner {
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
 
-            const response = await sypnexAPI.proxyJSON(`${this.flowRunnerUrl}/api/jobs`, {
+            const response = await sypnexAPI.proxyJSON(`${this.flowRunnerUrl}/jobs`, {
                 method: 'POST',
                 data: {
-                    workflow_path: workflowPath,
-                    sypnex_os_url: sypnexOsUrl
+                    workflow_path: workflowPath
                 }
             });
 
@@ -566,13 +579,17 @@ class FlowRunner {
             let success = false;
             let responseData = response;
             
-            // If response has content field, parse it as JSON
+            // If response has content field, use it directly if it's an object, or parse it if it's a string
             if (response.content) {
-                try {
-                    responseData = JSON.parse(response.content);
-                } catch (e) {
-                    console.warn('Failed to parse response content as JSON:', e);
-                    responseData = response;
+                if (typeof response.content === 'object') {
+                    responseData = response.content;
+                } else {
+                    try {
+                        responseData = JSON.parse(response.content);
+                    } catch (e) {
+                        console.warn('Failed to parse response content as JSON:', e);
+                        responseData = response;
+                    }
                 }
             }
             
@@ -600,7 +617,7 @@ class FlowRunner {
             }
         } catch (error) {
             console.error('Error submitting job:', error);
-            sypnexAPI.showNotification(`Failed to submit job: ${error.message}`, 'error');
+            sypnexAPI.showNotification(`Failed to submit job: ${error.message || JSON.stringify(error)}`, 'error');
         } finally {
             // Restore button state
             submitBtn.disabled = false;
