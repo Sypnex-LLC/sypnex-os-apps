@@ -11,6 +11,44 @@ import base64
 from pathlib import Path
 from datetime import datetime
 
+def minify_css(css_content):
+    """Minify CSS content using production library"""
+    try:
+        from csscompressor import compress
+        # csscompressor removes comments and compresses by default
+        return compress(css_content)
+    except ImportError:
+        print("⚠️  csscompressor not available, skipping CSS minification")
+        return css_content
+    except Exception as e:
+        print(f"⚠️  CSS minification failed: {e}")
+        return css_content
+
+def minify_html(html_content):
+    """Minify HTML content using production library"""
+    try:
+        from htmlmin import minify
+        return minify(html_content, remove_comments=True, remove_empty_space=True)
+    except ImportError:
+        print("⚠️  htmlmin not available, skipping HTML minification")
+        return html_content
+    except Exception as e:
+        print(f"⚠️  HTML minification failed: {e}")
+        return html_content
+
+def minify_js(js_content):
+    """Minify JavaScript content using production library"""
+    try:
+        from jsmin import jsmin
+        # jsmin removes comments and whitespace by default
+        return jsmin(js_content)
+    except ImportError:
+        print("⚠️  jsmin not available, skipping JS minification")
+        return js_content
+    except Exception as e:
+        print(f"⚠️  JS minification failed: {e}")
+        return js_content
+
 def pack_app(app_name, source_dir="."):
     """Pack an existing user app into a distributable format"""
     
@@ -255,8 +293,11 @@ def auto_pack_app(app_id, app_path):
                 style_separators.append(f"/* ===== Style: {style_name} ===== */\n")
         
         combined_style = '\n\n'.join([sep + style for sep, style in zip(style_separators, all_styles)])
-        merged += f'\n<style>{combined_style}</style>'
-        print(f"📦 Packed {len(all_styles)} styles in order")
+        
+        # Minify the combined CSS
+        minified_style = minify_css(combined_style)
+        merged += f'\n<style>{minified_style}</style>'
+        print(f"📦 Packed and minified {len(all_styles)} styles in order")
     else:
         print(f"⚠️  No styles found to pack")
     
@@ -287,13 +328,19 @@ def auto_pack_app(app_id, app_path):
         
         combined_script = '\n\n'.join(script_separators) + '\n\n'
         combined_script += '\n\n'.join(all_scripts)
-        merged += f'\n<script>{combined_script}</script>'
-        print(f"📦 Packed {len(all_scripts)} scripts in order")
+        
+        # Minify the combined JavaScript
+        minified_script = minify_js(combined_script)
+        merged += f'\n<script>{minified_script}</script>'
+        print(f"📦 Packed and minified {len(all_scripts)} scripts in order")
     else:
         print(f"⚠️  No scripts found to pack")
     
+    # Minify the final HTML document
+    minified_html = minify_html(merged)
+    
     with open(html_file, 'w', encoding='utf-8') as f:
-        f.write(merged)
+        f.write(minified_html)
     
     return html_file
 
