@@ -10,8 +10,11 @@ import json
 import base64
 from pathlib import Path
 from datetime import datetime
+from bs4 import BeautifulSoup, Tag
+import cssutils
+import logging
 
-def minify_css(css_content):
+def minify_css(css_content, app_id):
     """Minify CSS content using production library"""
     return css_content;  # Placeholder for CSS minification logic
     try:
@@ -298,7 +301,7 @@ def auto_pack_app(app_id, app_path):
         combined_style = '\n\n'.join([sep + style for sep, style in zip(style_separators, all_styles)])
         
         # Minify the combined CSS
-        minified_style = minify_css(combined_style)
+        minified_style = minify_css(combined_style, app_metadata.get('id', 'unknown_app'))
         merged += f'\n<style>{minified_style}</style>'
         print(f"📦 Packed and minified {len(all_styles)} styles in order")
     else:
@@ -341,12 +344,120 @@ def auto_pack_app(app_id, app_path):
     
     # Minify the final HTML document
     minified_html = minify_html(merged)
+    scoped_html = scope_app_styles(minified_html, app_metadata.get('id', 'unknown_app'))
     
     with open(html_file, 'w', encoding='utf-8') as f:
-        f.write(minified_html)
+        f.write(scoped_html)
     
     return html_file
 
+
+
+def scope_app_styles(payload: str, appid: str) -> str:
+    if not payload or not appid:
+        return payload
+
+    try:
+        soup = BeautifulSoup(payload, 'lxml')
+
+        all_rewritten_css = []
+        
+        # 1. Find, rewrite, and consolidate all CSS from <style> tags
+        for style_tag in soup.find_all('style'):
+            css_text = style_tag.string or ''
+            if not css_text.strip():
+                continue
+
+            # We will modify the sheet in-place, which is efficient.
+            sheet = cssutils.parseString(css_text, validate=False)
+            
+            prefix = f'[data-appid="{appid}"]'
+            keyframes_map = {}
+
+            # We iterate over a copy of the rules in case modification affects the list
+            for rule in list(sheet.cssRules):
+                # Using integer rule types for cross-version compatibility with cssutils.
+                # KEYFRAMES_RULE is type 7.
+                if rule.type == 7:
+                    original_name = rule.name
+                    new_name = f"{appid}-{original_name}"
+                    keyframes_map[original_name] = new_name
+                    rule.name = new_name
+
+            # Second pass: prefix selectors and update animation properties
+            for rule in list(sheet.cssRules):
+                # STYLE_RULE is type 1.
+                if rule.type == 1:
+                    # Rewrite selectors to be scoped under the appid attribute
+                    selectors = rule.selectorText.split(',')
+                    scoped_selectors = []
+                    for s in selectors:
+                        s_stripped = s.strip()
+                        if not s_stripped:
+                            continue
+                        
+                        # Handle special 'root' selectors by targeting the container
+                        if s_stripped.lower() in ['html', 'body', ':root']:
+                            scoped_selectors.append(prefix)
+                        else:
+                            # Prepend the prefix to all other selectors
+                            scoped_selectors.append(f"{prefix} {s_stripped}")
+                    rule.selectorText = ', '.join(scoped_selectors)
+
+                    # If we renamed any keyframes, update animation/animation-name properties
+                    if keyframes_map and rule.style.animationName:
+                        for old_name, new_name in keyframes_map.items():
+                            # Replace animation names in the style declaration
+                            current_animation_names = rule.style.animationName.split(',')
+                            new_animation_names = [
+                                new_name if name.strip() == old_name else name
+                                for name in current_animation_names
+                            ]
+                            rule.style.animationName = ', '.join(new_animation_names)
+            
+            # Serialize the entire modified sheet back to text
+            rewritten_css = sheet.cssText.decode('utf-8') if sheet.cssText else ""
+            if rewritten_css:
+                all_rewritten_css.append(rewritten_css)
+            
+            # Remove the original <style> tag now that we've processed it
+            style_tag.decompose()
+
+        # 2. Add the scoping attribute to the app's root HTML element(s)
+        # Since the payload is a fragment, BeautifulSoup wraps it in <html><body>.
+        # We find the actual root elements inside the body.
+        if soup.body:
+            root_elements = [tag for tag in soup.body.children if isinstance(tag, Tag) and tag.name not in ['style', 'script']]
+            
+            if len(root_elements) == 1:
+                # If there's a single root container, tag it
+                root_elements[0]['data-appid'] = appid
+            elif len(root_elements) > 1:
+                # If there are multiple root elements, wrap them in a new div
+                wrapper = soup.new_tag('div', attrs={'data-appid': appid})
+                for element in root_elements:
+                    wrapper.append(element.extract())
+                soup.body.insert(0, wrapper)
+        
+        # 3. Add a single new <style> tag with all the rewritten CSS
+        if all_rewritten_css:
+            final_css = "\n\n".join(all_rewritten_css)
+            new_style_tag = soup.new_tag('style', type='text/css')
+            new_style_tag.string = final_css
+            
+            # Prepend the new style to the body, as it's a fragment
+            soup.body.insert(0, new_style_tag)
+
+        #raise Exception("test")
+        # 4. Return the processed HTML fragment
+        # We join the contents of the body to avoid returning the auto-added <html><body> tags.
+        return ''.join(str(c) for c in soup.body.contents)
+
+    except Exception as e:
+        print(f"Failed to process app styles for appid {appid}: {e}")
+        # In case of any unexpected error, return the original payload to prevent crashes.
+        return ""
+    
 def main():
     """Main function"""
     if len(sys.argv) < 2:
