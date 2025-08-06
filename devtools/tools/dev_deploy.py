@@ -13,6 +13,11 @@ import base64
 from datetime import datetime
 from pathlib import Path
 
+# Add current directory to path for pack_app import
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, current_dir)
+from pack_app import pack_app
+
 # Add parent directory to path for config import
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -252,12 +257,33 @@ def dev_deploy(app_name, source_dir=".", server_url="http://127.0.0.1:5000", wat
     print(f"📁 Source: {source_dir}")
     print(f"🌐 Server: {server_url}")
     
-    # Step 1: Pack the app locally
+    # Step 1: Pack the app using pack_app.py
     print(f"\n📦 Step 1: Packaging {app_name}...")
     
-    package = pack_app_local(app_name, source_dir)
-    if not package:
+    # Call pack_app function - this creates the {app_name}_packaged.app file
+    success = pack_app(app_name, source_dir)
+    if not success:
         return False
+    
+    # Read the packaged .app file that was created
+    package_file = f"{app_name}_packaged.app"
+    if not os.path.exists(package_file):
+        print(f"❌ Error: Package file {package_file} not found")
+        return False
+    
+    try:
+        with open(package_file, 'r', encoding='utf-8') as f:
+            package = json.load(f)
+    except Exception as e:
+        print(f"❌ Error reading package file: {e}")
+        return False
+    
+    # Clean up the temporary package file
+    try:
+        os.remove(package_file)
+        print(f"🧹 Cleaned up temporary file: {package_file}")
+    except Exception as e:
+        print(f"⚠️  Warning: Could not clean up temporary file {package_file}: {e}")
     
     # Step 2: Install via API
     print(f"\n🚀 Step 2: Installing {app_name}...")
