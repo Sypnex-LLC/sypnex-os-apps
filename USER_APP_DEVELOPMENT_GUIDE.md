@@ -81,7 +81,7 @@ console.log('My App script loaded');
 
 **👉 [Development CLI Guide](devtools/README.md)** - Complete guide to unified development tools
 
-Use the modern CLI for streamlined development:
+Use the CLI for streamlined development:
 
 ```bash
 # Navigate to development tools
@@ -99,9 +99,9 @@ python sypnex.py pack my_app
 
 ## 🛠️ Development Tools
 
-**Recommended: [Unified CLI](devtools/README.md)** - Single interface for all development tasks
+**[Unified CLI](devtools/README.md)** - Single interface for all development tasks
 
-### Using the Modern CLI (Recommended)
+### Using the CLI
 ```bash
 # Navigate to development tools
 cd devtools
@@ -118,74 +118,34 @@ python sypnex.py create my_awesome_app
 #     └── main.js           # JavaScript logic
 ```
 
-### Legacy Individual Scripts
-For reference, the old individual scripts are still available:
-
 ### Development Deployment
 
-**Modern CLI (Recommended):**
+**CLI:**
 ```bash
 cd devtools
 
 # Quick deployment for testing
 python sypnex.py deploy app my_app
-
-# Deploy all apps at once
-python sypnex.py deploy all
-
-# Watch for changes and auto-redeploy
-python sypnex.py deploy app my_app --watch
-```
-
-**Legacy Scripts:**
-```bash
-# Quick deployment for testing
-python dev_deploy.py my_app
-
-# Deploy all apps at once
-python dev_deploy.py all
-
-# Watch for changes and auto-redeploy
-python dev_deploy.py my_app --watch
 ```
 
 ### Production Packaging
 
-**Modern CLI (Recommended):**
+**CLI:**
 ```bash
 cd devtools
 
 # Package app for distribution
 python sypnex.py pack my_app
-
-# Creates distributable .app file in releases/
-```
-
-**Legacy Script:**
-```bash
-# Package app for distribution
-python pack_app.py my_app
-
-# Creates distributable .app file in releases/
 ```
 
 ### VFS Script Deployment
 
-**Modern CLI (Recommended):**
+**CLI:**
 ```bash
 cd devtools
 
 # Deploy Python scripts to VFS
 python sypnex.py deploy vfs script.py
-```
-
-**Legacy Scripts:**
-```bash
-# Deploy Python scripts to VFS
-python vfs_deploy.py script.py
-
-# Enhanced workflow execution
-python enhanced_workflow_runner.py workflow.json
 ```
 
 ## ❌ Common Mistakes to Avoid
@@ -684,9 +644,6 @@ You can deploy to remote Sypnex OS instances using the `--server` parameter or b
 # Deploy to remote instance (override .env)
 python sypnex.py deploy app "C:\my_projects\my_app" --server https://your-instance.com/
 
-# Deploy all apps to remote instance  
-python sypnex.py deploy all "C:\my_projects" --server https://your-instance.com/
-
 # Deploy VFS files to remote instance
 python sypnex.py deploy vfs "C:\scripts\script.py" --server https://your-instance.com/
 ```
@@ -711,9 +668,6 @@ python sypnex.py deploy vfs "C:\scripts\script.py" --server https://your-instanc
 4. **Test** - Use the unified CLI for quick deployment and testing with explicit paths
    ```bash
    python sypnex.py deploy app "C:\my_projects\my_awesome_app"
-   
-   # Or with auto-watch for changes
-   python sypnex.py deploy app "C:\my_projects\my_awesome_app" --watch
    ```
 
 5. **Package** - Use the unified CLI to create distributable packages
@@ -735,12 +689,6 @@ cd devtools
 
 # Deploy individual app for development (explicit path)
 python sypnex.py deploy app "C:\my_projects\flow_editor"
-
-# Deploy all apps from a directory
-python sypnex.py deploy all "C:\my_projects"
-
-# Watch for changes and auto-redeploy
-python sypnex.py deploy app "C:\my_projects\flow_editor" --watch
 ```
 
 ### Production Deployment
@@ -1072,7 +1020,7 @@ console.log('Counter App script loaded');
 - Check browser console for errors
 - Verify `.app` file has correct `id` and `type` fields
 - Ensure scripts are listed in correct order in `scripts` array
-- Deploy with: `python dev_deploy.py app_name`
+- Deploy with: `python sypnex.py deploy app app_name`
 
 ### Styles Not Working
 - Check that CSS classes are prefixed with app name
@@ -1095,7 +1043,7 @@ console.log('Counter App script loaded');
 - [ ] JavaScript functions are defined globally (not inside other functions)  
 - [ ] Using event listeners instead of inline onclick handlers
 - [ ] HTML has no DOCTYPE, html, head, or body tags
-- [ ] Deployed with `python dev_deploy.py app_name` after changes
+- [ ] Deployed with `python sypnex.py deploy app app_name` after changes
 - [ ] Browser console shows no JavaScript errors
 
 ## 🎯 Featured Applications
