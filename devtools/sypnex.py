@@ -11,7 +11,6 @@ Commands:
     create <app_name>              Create a new app
     deploy app <app_name>          Deploy an app
     deploy vfs <file>              Deploy a script to VFS
-    deploy all                     Deploy all apps
     pack <app_name>                Package an app
     config                         Show current configuration
     token set <token>              Set JWT token
@@ -21,7 +20,6 @@ Examples:
     python sypnex.py create my_awesome_app
     python sypnex.py deploy app flow_editor
     python sypnex.py deploy vfs script.py
-    python sypnex.py deploy all --server https://remote.com/
     python sypnex.py pack my_app
 """
 
@@ -123,7 +121,7 @@ def create_app(app_name, output_dir=None):
             os.chdir(original_cwd)
         print(f"❌ Error creating app: {e}")
 
-def deploy_app(app_path, server_url=None, watch=False):
+def deploy_app(app_path, server_url=None):
     """Deploy an app"""
     try:
         from tools.dev_deploy import dev_deploy
@@ -146,7 +144,7 @@ def deploy_app(app_path, server_url=None, watch=False):
         if not config.validate_config():
             return False
         
-        success = dev_deploy(app_name, app_dir, target_server, watch)
+        success = dev_deploy(app_name, app_dir, target_server)
         if success:
             print(f"✅ App '{app_name}' deployed successfully!")
         else:
@@ -183,36 +181,10 @@ def deploy_vfs(file_path, server_url=None):
         print(f"❌ Error deploying to VFS: {e}")
         return False
 
-def deploy_all(apps_dir, server_url=None):
-    """Deploy all apps"""
-    try:
-        from tools.dev_deploy import deploy_all_apps
-        
-        # Use provided server or default from config
-        target_server = server_url or config.server_url
-        
-        print(f"🚀 Deploying all apps from '{apps_dir}' to {target_server}")
-        
-        # Validate config before deployment
-        if not config.validate_config():
-            return False
-        
-        # Use the exact directory provided - no assumptions
-        success = deploy_all_apps(apps_dir, target_server)
-        if success:
-            print(f"✅ All apps deployed successfully!")
-        else:
-            print(f"❌ Some apps failed to deploy")
-        return success
-        
-    except Exception as e:
-        print(f"❌ Error deploying all apps: {e}")
-        return False
-
 def pack_app(app_path):
     """Package an app"""
     try:
-        from tools.pack_app import main as pack_main
+        from tools.pack_app import pack_app
         
         # Extract app name and directory from path
         if os.path.isdir(app_path):
@@ -227,15 +199,17 @@ def pack_app(app_path):
         original_cwd = os.getcwd()
         os.chdir(app_dir)
         
-        # Temporarily modify sys.argv to pass arguments to pack_app
-        original_argv = sys.argv
-        sys.argv = ['pack_app.py', app_name]
-        pack_main()
-        sys.argv = original_argv
+        # Call pack_app function directly
+        success = pack_app(app_name, ".")
         
         # Change back to original directory
         os.chdir(original_cwd)
-        print(f"✅ App '{app_name}' packaged successfully!")
+        
+        if success:
+            print(f"✅ App '{app_name}' packaged successfully!")
+        else:
+            print(f"❌ Failed to package app '{app_name}'")
+            return
     except Exception as e:
         # Make sure to change back to original directory even on error
         if 'original_cwd' in locals():
@@ -253,7 +227,6 @@ Examples:
   python sypnex.py deploy app flow_editor
   python sypnex.py deploy app my_app --server https://remote.com/
   python sypnex.py deploy vfs script.py
-  python sypnex.py deploy all
   python sypnex.py pack my_app
   python sypnex.py config
   python sypnex.py token set <your_jwt_token>
@@ -275,17 +248,11 @@ Examples:
     app_parser = deploy_subparsers.add_parser('app', help='Deploy an app')
     app_parser.add_argument('app_path', help='Path to the app (directory or app name if in current dir)')
     app_parser.add_argument('--server', help='Server URL (overrides .env)')
-    app_parser.add_argument('--watch', action='store_true', help='Watch for changes and auto-redeploy')
     
     # Deploy to VFS
     vfs_parser = deploy_subparsers.add_parser('vfs', help='Deploy a file to VFS')
     vfs_parser.add_argument('file_path', help='Exact path to the file to deploy')
     vfs_parser.add_argument('--server', help='Server URL (overrides .env)')
-    
-    # Deploy all
-    all_parser = deploy_subparsers.add_parser('all', help='Deploy all apps')
-    all_parser.add_argument('apps_dir', help='Directory containing apps to deploy')
-    all_parser.add_argument('--server', help='Server URL (overrides .env)')
     
     # Pack command
     pack_parser = subparsers.add_parser('pack', help='Package an app')
@@ -320,11 +287,9 @@ Examples:
             return
         
         if args.deploy_type == 'app':
-            deploy_app(args.app_path, args.server, args.watch)
+            deploy_app(args.app_path, args.server)
         elif args.deploy_type == 'vfs':
             deploy_vfs(args.file_path, args.server)
-        elif args.deploy_type == 'all':
-            deploy_all(args.apps_dir, args.server)
     
     elif args.command == 'pack':
         pack_app(args.app_path)

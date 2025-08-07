@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
-Pack App Script - Package existing user apps into distributable format
-Usage: python pack_app.py <app_name> [--source <dir>]
+Pack App Module - Package existing user apps into distributable format
 """
 
 import os
@@ -458,33 +457,4 @@ def scope_app_styles(payload: str, appid: str) -> str:
         # In case of any unexpected error, return the original payload to prevent crashes.
         return ""
     
-def main():
-    """Main function"""
-    if len(sys.argv) < 2:
-        print("❌ Error: App name is required")
-        print("Usage: python pack_app.py <app_name> [--source <dir>]")
-        print("\nExamples:")
-        print("  python pack_app.py llm_chat")
-        print("  python pack_app.py flow_editor --source .")
-        print("\nOptions:")
-        print("  --source <dir>  # Source directory (default: .)")
-        print("\n💡 Make sure the app exists in the source directory")
-        return
-    
-    app_name = sys.argv[1]
-    
-    # Parse options
-    source_dir = "."
-    
-    i = 2
-    while i < len(sys.argv):
-        if sys.argv[i] == "--source" and i + 1 < len(sys.argv):
-            source_dir = sys.argv[i + 1]
-            i += 2
-        else:
-            i += 1
-    
-    pack_app(app_name, source_dir)
-
-if __name__ == "__main__":
-    main() 
+ 
