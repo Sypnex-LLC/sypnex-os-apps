@@ -13,8 +13,6 @@ Commands:
     deploy vfs <file>              Deploy a script to VFS
     pack <app_name>                Package an app
     config                         Show current configuration
-    token set <token>              Set JWT token
-    token get                      Show current token
     
 Examples:
     python sypnex.py create my_awesome_app
@@ -50,71 +48,27 @@ def show_config():
         print("   2. Get JWT token from System Settings > Developer Mode")
         print("   3. Set SYPNEX_DEV_TOKEN in .env file")
 
-def set_token(token):
-    """Set JWT token in .env file"""
-    env_file = Path('.env')
-    
-    # Read existing .env or create from template
-    if env_file.exists():
-        with open(env_file, 'r') as f:
-            lines = f.readlines()
-    else:
-        # Copy from .env.example
-        example_file = Path('.env.example')
-        if example_file.exists():
-            with open(example_file, 'r') as f:
-                lines = f.readlines()
-        else:
-            lines = ['# Sypnex OS Development Configuration\n']
-    
-    # Update or add token line
-    token_line = f'SYPNEX_DEV_TOKEN={token}\n'
-    token_found = False
-    
-    for i, line in enumerate(lines):
-        if line.startswith('SYPNEX_DEV_TOKEN='):
-            lines[i] = token_line
-            token_found = True
-            break
-    
-    if not token_found:
-        lines.append(token_line)
-    
-    # Write back to .env
-    with open(env_file, 'w') as f:
-        f.writelines(lines)
-    
-    print(f"✅ JWT token updated in .env file")
-    print(f"   Token: {token[:20]}...{token[-5:]}")
-
-def get_token():
-    """Show current JWT token"""
-    if config.dev_token:
-        print(f"Current JWT Token: {config.dev_token}")
-    else:
-        print("❌ No JWT token configured")
-        print("Use: python sypnex.py token set <your_token>")
-
 def create_app(app_name, output_dir=None):
     """Create a new app"""
     try:
-        from tools.create_app import main as create_main
+        from tools.create_app import create_app as create_app_func
         
         # Use specified directory or current working directory
         if output_dir:
             original_cwd = os.getcwd()
             os.chdir(output_dir)
         
-        # Temporarily modify sys.argv to pass arguments to create_app
-        original_argv = sys.argv
-        sys.argv = ['create_app.py', app_name]
-        create_main()
-        sys.argv = original_argv
+        # Call create_app function directly
+        success = create_app_func(app_name, output_dir)
         
         # Change back to original directory if we changed it
         if output_dir:
             os.chdir(original_cwd)
-        print(f"✅ App '{app_name}' created successfully!")
+        
+        if success:
+            print(f"✅ App '{app_name}' created successfully!")
+        else:
+            print(f"❌ Failed to create app '{app_name}'")
     except Exception as e:
         # Make sure to change back to original directory even on error
         if output_dir and 'original_cwd' in locals():
@@ -229,7 +183,6 @@ Examples:
   python sypnex.py deploy vfs script.py
   python sypnex.py pack my_app
   python sypnex.py config
-  python sypnex.py token set <your_jwt_token>
         """
     )
     
@@ -261,15 +214,6 @@ Examples:
     # Config command
     subparsers.add_parser('config', help='Show current configuration')
     
-    # Token command
-    token_parser = subparsers.add_parser('token', help='Manage JWT token')
-    token_subparsers = token_parser.add_subparsers(dest='token_action', help='Token actions')
-    
-    set_token_parser = token_subparsers.add_parser('set', help='Set JWT token')
-    set_token_parser.add_argument('token', help='JWT token to set')
-    
-    token_subparsers.add_parser('get', help='Show current token')
-    
     # Parse arguments
     args = parser.parse_args()
     
@@ -296,16 +240,6 @@ Examples:
     
     elif args.command == 'config':
         show_config()
-    
-    elif args.command == 'token':
-        if not args.token_action:
-            token_parser.print_help()
-            return
-        
-        if args.token_action == 'set':
-            set_token(args.token)
-        elif args.token_action == 'get':
-            get_token()
 
 if __name__ == '__main__':
     main()

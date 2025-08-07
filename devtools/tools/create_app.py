@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
-Create App Script - Quickly create new user apps with proper structure
-Usage: python create_app.py <app_name>
+Create App Module - Quickly create new user apps with proper structure
 """
 
 import os
@@ -154,21 +153,4 @@ if (document.readyState === 'loading') {{
             import shutil
             shutil.rmtree(app_dir)
             print(f"🧹 Cleaned up partial app directory")
-        return False
-
-def main():
-    """Main function"""
-    if len(sys.argv) != 2:
-        print("❌ Error: App name is required")
-        print("Usage: python create_app.py <app_name>")
-        print("\nExamples:")
-        print("  python create_app.py calculator")
-        print("  python create_app.py todo_list")
-        print("  python create_app.py weather_app")
-        return
-    
-    app_name = sys.argv[1]
-    create_app(app_name)
-
-if __name__ == "__main__":
-    main() 
+        return False 

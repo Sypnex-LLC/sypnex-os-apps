@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
-VFS Deploy Script - Deploy Python files to VFS /scripts/ directory
-Usage: python vfs_deploy.py <python_file> [options]
+VFS Deploy Module - Deploy Python files to VFS /scripts/ directory
 """
 
 import os
@@ -124,31 +123,5 @@ def deploy_python_file(python_file, server_url="http://localhost:5000"):
         print(f"❌ Error during deployment: {e}")
         return False
 
-def main():
-    """Main function"""
-    if len(sys.argv) < 2:
-        print("❌ Error: Python file is required")
-        print("Usage: python vfs_deploy.py <python_file> [options]")
-        print("\nExamples:")
-        print("  python vfs_deploy.py test_workflow_runner.py")
-        print("  python vfs_deploy.py ../my_script.py --server http://localhost:5000")
-        print("\nOptions:")
-        print("  --server <url>  # Server URL (default: http://localhost:5000)")
-        return
     
-    python_file = sys.argv[1]
-    server_url = "http://localhost:5000"
-    
-    # Parse options
-    i = 2
-    while i < len(sys.argv):
-        if sys.argv[i] == "--server" and i + 1 < len(sys.argv):
-            server_url = sys.argv[i + 1]
-            i += 2
-        else:
-            i += 1
-    
-    deploy_python_file(python_file, server_url)
-
-if __name__ == "__main__":
-    main() 
+    deploy_python_file(python_file, server_url) 
