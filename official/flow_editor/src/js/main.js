@@ -112,9 +112,6 @@ async function initFlowEditor() {
     // Set up event handlers
     window.uiManager.setupEventHandlers();
     
-    // Connect to WebSocket for real-time updates
-    connectWebSocket();
-    
     // Handle fullscreen changes to prevent visual flashing
     function handleFullscreenChange() {
         const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
@@ -225,34 +222,6 @@ function cleanupFlowEditor() {
     
 }
 
-// Connect to WebSocket server
-async function connectWebSocket() {
-    try {
-        const connected = await sypnexAPI.connectSocket();
-        if (connected) {
-            
-            // Join flow editor room
-            sypnexAPI.joinRoom('flow-editor');
-            
-            // Listen for messages
-            sypnexAPI.on('flow_update', (data) => {
-                handleFlowUpdate(data);
-            });
-            
-            // Send initial connection message
-            sypnexAPI.sendMessage('flow_connected', {
-                appId: sypnexAPI.getAppId(),
-                timestamp: Date.now()
-            }, 'flow-editor');
-            
-        } else {
-            console.error('Failed to connect to WebSocket server');
-        }
-    } catch (error) {
-        console.error('WebSocket connection error:', error);
-    }
-}
-
 // Add a new node to the canvas (dynamic version)
 function addNode(type) {
     const nodeDef = nodeRegistry.getNodeType(type);
@@ -296,20 +265,6 @@ function addNode(type) {
     const nodeElement = nodeRenderer.createNodeElement(node);
     flowEditor.canvas.appendChild(nodeElement);
     
-    // Send update via WebSocket
-    if (sypnexAPI && sypnexAPI.sendMessage) {
-        sypnexAPI.sendMessage('node_added', {
-            nodeId: nodeId,
-            type: type,
-            position: { x: node.x, y: node.y }
-        }, 'flow-editor');
-    }
-    
-}
-
-// Handle flow updates from WebSocket
-function handleFlowUpdate(data) {
-    // Handle real-time updates from other instances
 }
 
 // Initialize when DOM is ready

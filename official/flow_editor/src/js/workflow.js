@@ -87,14 +87,6 @@ async function runWorkflow() {
             output.innerHTML += `<div class="log-entry info">${result.nodeId}: ${result.output}</div>`;
         }
         
-        // Send completion via WebSocket
-        if (sypnexAPI && sypnexAPI.sendMessage) {
-            sypnexAPI.sendMessage('workflow_completed', {
-                results: results,
-                timestamp: Date.now()
-            }, 'flow-editor');
-        }
-        
     } catch (error) {
         console.error('Workflow execution error:', error);
         output.innerHTML += `<div class="log-entry error">Error: ${error.message}</div>`;
