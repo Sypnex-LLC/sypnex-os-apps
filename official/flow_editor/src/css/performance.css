@@ -1,0 +1,65 @@
+/* Performance optimizations and anti-flashing measures for Flow Editor */
+
+/* Prevent visual artifacts during fullscreen transitions and scaling */
+.no-transitions * {
+    transition: none !important;
+    animation: none !important;
+}
+
+/* Improve overall rendering performance */
+.flow-editor * {
+    box-sizing: border-box;
+}
+
+/* Reduce layout thrashing during zoom operations */
+.flow-canvas,
+.flow-connection {
+    contain: layout style paint;
+}
+
+/* Optimize for hardware acceleration */
+.flow-canvas,
+.flow-node,
+.flow-connection {
+    transform: translateZ(0);
+}
+
+/* Prevent font smoothing issues at different zoom levels */
+.flow-node,
+.flow-node * {
+    -webkit-font-smoothing: subpixel-antialiased;
+    -moz-osx-font-smoothing: auto;
+    text-rendering: optimizeSpeed;
+}
+
+/* Reduce paint complexity during zoom */
+.flow-node:not(:hover):not(.selected) {
+    will-change: auto;
+}
+
+/* Only enable will-change when actually needed */
+.flow-node:hover,
+.flow-node.selected,
+.flow-node.dragging {
+    will-change: transform;
+}
+
+/* Improve performance of animations */
+@media (prefers-reduced-motion: reduce) {
+    .flow-node,
+    .flow-connection-line {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* Force compositing layer for smoother transforms during zoom */
+.flow-canvas.zooming {
+    will-change: transform;
+    transform-style: preserve-3d;
+}
+
+/* Remove compositing layer when not zooming */
+.flow-canvas:not(.zooming) {
+    will-change: auto;
+}

@@ -1,14 +1,23 @@
 // Update canvas transform for panning and zooming
 function updateCanvasTransform() {
     if (flowEditor.canvas) {
-        const transform = `translate(${flowEditor.panOffset.x}px, ${flowEditor.panOffset.y}px) scale(${flowEditor.zoomLevel})`;
-        flowEditor.canvas.style.transform = transform;
+        // Use requestAnimationFrame to prevent visual flashing
+        if (flowEditor.transformUpdateRequested) return;
+        flowEditor.transformUpdateRequested = true;
         
-        // Update zoom level display
-        const zoomDisplay = document.getElementById('zoom-level');
-        if (zoomDisplay) {
-            zoomDisplay.textContent = Math.round(flowEditor.zoomLevel * 100) + '%';
-        }
+        requestAnimationFrame(() => {
+            if (flowEditor.canvas) {
+                const transform = `translate(${flowEditor.panOffset.x}px, ${flowEditor.panOffset.y}px) scale(${flowEditor.zoomLevel})`;
+                flowEditor.canvas.style.transform = transform;
+                
+                // Update zoom level display
+                const zoomDisplay = document.getElementById('zoom-level');
+                if (zoomDisplay) {
+                    zoomDisplay.textContent = Math.round(flowEditor.zoomLevel * 100) + '%';
+                }
+            }
+            flowEditor.transformUpdateRequested = false;
+        });
     }
 }
 
@@ -58,8 +67,12 @@ function stopCanvasPan() {
 
 // Reset canvas pan to center
 function resetCanvasPan() {
-    // Add smooth transition for reset
-    flowEditor.canvas.style.transition = 'transform 0.3s ease-out';
+    // Prevent concurrent operations
+    if (flowEditor.isResetting) return;
+    flowEditor.isResetting = true;
+    
+    // Add smooth transition for reset with improved easing
+    flowEditor.canvas.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
 
     // Calculate center of all nodes if any exist
     if (flowEditor.nodes.size > 0) {
@@ -91,10 +104,12 @@ function resetCanvasPan() {
 
     updateCanvasTransform();
 
-    // Remove transition after animation completes
-    setTimeout(() => {
+    // Remove transition after animation completes with proper timing
+    clearTimeout(flowEditor.resetTimeout);
+    flowEditor.resetTimeout = setTimeout(() => {
         flowEditor.canvas.style.transition = '';
-    }, 300);
+        flowEditor.isResetting = false;
+    }, 500); // Match transition duration
 }
 
 // Zoom functions
@@ -109,6 +124,13 @@ function zoomOut() {
 }
 
 function setZoomLevel(zoomLevel) {
+    // Prevent concurrent zoom operations to avoid visual artifacts
+    if (flowEditor.isZooming) return;
+    flowEditor.isZooming = true;
+    
+    // Add zooming class for performance optimizations
+    flowEditor.canvas.classList.add('zooming');
+    
     // Get the center of the canvas container for zoom origin
     const container = flowEditor.canvas.parentElement;
     const containerRect = (typeof sypnexAPI !== 'undefined' && sypnexAPI.getScaledBoundingClientRect) ?
@@ -131,10 +153,13 @@ function setZoomLevel(zoomLevel) {
     
     updateCanvasTransform();
     
-    // Redraw connections after zoom
-    setTimeout(() => {
+    // Consolidated redraw timing to prevent multiple redraws
+    clearTimeout(flowEditor.zoomRedrawTimeout);
+    flowEditor.zoomRedrawTimeout = setTimeout(() => {
         redrawAllConnections();
-    }, 16);
+        flowEditor.canvas.classList.remove('zooming');
+        flowEditor.isZooming = false;
+    }, 32); // Increased from 16ms to prevent too frequent redraws
 }
 
 function zoomToFit() {
@@ -145,6 +170,10 @@ function zoomToFit() {
         updateCanvasTransform();
         return;
     }
+    
+    // Prevent concurrent zoom operations
+    if (flowEditor.isZooming) return;
+    flowEditor.isZooming = true;
     
     // Find bounds of all nodes
     const nodes = Array.from(flowEditor.nodes.values());
@@ -194,21 +223,33 @@ function zoomToFit() {
     flowEditor.panOffset.x = containerRect.width / 2 - centerX * flowEditor.zoomLevel;
     flowEditor.panOffset.y = containerRect.height / 2 - centerY * flowEditor.zoomLevel;
     
-    // Add smooth transition
-    flowEditor.canvas.style.transition = 'transform 0.3s ease-out';
+    // Add smooth transition with better timing
+    flowEditor.canvas.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
     updateCanvasTransform();
     
-    // Remove transition after animation
-    setTimeout(() => {
+    // Remove transition and redraw with proper timing
+    clearTimeout(flowEditor.zoomFitTimeout);
+    flowEditor.zoomFitTimeout = setTimeout(() => {
         flowEditor.canvas.style.transition = '';
-        redrawAllConnections();
-    }, 300);
+        // Use requestAnimationFrame for smooth redraw
+        requestAnimationFrame(() => {
+            redrawAllConnections();
+            flowEditor.isZooming = false;
+        });
+    }, 400); // Match transition duration
 }
 
 // Handle mouse wheel zoom
 function handleMouseWheel(e) {
     if (e.ctrlKey || e.metaKey) {
         e.preventDefault();
+        
+        // Throttle wheel events to prevent overwhelming the system
+        const now = Date.now();
+        if (flowEditor.lastWheelTime && now - flowEditor.lastWheelTime < 16) {
+            return; // Limit to ~60fps
+        }
+        flowEditor.lastWheelTime = now;
         
         // Get mouse position relative to container
         const container = flowEditor.canvas.parentElement;
@@ -241,11 +282,11 @@ function handleMouseWheel(e) {
             
             updateCanvasTransform();
             
-            // Redraw connections after zoom
+            // Consolidated redraw timing with debouncing
             clearTimeout(flowEditor.zoomRedrawTimeout);
             flowEditor.zoomRedrawTimeout = setTimeout(() => {
                 redrawAllConnections();
-            }, 50);
+            }, 100); // Increased debounce time for wheel zooming
         }
     }
 }

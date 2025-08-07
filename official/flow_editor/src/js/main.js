@@ -27,7 +27,17 @@ let flowEditor = {
     tagCounter: 0,
     draggingTag: null,
     tagDragOffset: null,
-    tagUpdateTimeout: null
+    tagUpdateTimeout: null,
+    // Visual performance flags
+    transformUpdateRequested: false,
+    isZooming: false,
+    isResetting: false,
+    redrawInProgress: false,
+    lastWheelTime: 0,
+    // Timeout IDs for cleanup
+    zoomRedrawTimeout: null,
+    zoomFitTimeout: null,
+    resetTimeout: null
 };
 
 // Initialize when DOM is ready
@@ -105,9 +115,55 @@ async function initFlowEditor() {
     // Connect to WebSocket for real-time updates
     connectWebSocket();
     
-    // Handle window resize to update connections
+    // Handle fullscreen changes to prevent visual flashing
+    function handleFullscreenChange() {
+        const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+        
+        if (isFullscreen) {
+            // Add no-transitions class when entering fullscreen
+            document.body.classList.add('no-transitions');
+            setTimeout(() => {
+                document.body.classList.remove('no-transitions');
+                // Redraw connections after fullscreen transition
+                requestAnimationFrame(() => {
+                    redrawAllConnections();
+                });
+            }, 500); // Allow fullscreen transition to complete
+        } else {
+            // Add no-transitions class when exiting fullscreen
+            document.body.classList.add('no-transitions');
+            setTimeout(() => {
+                document.body.classList.remove('no-transitions');
+                // Redraw connections after fullscreen transition
+                requestAnimationFrame(() => {
+                    redrawAllConnections();
+                });
+            }, 500);
+        }
+    }
+    
+    // Listen for fullscreen changes
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+    document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+    
+    // Handle window resize to update connections with debouncing
+    let resizeTimeout;
     window.addEventListener('resize', () => {
-        setTimeout(redrawAllConnections, 100);
+        // Add no-transitions class during resize to prevent flashing
+        document.body.classList.add('no-transitions');
+        
+        // Debounce resize events to prevent overwhelming the system
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            // Remove no-transitions class
+            document.body.classList.remove('no-transitions');
+            // Use requestAnimationFrame for smooth updates
+            requestAnimationFrame(() => {
+                redrawAllConnections();
+            });
+        }, 150); // 150ms debounce
     });
     
     // Handle app cleanup when window is unloaded
@@ -127,6 +183,13 @@ function cleanupFlowEditor() {
     // Mark app as inactive to prevent new tooltips
     flowEditor.isActive = false;
     
+    // Clear all timeouts to prevent memory leaks
+    clearTimeout(flowEditor.zoomRedrawTimeout);
+    clearTimeout(flowEditor.zoomFitTimeout);
+    clearTimeout(flowEditor.resetTimeout);
+    clearTimeout(flowEditor.tagUpdateTimeout);
+    clearTimeout(flowEditor.updateTimeout);
+    
     // Remove any lingering tooltips (check multiple possible locations)
     const tooltips = document.querySelectorAll('.connection-tooltip, #connection-tooltip');
     tooltips.forEach(tooltip => {
@@ -145,6 +208,12 @@ function cleanupFlowEditor() {
     if (window.flowEditorTooltipHandler) {
         delete window.flowEditorTooltipHandler;
     }
+    
+    // Reset visual state flags
+    flowEditor.transformUpdateRequested = false;
+    flowEditor.isZooming = false;
+    flowEditor.isResetting = false;
+    flowEditor.redrawInProgress = false;
     
     // Also remove any tooltips that might be in the body
     const bodyTooltips = document.body.querySelectorAll('.connection-tooltip');

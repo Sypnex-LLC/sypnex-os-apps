@@ -13,6 +13,14 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     transition: box-shadow 0.2s ease, transform 0.1s ease;
     will-change: transform;
+    /* Enhanced visual stability during zoom */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    /* Improve rendering quality at different zoom levels */
+    image-rendering: auto;
+    -webkit-font-smoothing: subpixel-antialiased;
+    transform-style: preserve-3d;
+    /* Do NOT use 'contain' property as it hides the ports which are positioned outside */
 }
 
 .flow-node:active {
@@ -22,7 +30,7 @@
 
 .flow-node:hover {
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    transform: translateY(-1px);
+    transform: translateY(-1px) translateZ(0); /* Force hardware acceleration */
 }
 
 .flow-node.selected {
@@ -125,6 +133,9 @@
     position: absolute;
     pointer-events: none;
     z-index: 1;
+    /* Optimize SVG rendering performance */
+    will-change: auto;
+    contain: layout style;
 }
 
 .flow-connection-line {
@@ -133,6 +144,9 @@
     fill: none;
     transition: all 0.2s ease;
     opacity: 0.6; /* Slightly transparent by default */
+    /* Improve SVG rendering quality at different zoom levels */
+    shape-rendering: geometricPrecision;
+    vector-effect: non-scaling-stroke;
 }
 
 .flow-connection-line:hover {

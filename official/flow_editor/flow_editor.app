@@ -32,6 +32,7 @@
     "css/components.css",
     "css/node-types.css",
     "css/responsive.css",
+    "css/performance.css",
     "css/os-theme.css"
   ],
   "additional_files": [

@@ -130,9 +130,17 @@ function updateConnection(connection) {
 
 // Redraw all connections (for window resize, etc.)
 function redrawAllConnections() {
-    for (const connection of flowEditor.connections.values()) {
-        updateConnection(connection);
-    }
+    // Prevent overwhelming the system with too many redraws
+    if (flowEditor.redrawInProgress) return;
+    flowEditor.redrawInProgress = true;
+    
+    // Use requestAnimationFrame for smooth redrawing
+    requestAnimationFrame(() => {
+        for (const connection of flowEditor.connections.values()) {
+            updateConnection(connection);
+        }
+        flowEditor.redrawInProgress = false;
+    });
 }
 
 // Delete a node and all its connections

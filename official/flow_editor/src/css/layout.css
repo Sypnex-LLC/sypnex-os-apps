@@ -1,11 +1,14 @@
 /* Flow Editor Layout & Structure */
 
-/* Ensure app-container uses full height */
+/* Ensure app-container uses full height and prevent visual flashing */
 .app-container {
     height: 100vh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    /* Prevent visual artifacts during fullscreen transitions */
+    background: var(--surface-color);
+    transition: none !important;
 }
 
 .app-content {
@@ -16,6 +19,8 @@
     gap: 10px;
     padding: 10px;
     min-height: 0;
+    /* Prevent flashing during resize */
+    background: var(--surface-color);
 }
 
 /* Flow Editor Layout */
@@ -28,6 +33,9 @@
     border: 1px solid var(--border-color);
     overflow: hidden;
     min-height: 0;
+    /* Enhanced visual stability */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
 }
 
 /* Left Toolbox */
@@ -184,6 +192,12 @@
     position: relative;
     background: var(--surface-color);
     overflow: hidden;
+    /* Prevent visual artifacts and flashing */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    /* Improve rendering performance */
+    contain: layout style paint;
+    will-change: auto;
 }
 
 .flow-canvas {
@@ -197,6 +211,18 @@
     cursor: grab;
     transform-origin: 0 0;
     will-change: transform;
+    /* Enhanced GPU acceleration for smoother transforms */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    perspective: 1000px;
+    -webkit-perspective: 1000px;
+    transform-style: preserve-3d;
+    -webkit-transform-style: preserve-3d;
+    /* Prevent visual artifacts during zoom */
+    image-rendering: auto;
+    -webkit-font-smoothing: subpixel-antialiased;
+    /* Improve background pattern scaling */
+    background-attachment: local;
 }
 
 .flow-canvas:active {
