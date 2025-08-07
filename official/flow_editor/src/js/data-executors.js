@@ -303,6 +303,14 @@ async function executeArrayNode(engine, node, inputData, executed) {
             case 'last':
                 result = array.length > 0 ? array[array.length - 1] : null;
                 break;
+            case 'random':
+                if (array.length === 0) {
+                    result = null;
+                } else {
+                    const randomIndex = Math.floor(Math.random() * array.length);
+                    result = array[randomIndex];
+                }
+                break;
             case 'slice':
                 const end = sliceEnd > 0 ? sliceEnd : array.length;
                 result = array.slice(sliceStart, end);

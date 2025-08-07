@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "packed_at": "2025-07-27T05:00:46.821090",
+  "packed_at": "2025-08-07T18:32:29.479115",
   "total_nodes": 21,
   "nodes": {
     "array": {
@@ -58,6 +58,11 @@
           "id": "last",
           "name": "Last Item",
           "type": "data"
+        },
+        {
+          "id": "random",
+          "name": "Random Item",
+          "type": "data"
         }
       ],
       "config": {
@@ -72,6 +77,7 @@
             "join",
             "first",
             "last",
+            "random",
             "slice",
             "reverse",
             "sort",
