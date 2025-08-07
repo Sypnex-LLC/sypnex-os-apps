@@ -68,7 +68,14 @@ async function runWorkflow() {
         });
         
         if (startNodes.length === 0) {
-            throw new Error('No start nodes found. Add nodes with no inputs (Timer) or nodes with optional inputs that aren\'t connected (HTTP Request)');
+            const errorMessage = 'No start nodes found. Add nodes with no inputs (Timer) or nodes with optional inputs that aren\'t connected (HTTP Request)';
+            
+            // Show short, clear notification to user
+            if (sypnexAPI && sypnexAPI.showNotification) {
+                sypnexAPI.showNotification('No start nodes found - check execution output for details', 'error', 4000);
+            }
+            
+            throw new Error(errorMessage);
         }
         
         // Execute workflow
