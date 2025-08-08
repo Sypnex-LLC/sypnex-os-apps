@@ -52,6 +52,13 @@
       "value": "You are a helpful AI assistant.",
       "placeholder": "Define the AI's role and behavior"
     },
+    "api_key": {
+      "type": "text",
+      "label": "API Key",
+      "value": "",
+      "placeholder": "Enter your API key (optional for local models)",
+      "encrypt": true
+    },
     "include_context": {
       "type": "select",
       "label": "Include Context",
