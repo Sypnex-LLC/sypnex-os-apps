@@ -62,6 +62,30 @@
       "type": "number",
       "value": 50,
       "description": "Maximum number of nodes allowed in a workflow"
+    },
+    {
+      "key": "GEMINI_API_KEY",
+      "name": "Gemini API Key",
+      "type": "string",
+      "value": "",
+      "encrypt": true,
+      "description": "Your Google Gemini API key for AI-powered workflows"
+    },
+    {
+      "key": "OPENAI_API_KEY",
+      "name": "OpenAI API Key",
+      "type": "string",
+      "value": "",
+      "encrypt": true,
+      "description": "Your OpenAI API key for ChatGPT and other OpenAI services"
+    },
+    {
+      "key": "CLAUDE_API_KEY",
+      "name": "Claude API Key",
+      "type": "string",
+      "value": "",
+      "encrypt": true,
+      "description": "Your Anthropic Claude API key for AI-powered workflows"
     }
   ]
 }
