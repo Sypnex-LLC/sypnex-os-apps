@@ -1,13 +1,94 @@
+// Encrypt sensitive values in node config before saving
+async function encryptNodeConfig(nodeConfig, nodeType) {
+    if (!sypnexAPI || !sypnexAPI.encrypt) {
+        return nodeConfig; // No encryption available
+    }
+    
+    // Get node definition to check for encrypted fields
+    const nodeDef = nodeRegistry.getNodeType(nodeType);
+    if (!nodeDef || !nodeDef.config) {
+        return nodeConfig;
+    }
+    
+    const encryptedConfig = {};
+    
+    for (const [fieldName, fieldConfig] of Object.entries(nodeConfig)) {
+        const configDef = nodeDef.config[fieldName]; // Access as object property, not array
+        
+        if (configDef && configDef.encrypt === true && fieldConfig.value) {
+            // Encrypt the value
+            try {
+                const encryptedValue = await sypnexAPI.encrypt(fieldConfig.value);
+                encryptedConfig[fieldName] = {
+                    ...fieldConfig,
+                    value: encryptedValue
+                };
+            } catch (error) {
+                console.error(`Failed to encrypt field ${fieldName}:`, error);
+                encryptedConfig[fieldName] = fieldConfig; // Keep original if encryption fails
+            }
+        } else {
+            encryptedConfig[fieldName] = fieldConfig;
+        }
+    }
+    
+    return encryptedConfig;
+}
+
+// Decrypt sensitive values in node config after loading
+async function decryptNodeConfig(nodeConfig, nodeType) {
+    if (!sypnexAPI || !sypnexAPI.decrypt) {
+        return nodeConfig; // No decryption available
+    }
+    
+    // Get node definition to check for encrypted fields
+    const nodeDef = nodeRegistry.getNodeType(nodeType);
+    if (!nodeDef || !nodeDef.config) {
+        return nodeConfig;
+    }
+    
+    const decryptedConfig = {};
+    
+    for (const [fieldName, fieldConfig] of Object.entries(nodeConfig)) {
+        const configDef = nodeDef.config[fieldName]; // Access as object property, not array
+        
+        if (configDef && configDef.encrypt === true && fieldConfig.value) {
+            // Decrypt the value
+            try {
+                const decryptedValue = await sypnexAPI.decrypt(fieldConfig.value);
+                decryptedConfig[fieldName] = {
+                    ...fieldConfig,
+                    value: decryptedValue
+                };
+            } catch (error) {
+                console.error(`Failed to decrypt field ${fieldName}:`, error);
+                decryptedConfig[fieldName] = fieldConfig; // Keep original if decryption fails
+            }
+        } else {
+            decryptedConfig[fieldName] = fieldConfig;
+        }
+    }
+    
+    return decryptedConfig;
+}
+
 // Save flow to virtual file system
 async function saveFlow() {
-    const flowData = {
-        nodes: Array.from(flowEditor.nodes.values()).map(node => ({
+    // Encrypt sensitive fields before saving
+    const encryptedNodes = [];
+    for (const node of flowEditor.nodes.values()) {
+        const encryptedConfig = await encryptNodeConfig(node.config, node.type);
+        encryptedNodes.push({
             id: node.id,
             type: node.type,
             x: node.x,
             y: node.y,
-            config: node.config
-        })),
+            config: encryptedConfig
+        });
+    }
+    
+    const flowData = {
+        nodes: encryptedNodes,
         connections: Array.from(flowEditor.connections.values()).map(conn => ({
             id: conn.id,
             from: conn.from,
@@ -61,14 +142,21 @@ async function saveFlow() {
 
 // Save flow as (always show file explorer)
 async function saveFlowAs() {
-    const flowData = {
-        nodes: Array.from(flowEditor.nodes.values()).map(node => ({
+    // Encrypt sensitive fields before saving
+    const encryptedNodes = [];
+    for (const node of flowEditor.nodes.values()) {
+        const encryptedConfig = await encryptNodeConfig(node.config, node.type);
+        encryptedNodes.push({
             id: node.id,
             type: node.type,
             x: node.x,
             y: node.y,
-            config: node.config
-        })),
+            config: encryptedConfig
+        });
+    }
+    
+    const flowData = {
+        nodes: encryptedNodes,
         connections: Array.from(flowEditor.connections.values()).map(conn => ({
             id: conn.id,
             from: conn.from,
@@ -159,7 +247,10 @@ async function loadFlow() {
             
             // Load nodes
             if (flowData.nodes) {
-                flowData.nodes.forEach(nodeData => {
+                for (const nodeData of flowData.nodes) {
+                    // Decrypt sensitive fields after loading
+                    const decryptedConfig = await decryptNodeConfig(nodeData.config, nodeData.type);
+                    
                     // Create node with proper ID
                     const nodeId = nodeData.id;
                     const node = {
@@ -167,7 +258,7 @@ async function loadFlow() {
                         type: nodeData.type,
                         x: nodeData.x,
                         y: nodeData.y,
-                        config: nodeData.config,
+                        config: decryptedConfig,
                         data: {}
                     };
                     
@@ -182,7 +273,7 @@ async function loadFlow() {
                     // Create node element using the renderer and add to canvas
                     const nodeElement = nodeRenderer.createNodeElement(node);
                     flowEditor.canvas.appendChild(nodeElement);
-                });
+                }
             }
             
             // Load connections after nodes are fully created and positioned

@@ -341,7 +341,9 @@ async function showNodeConfig(nodeId) {
                     const step = config.step ? ` step="${config.step}"` : '';
                     configHtml += `<input type="number" id="config_${nodeId}_${key}" value="${node.config[key].value}"${min}${max}${step}>`;
                 } else {
-                    configHtml += `<input type="${config.type}" id="config_${nodeId}_${key}" value="${node.config[key].value}">`;
+                    // Check if field should be encrypted (password masked)
+                    const inputType = config.encrypt === true ? 'password' : config.type;
+                    configHtml += `<input type="${inputType}" id="config_${nodeId}_${key}" value="${node.config[key].value}">`;
                 }
                 
                 configHtml += `</div>`;
