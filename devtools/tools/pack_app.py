@@ -7,11 +7,25 @@ import os
 import sys
 import json
 import base64
+import hashlib
 from pathlib import Path
 from datetime import datetime
 from bs4 import BeautifulSoup, Tag
 import cssutils
 import logging
+
+def generate_checksum(file_path):
+    """Generate SHA256 checksum for a file"""
+    sha256_hash = hashlib.sha256()
+    try:
+        with open(file_path, "rb") as f:
+            # Read file in chunks to handle large files efficiently
+            for chunk in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(chunk)
+        return sha256_hash.hexdigest()
+    except Exception as e:
+        print(f"❌ Error generating checksum: {e}")
+        return None
 
 def minify_css(css_content, app_id):
     """Minify CSS content using production library"""
@@ -181,6 +195,14 @@ def pack_app(app_name, source_dir="."):
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(package, f, indent=2)
         
+        # Generate SHA256 checksum
+        checksum = generate_checksum(output_file)
+        checksum_file = f"{app_name}_packaged.sha256"
+        
+        # Write checksum file
+        with open(checksum_file, 'w', encoding='utf-8') as f:
+            f.write(f"{checksum}  {output_file}\n")
+        
         # Clean up intermediate HTML file if it was auto-created
         if packed_html_file and intermediate_html_created:
             try:
@@ -195,7 +217,9 @@ def pack_app(app_name, source_dir="."):
         
         print(f"\n🎉 Successfully packaged '{app_name}'!")
         print(f"📦 Package file: {output_file}")
+        print(f"🔐 Checksum file: {checksum_file}")
         print(f"📊 Package size: {package_size_kb:.1f} KB")
+        print(f"🔍 SHA256: {checksum}")
         print(f"📋 Files included:")
         for filename in package['files'].keys():
             print(f"   - {filename}")
@@ -209,11 +233,12 @@ def pack_app(app_name, source_dir="."):
                 print(f"   - {vfs_path} ({size_kb:.1f} KB)")
         
         print(f"\n💡 Next steps:")
-        print(f"   1. Share the {output_file} file")
-        print(f"   2. Recipient can install it using the app installer")
-        print(f"   3. Package contains all necessary files for installation")
+        print(f"   1. Share both {output_file} and {checksum_file}")
+        print(f"   2. Recipient can verify integrity using: sha256sum -c {checksum_file}")
+        print(f"   3. Install using the app installer after verification")
+        print(f"   4. Package contains all necessary files for installation")
         if 'additional_files' in package and package['additional_files']:
-            print(f"   4. VFS files will be automatically deployed during installation")
+            print(f"   5. VFS files will be automatically deployed during installation")
         
         return True
         

@@ -25,6 +25,15 @@ jobs:
           echo "Discovered APP_FILES: $APP_FILES"
           echo "APP_FILES=$APP_FILES" >> $GITHUB_OUTPUT
 
+      # Dynamically get all .sha256 files from the /releases/ folder (no subfolders)
+      - name: Discover .sha256 files in releases directory
+        id: discover_sha_files
+        run: |
+          # Use 'find' to get all .sha256 files directly in 'releases/'
+          SHA_FILES=$(find releases/ -maxdepth 1 -name "*.sha256" -printf "%f\n" | tr '\n' ' ')
+          echo "Discovered SHA_FILES: $SHA_FILES"
+          echo "SHA_FILES=$SHA_FILES" >> $GITHUB_OUTPUT
+
       - name: List root directory contents (Diagnostic)
         run: |
           echo "Contents of the repository root directory:"
@@ -60,6 +69,27 @@ jobs:
               exit 1 # Exit if a specified file is not found
             fi
           done
+
+      - name: Copy .sha256 files for release upload
+        run: |
+          # Check if SHA_FILES is empty - this is optional, so don't exit if none found
+          if [ -z "${{ steps.discover_sha_files.outputs.SHA_FILES }}" ]; then
+            echo "No .sha256 files found in 'releases/' - this is optional."
+          else
+            # Loop through the dynamically discovered SHA_FILES and copy each one
+            for sha_file in ${{ steps.discover_sha_files.outputs.SHA_FILES }}; do
+              source_path="releases/$sha_file"
+              dest_path="$sha_file" # Keep original name for SHA files
+
+              if [ -f "$source_path" ]; then
+                cp "$source_path" "$dest_path"
+                echo "Copied $source_path to $dest_path for upload."
+                ls -la "$dest_path" # Verify copy
+              else
+                echo "❌ Warning: File '$source_path' was listed but not found during copy. Skipping."
+              fi
+            done
+          fi
 
       # --- UPDATED STEP: Extract full metadata from .app files and generate versions.json ---
       - name: Extract App Metadata (from .app JSON) and Generate Manifest
@@ -120,6 +150,12 @@ jobs:
             FILES_LIST+="- $app_file (Original Path: /releases/$app_file)\n"
             FILES_LIST+="  **Important:** The attached file is named ${app_file%.app}.bin. Please rename it to $app_file after downloading for proper use.\n"
             UPLOAD_FILES+="${app_file%.app}.bin\n" # Add to the list for upload
+          done
+          
+          # Add SHA256 files to the upload list (keep original names)
+          for sha_file in ${{ steps.discover_sha_files.outputs.SHA_FILES }}; do
+            FILES_LIST+="- $sha_file (Checksum file for integrity verification)\n"
+            UPLOAD_FILES+="$sha_file\n" # Add to the list for upload
           done
           
           # Add the versions.json to the UPLOAD_FILES list
