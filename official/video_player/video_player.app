@@ -10,7 +10,7 @@
     "movies",
     "streaming"
   ],
-  "author": "Sypnex",
+  "author": "Sypnex OS",
   "version": "1.0.0",
   "type": "user_app",
   "settings": []
