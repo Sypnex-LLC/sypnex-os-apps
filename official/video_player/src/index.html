@@ -1,0 +1,61 @@
+<div class="app-container">
+    <div class="app-header">
+        <div class="header-content">
+            <div class="header-text">
+                <h2><i class="fas fa-play-circle"></i> Video Player</h2>
+            </div>
+            <div class="header-controls">
+                <button id="openFileBtn" class="btn btn-primary">
+                    <i class="fas fa-folder-open"></i> Open Video
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-content">
+        <div class="video-container">
+            <div id="noVideoMessage" class="no-video-message">
+                <i class="fas fa-play-circle"></i>
+                <p>Select a video to play</p>
+            </div>
+            <video id="videoElement" class="video-display" style="display: none;" preload="metadata">
+                <source id="video-source" src="" type="">
+                Your browser does not support the video element.
+            </video>
+        </div>
+        
+        <div id="videoInfo" class="video-info" style="display: none;">
+            <div class="info-item">
+                <strong>File:</strong> <span id="fileName">-</span>
+            </div>
+            <div class="info-item">
+                <strong>Size:</strong> <span id="fileSize">-</span>
+            </div>
+            <div class="info-item">
+                <strong>Duration:</strong> <span id="videoDuration">-</span>
+            </div>
+        </div>
+
+        <div id="videoControls" class="video-controls" style="display: none;">
+            <button type="button" class="control-btn play-pause-btn">
+                <i class="fas fa-play"></i>
+            </button>
+            
+            <div class="progress-container">
+                <input type="range" class="progress-bar" value="0" min="0" max="100">
+                <span class="time-display">00:00 / 00:00</span>
+            </div>
+            
+            <div class="volume-container">
+                <button type="button" class="control-btn volume-btn">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+                <input type="range" class="volume-slider" value="100" min="0" max="100">
+            </div>
+            
+            <button type="button" class="control-btn fullscreen-btn">
+                <i class="fas fa-expand"></i>
+            </button>
+        </div>
+    </div>
+</div>

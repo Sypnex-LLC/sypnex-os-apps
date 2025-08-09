@@ -325,5 +325,12 @@ class AppStore {
     }
 }
 
-// Initialize the app store when the script loads
-const appStore = new AppStore();
+// Initialize the app store when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        const appStore = new AppStore();
+    });
+} else {
+    // DOM is already loaded
+    const appStore = new AppStore();
+}

@@ -1,0 +1,48 @@
+<div class="app-container">
+    <div class="app-header">
+        <div class="header-content">
+            <div class="header-text">
+                <h2><i class="fas fa-image"></i> Image Viewer</h2>
+            </div>
+            <div class="header-controls">
+                <button id="openFileBtn" class="btn btn-primary">
+                    <i class="fas fa-folder-open"></i> Open Image
+                </button>
+                <button id="zoomInBtn" class="btn btn-secondary" disabled>
+                    <i class="fas fa-search-plus"></i> Zoom In
+                </button>
+                <button id="zoomOutBtn" class="btn btn-secondary" disabled>
+                    <i class="fas fa-search-minus"></i> Zoom Out
+                </button>
+                <button id="resetZoomBtn" class="btn btn-secondary" disabled>
+                    <i class="fas fa-expand-arrows-alt"></i> Fit to Window
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-content">
+        <div id="imageContainer" class="image-container">
+            <div id="noImageMessage" class="no-image-message">
+                <i class="fas fa-image"></i>
+                <p>Select an image to view</p>
+            </div>
+            <img id="imageDisplay" class="image-display" style="display: none;" />
+        </div>
+        
+        <div id="imageInfo" class="image-info" style="display: none;">
+            <div class="info-item">
+                <strong>File:</strong> <span id="fileName">-</span>
+            </div>
+            <div class="info-item">
+                <strong>Size:</strong> <span id="fileSize">-</span>
+            </div>
+            <div class="info-item">
+                <strong>Dimensions:</strong> <span id="imageDimensions">-</span>
+            </div>
+            <div class="info-item">
+                <strong>Zoom:</strong> <span id="zoomLevel">100%</span>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,79 @@
+<div class="app-container">
+    <div class="app-header">
+        <div class="header-content">
+            <div class="header-text">
+                <h2><i class="fas fa-music"></i> Audio Player</h2>
+            </div>
+            <div class="header-controls">
+                <button id="openFileBtn" class="btn btn-primary">
+                    <i class="fas fa-folder-open"></i> Open Audio
+                </button>
+                <button id="repeatBtn" class="btn btn-secondary" disabled>
+                    <i class="fas fa-redo"></i> Repeat
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-content">
+        <div id="playerContainer" class="player-container">
+            <div id="noAudioMessage" class="no-audio-message">
+                <i class="fas fa-music"></i>
+                <p>Select an audio file to play</p>
+            </div>
+            
+            <div id="audioPlayer" class="audio-player" style="display: none;">
+                <div class="album-art-container">
+                    <div id="albumArt" class="album-art">
+                        <i class="fas fa-music"></i>
+                    </div>
+                </div>
+                
+                <div class="track-info">
+                    <h3 id="trackTitle">Unknown Track</h3>
+                    <p id="trackArtist">Unknown Artist</p>
+                    <p id="trackAlbum">Unknown Album</p>
+                </div>
+                
+                <div class="progress-container">
+                    <div class="time-display">
+                        <span id="currentTime">0:00</span>
+                        <span id="duration">0:00</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <input type="range" id="progressBar" class="progress-bar" min="0" max="100" value="0">
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button id="playPauseBtn" class="control-btn control-btn-main">
+                        <i class="fas fa-play"></i>
+                    </button>
+                </div>
+                
+                <div class="volume-container">
+                    <i class="fas fa-volume-down"></i>
+                    <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="50">
+                    <i class="fas fa-volume-up"></i>
+                </div>
+            </div>
+            
+            <audio id="audioElement" preload="metadata"></audio>
+        </div>
+        
+        <div id="audioInfo" class="audio-info" style="display: none;">
+            <div class="info-item">
+                <strong>File:</strong> <span id="fileName">-</span>
+            </div>
+            <div class="info-item">
+                <strong>Size:</strong> <span id="fileSize">-</span>
+            </div>
+            <div class="info-item">
+                <strong>Duration:</strong> <span id="audioDuration">-</span>
+            </div>
+            <div class="info-item">
+                <strong>Format:</strong> <span id="audioFormat">-</span>
+            </div>
+        </div>
+    </div>
+</div>
