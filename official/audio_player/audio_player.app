@@ -1,7 +1,7 @@
 {
   "id": "audio_player",
   "name": "Audio Player",
-  "description": "Professional audio player for playing music and audio files from the VFS with playback controls and metadata display",
+  "description": "A simple audio player for playing music and audio files from the VFS with playback controls and metadata display",
   "icon": "fas fa-music",
   "keywords": [
     "audio",
