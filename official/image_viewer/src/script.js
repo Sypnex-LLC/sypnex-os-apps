@@ -13,6 +13,9 @@ class ImageViewer {
         
         this.initializeElements();
         this.bindEvents();
+        
+        // Check for pending intents AFTER everything is fully initialized
+        this.checkForAppIntent();
     }
     
     initializeElements() {
@@ -247,6 +250,37 @@ class ImageViewer {
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+    
+    // Check for app intents (e.g., file to open from VFS)
+    async checkForAppIntent() {
+        try {
+            // Check if SypnexAPI is available
+            if (typeof sypnexAPI === 'undefined' || !sypnexAPI) {
+                return;
+            }
+            
+            // Read intent from user preferences (where it's stored)
+            const intentData = await sypnexAPI.getPreference('image_viewer', '_pending_intent', null);
+            
+            if (intentData && intentData.action === 'open_file') {
+                
+                // Clear the intent immediately after reading it, regardless of success/failure
+                await sypnexAPI.setPreference('image_viewer', '_pending_intent', null);
+                
+                const fileData = intentData.data;
+                if (fileData && fileData.filePath) {
+                    
+                    // Use existing file loading logic instead of duplicating it
+                    await this.loadImage(fileData.filePath);
+                    
+                } else {
+                    console.warn('Image Viewer: Invalid file data in intent:', fileData);
+                }
+            }
+        } catch (error) {
+            console.error('Image Viewer: Error checking for app intent:', error);
+        }
     }
     
     showError(message) {

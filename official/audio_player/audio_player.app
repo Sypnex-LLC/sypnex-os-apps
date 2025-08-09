@@ -4,6 +4,7 @@
   "description": "A simple audio player for playing music and audio files from the VFS with playback controls and metadata display",
   "icon": "fas fa-music",
   "keywords": [
+    "audio_player",
     "audio",
     "music", 
     "player",

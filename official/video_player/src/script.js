@@ -11,6 +11,7 @@ class VideoPlayer {
         
         this.initElements();
         this.initEventListeners();
+        this.checkForAppIntent();
         
         console.log('Video Player initialized');
     }
@@ -157,6 +158,37 @@ class VideoPlayer {
             mkv: 'video/x-matroska'
         };
         return types[extension.toLowerCase()] || 'video/mp4';
+    }
+    
+    // Check for app intents (e.g., file to open from VFS)
+    async checkForAppIntent() {
+        try {
+            // Check if SypnexAPI is available
+            if (typeof sypnexAPI === 'undefined' || !sypnexAPI) {
+                return;
+            }
+            
+            // Read intent from user preferences (where it's stored)
+            const intentData = await sypnexAPI.getPreference('video_player', '_pending_intent', null);
+            
+            if (intentData && intentData.action === 'open_file') {
+                
+                // Clear the intent immediately after reading it, regardless of success/failure
+                await sypnexAPI.setPreference('video_player', '_pending_intent', null);
+                
+                const fileData = intentData.data;
+                if (fileData && fileData.filePath) {
+                    
+                    // Use existing file loading logic instead of duplicating it
+                    await this.loadVideo(fileData.filePath);
+                    
+                } else {
+                    console.warn('Video Player: Invalid file data in intent:', fileData);
+                }
+            }
+        } catch (error) {
+            console.error('Video Player: Error checking for app intent:', error);
+        }
     }
     
     togglePlayPause() {

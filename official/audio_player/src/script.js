@@ -8,6 +8,9 @@ class AudioPlayer {
         
         this.initElements();
         this.bindEvents();
+        
+        // Check for pending intents AFTER everything is fully initialized
+        this.checkForAppIntent();
     }
     
     initElements() {
@@ -247,7 +250,38 @@ class AudioPlayer {
         const sizes = ['B', 'KB', 'MB', 'GB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        return Math.floor(bytes / Math.pow(1024, i)) + ' ' + sizes[i];
+    }
+    
+    // Check for app intents (e.g., file to open from VFS)
+    async checkForAppIntent() {
+        try {
+            // Check if SypnexAPI is available
+            if (typeof sypnexAPI === 'undefined' || !sypnexAPI) {
+                return;
+            }
+            
+            // Read intent from user preferences (where it's stored)
+            const intentData = await sypnexAPI.getPreference('audio_player', '_pending_intent', null);
+            
+            if (intentData && intentData.action === 'open_file') {
+                
+                // Clear the intent immediately after reading it, regardless of success/failure
+                await sypnexAPI.setPreference('audio_player', '_pending_intent', null);
+                
+                const fileData = intentData.data;
+                if (fileData && fileData.filePath) {
+                    
+                    // Use existing file loading logic instead of duplicating it
+                    await this.loadAudio(fileData.filePath);
+                    
+                } else {
+                    console.warn('Audio Player: Invalid file data in intent:', fileData);
+                }
+            }
+        } catch (error) {
+            console.error('Audio Player: Error checking for app intent:', error);
+        }
     }
     
     showError(message) {

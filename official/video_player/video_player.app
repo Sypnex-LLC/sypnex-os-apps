@@ -4,6 +4,7 @@
   "description": "A simple video player for all video formats",
   "icon": "fas fa-play-circle",
   "keywords": [
+    "video_player",
     "video",
     "player",
     "media",

@@ -4,6 +4,7 @@
   "description": "A simple image viewer for browsing and viewing images from the Virtual File System",
   "icon": "fas fa-image",
   "keywords": [
+    "image_viewer",
     "image",
     "viewer",
     "photos",
