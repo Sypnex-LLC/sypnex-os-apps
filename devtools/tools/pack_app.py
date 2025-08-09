@@ -8,11 +8,68 @@ import sys
 import json
 import base64
 import hashlib
+import requests
 from pathlib import Path
 from datetime import datetime
 from bs4 import BeautifulSoup, Tag
 import cssutils
 import logging
+
+def validate_content(content, filename, app_id):
+    """Validate content using the centralized validation API"""
+    try:
+        # Get JWT token from environment
+        jwt_token = os.getenv('SYPNEX_DEV_TOKEN')
+        if not jwt_token:
+            print("❌ Error: SYPNEX_DEV_TOKEN not found in environment")
+            print("   Please set the development token to use validation")
+            return False
+        
+        # Get server URL from environment or use default
+        server_url = os.getenv('SYPNEX_SERVER_URL', 'http://localhost:5000')
+        validation_url = f"{server_url}/api/dev/validate-app"
+        
+        # Prepare validation request
+        headers = {
+            'X-Session-Token': jwt_token,
+            'Content-Type': 'application/json'
+        }
+        
+        payload = {
+            'files': {filename: content},
+            'app_id': app_id,
+            'enforce_server_side_only': False  # Dev-time validation, check all rules
+        }
+        
+        # Make validation request
+        response = requests.post(validation_url, headers=headers, json=payload, timeout=10)
+        
+        if response.status_code != 200:
+            print(f"❌ Validation API error: {response.status_code}")
+            print(f"   Response: {response.text}")
+            return False
+        
+        result = response.json()
+        validation_results = result.get('validation_results', {})
+        
+        if validation_results.get('is_valid', False):
+            print(f"✅ Validation passed for {filename}")
+            return True
+        else:
+            print(f"❌ Validation failed for {filename}:")
+            errors = validation_results.get('errors', [])
+            for error in errors:
+                print(f"   • {error}")
+            return False
+            
+    except requests.exceptions.RequestException as e:
+        print(f"❌ Error connecting to validation API: {e}")
+        print("   Continuing without validation...")
+        return True  # Continue if API is unavailable
+    except Exception as e:
+        print(f"❌ Validation error: {e}")
+        print("   Continuing without validation...")
+        return True  # Continue if validation fails
 
 def generate_checksum(file_path):
     """Generate SHA256 checksum for a file"""
@@ -27,46 +84,39 @@ def generate_checksum(file_path):
         print(f"❌ Error generating checksum: {e}")
         return None
 
-def minify_css(css_content, app_id):
-    """Minify CSS content using production library"""
+def minify_css(css_content,appi_id=None):
+    """Minify CSS content and validate it"""
+    # Validate CSS content first using a generic validation app_id
+    #print(css_content)
+    if not validate_content(css_content, "style.css", "dev-pack-validation"):
+        print(f"❌ CSS validation failed - aborting pack")
+        sys.exit(1)
+    
     return css_content;  # Placeholder for CSS minification logic
-    try:
-        from csscompressor import compress
-        # csscompressor removes comments and compresses by default
-        return compress(css_content)
-    except ImportError:
-        print("⚠️  csscompressor not available, skipping CSS minification")
-        return css_content
-    except Exception as e:
-        print(f"⚠️  CSS minification failed: {e}")
-        return css_content
+
+def verify_html(html_content):
+    """Minify HTML content and validate it"""
+    # Validate HTML content first using a generic validation app_id
+    #print(html_content)
+    if not validate_content(html_content, "index.html", "dev-pack-validation"):
+        print(f"❌ HTML validation failed - aborting pack")
+        sys.exit(1)
 
 def minify_html(html_content):
+    """Minify HTML content and validate it"""
     return html_content;  # Placeholder for HTML minification logic
-    """Minify HTML content using production library"""
-    try:
-        from htmlmin import minify
-        return minify(html_content, remove_comments=True, remove_empty_space=True)
-    except ImportError:
-        print("⚠️  htmlmin not available, skipping HTML minification")
-        return html_content
-    except Exception as e:
-        print(f"⚠️  HTML minification failed: {e}")
-        return html_content
+
 
 def minify_js(js_content):
+    """Minify JavaScript content and validate it"""
+    # Validate JavaScript content first using a generic validation app_id
+    #print(js_content)
+    if not validate_content(js_content, "script.js", "dev-pack-validation"):
+        print(f"❌ JavaScript validation failed - aborting pack")
+        sys.exit(1)
+    
     return js_content;  # Placeholder for JS minification logic
-    """Minify JavaScript content using production library"""
-    try:
-        from jsmin import jsmin
-        # jsmin removes comments and whitespace by default
-        return jsmin(js_content)
-    except ImportError:
-        print("⚠️  jsmin not available, skipping JS minification")
-        return js_content
-    except Exception as e:
-        print(f"⚠️  JS minification failed: {e}")
-        return js_content
+
 
 def pack_app(app_name, source_dir="."):
     """Pack an existing user app into a distributable format"""
@@ -296,6 +346,9 @@ def auto_pack_app(app_id, app_path):
     with open(index_html_path, 'r', encoding='utf-8') as f:
         merged += f.read()
     
+    # Validate the raw HTML content before adding inline styles and scripts
+    verify_html(merged)
+    
     # Pack styles in order
     all_styles = []
     missing_styles = []
@@ -374,8 +427,6 @@ def auto_pack_app(app_id, app_path):
         f.write(scoped_html)
     
     return html_file
-
-
 
 def scope_app_styles(payload: str, appid: str) -> str:
     if not payload or not appid:
