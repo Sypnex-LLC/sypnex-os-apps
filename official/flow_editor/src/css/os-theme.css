@@ -135,7 +135,7 @@
 
 .flow-toolbar .btn-success {
     background: var(--accent-color);
-    color: var(--primary-bg);
+    color: white;
     border-color: var(--accent-color);
 }
 
