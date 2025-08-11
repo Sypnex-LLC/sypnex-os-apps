@@ -232,51 +232,6 @@ async function deleteSelectedNode() {
     }
 }
 
-// Handle keyboard shortcuts
-function handleKeyDown(e) {
-    if (e.key === 'Delete' || (e.key === 'Backspace' && e.ctrlKey)) {
-        if (flowEditor.selectedNode) {
-            deleteSelectedNode();
-        }
-    } else if (e.key === 'Escape') {
-        // Deselect node
-        if (flowEditor.selectedNode) {
-            const nodeElement = document.getElementById(flowEditor.selectedNode);
-            if (nodeElement) nodeElement.classList.remove('selected');
-            flowEditor.selectedNode = null;
-            document.getElementById('node-config').innerHTML = '<p class="text-muted">Select a node to configure it</p>';
-        }
-    } else if ((e.ctrlKey || e.metaKey) && e.key === 's' && !e.shiftKey) {
-        // Ctrl/Cmd + S: Save
-        e.preventDefault();
-        window.fileManager.saveFlow();
-    } else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'S') {
-        // Ctrl/Cmd + Shift + S: Save As
-        e.preventDefault();
-        window.fileManager.saveFlowAs();
-    } else if ((e.ctrlKey || e.metaKey) && e.key === 'o') {
-        // Ctrl/Cmd + O: Load
-        e.preventDefault();
-        window.fileManager.loadFlow();
-    } else if ((e.ctrlKey || e.metaKey) && e.key === '=') {
-        // Ctrl/Cmd + =: Zoom In
-        e.preventDefault();
-        window.canvasManager.zoomIn();
-    } else if ((e.ctrlKey || e.metaKey) && e.key === '-') {
-        // Ctrl/Cmd + -: Zoom Out
-        e.preventDefault();
-        window.canvasManager.zoomOut();
-    } else if ((e.ctrlKey || e.metaKey) && e.key === '0') {
-        // Ctrl/Cmd + 0: Reset zoom and pan
-        e.preventDefault();
-        window.canvasManager.resetCanvasPan();
-    } else if ((e.ctrlKey || e.metaKey) && (e.shiftKey) && e.key === 'F') {
-        // Ctrl/Cmd + Shift + F: Zoom to fit
-        e.preventDefault();
-        window.canvasManager.zoomToFit();
-    }
-}
-
 // Handle port mouse events for connections
 function handlePortMouseDown(e, nodeId, portName, isOutput) {
     e.preventDefault();

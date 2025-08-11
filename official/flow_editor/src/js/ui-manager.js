@@ -140,8 +140,7 @@ function setupEventHandlers() {
     document.addEventListener('mousemove', window.canvasManager.handleDocumentMouseMove);
     document.addEventListener('mouseup', window.canvasManager.handleDocumentMouseUp);
     
-    // Keyboard shortcuts
-    document.addEventListener('keydown', handleKeyDown);
+
 }
 
 // Toggle config panel

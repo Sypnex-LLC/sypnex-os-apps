@@ -60,8 +60,8 @@ class VideoPlayer {
         this.elements.video.addEventListener('ended', () => this.onVideoEnded());
         this.elements.video.addEventListener('error', (e) => this.onVideoError(e));
         
-        // Keyboard shortcuts (disabled to prevent global key conflicts)
-        //document.xaddEventListener('keydown', (e) => this.handleKeyPress(e));
+        // Register keyboard shortcuts using new SypnexAPI
+        this.setupKeyboardShortcuts();
         
         // Fullscreen change events
         document.addEventListener('fullscreenchange', () => this.onFullscreenChange());
@@ -285,6 +285,45 @@ class VideoPlayer {
         icon.className = this.isFullscreen ? 'fas fa-compress' : 'fas fa-expand';
     }
     
+    setupKeyboardShortcuts() {
+        // Check if SypnexAPI keyboard functionality is available
+        if (typeof sypnexAPI === 'undefined' || !sypnexAPI || !sypnexAPI.registerKeyboardShortcuts) {
+            console.warn('SypnexAPI keyboard shortcuts not available');
+            return;
+        }
+        
+        // Register keyboard shortcuts using the new SypnexAPI
+        sypnexAPI.registerKeyboardShortcuts({
+            'space': () => {
+                if (this.currentFile) this.togglePlayPause();
+            },
+            'f': () => {
+                if (this.currentFile) this.toggleFullscreen();
+            },
+            'escape': () => {
+                if (this.isFullscreen) this.exitFullscreen();
+            },
+            'm': () => {
+                if (this.currentFile) this.toggleMute();
+            },
+            'arrowleft': () => {
+                if (this.currentFile && this.elements.video.duration) {
+                    this.elements.video.currentTime = Math.max(0, this.elements.video.currentTime - 10);
+                }
+            },
+            'arrowright': () => {
+                if (this.currentFile && this.elements.video.duration) {
+                    this.elements.video.currentTime = Math.min(this.elements.video.duration, this.elements.video.currentTime + 10);
+                }
+            }
+        }, {
+            preventDefault: true,
+            stopPropagation: false
+        });
+        
+        console.log('Media Player: Registered keyboard shortcuts');
+    }
+    
     onVideoLoaded() {
         console.log('Video metadata loaded');
         this.updateProgress();
@@ -314,33 +353,6 @@ class VideoPlayer {
     onVideoError(event) {
         console.error('Video error:', event);
         this.showError('Failed to play video file');
-    }
-    
-    handleKeyPress(event) {
-        if (!this.currentFile) return;
-        
-        switch(event.code) {
-            case 'Space':
-                event.preventDefault();
-                this.togglePlayPause();
-                break;
-            case 'KeyF':
-                event.preventDefault();
-                this.toggleFullscreen();
-                break;
-            case 'KeyM':
-                event.preventDefault();
-                this.toggleMute();
-                break;
-            case 'ArrowLeft':
-                event.preventDefault();
-                this.elements.video.currentTime = Math.max(0, this.elements.video.currentTime - 10);
-                break;
-            case 'ArrowRight':
-                event.preventDefault();
-                this.elements.video.currentTime = Math.min(this.elements.video.duration, this.elements.video.currentTime + 10);
-                break;
-        }
     }
     
     formatTime(seconds) {

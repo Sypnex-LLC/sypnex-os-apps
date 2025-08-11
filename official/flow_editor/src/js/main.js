@@ -112,6 +112,9 @@ async function initFlowEditor() {
     // Set up event handlers
     window.uiManager.setupEventHandlers();
     
+    // Set up keyboard shortcuts using new SypnexAPI
+    setupKeyboardShortcuts();
+    
     // Handle fullscreen changes to prevent visual flashing
     function handleFullscreenChange() {
         const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
@@ -265,6 +268,91 @@ function addNode(type) {
     const nodeElement = nodeRenderer.createNodeElement(node);
     flowEditor.canvas.appendChild(nodeElement);
     
+}
+
+// Setup keyboard shortcuts using new SypnexAPI
+function setupKeyboardShortcuts() {
+    // Check if SypnexAPI keyboard functionality is available
+    if (typeof sypnexAPI === 'undefined' || !sypnexAPI || !sypnexAPI.registerKeyboardShortcuts) {
+        console.warn('SypnexAPI keyboard shortcuts not available - Flow Editor keyboard shortcuts disabled');
+        return;
+    }
+    
+    // Register keyboard shortcuts using the new SypnexAPI
+    // Map keys to their handlers, preserving all the original logic from handleKeyDown
+    sypnexAPI.registerKeyboardShortcuts({
+        'delete': () => {
+            if (flowEditor.selectedNode) {
+                deleteSelectedNode();
+            }
+        },
+        'ctrl+backspace': () => {
+            if (flowEditor.selectedNode) {
+                deleteSelectedNode();
+            }
+        },
+        'cmd+backspace': () => {
+            if (flowEditor.selectedNode) {
+                deleteSelectedNode();
+            }
+        },
+        'escape': () => {
+            // Deselect node
+            if (flowEditor.selectedNode) {
+                const nodeElement = document.getElementById(flowEditor.selectedNode);
+                if (nodeElement) nodeElement.classList.remove('selected');
+                flowEditor.selectedNode = null;
+                document.getElementById('node-config').innerHTML = '<p class="text-muted">Select a node to configure it</p>';
+            }
+        },
+        'ctrl+s': () => {
+            window.fileManager.saveFlow();
+        },
+        'cmd+s': () => {
+            window.fileManager.saveFlow();
+        },
+        'ctrl+shift+s': () => {
+            window.fileManager.saveFlowAs();
+        },
+        'cmd+shift+s': () => {
+            window.fileManager.saveFlowAs();
+        },
+        'ctrl+o': () => {
+            window.fileManager.loadFlow();
+        },
+        'cmd+o': () => {
+            window.fileManager.loadFlow();
+        },
+        'ctrl+=': () => {
+            window.canvasManager.zoomIn();
+        },
+        'cmd+=': () => {
+            window.canvasManager.zoomIn();
+        },
+        'ctrl+-': () => {
+            window.canvasManager.zoomOut();
+        },
+        'cmd+-': () => {
+            window.canvasManager.zoomOut();
+        },
+        'ctrl+0': () => {
+            window.canvasManager.resetCanvasPan();
+        },
+        'cmd+0': () => {
+            window.canvasManager.resetCanvasPan();
+        },
+        'ctrl+shift+f': () => {
+            window.canvasManager.zoomToFit();
+        },
+        'cmd+shift+f': () => {
+            window.canvasManager.zoomToFit();
+        }
+    }, {
+        preventDefault: true,
+        stopPropagation: false
+    });
+    
+    console.log('Flow Editor: Registered keyboard shortcuts via SypnexAPI');
 }
 
 // Initialize when DOM is ready
