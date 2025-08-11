@@ -60,8 +60,8 @@ class VideoPlayer {
         this.elements.video.addEventListener('ended', () => this.onVideoEnded());
         this.elements.video.addEventListener('error', (e) => this.onVideoError(e));
         
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => this.handleKeyPress(e));
+        // Keyboard shortcuts (disabled to prevent global key conflicts)
+        // document.addEventListener('keydown', (e) => this.handleKeyPress(e));
         
         // Fullscreen change events
         document.addEventListener('fullscreenchange', () => this.onFullscreenChange());
