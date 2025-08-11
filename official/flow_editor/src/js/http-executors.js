@@ -9,20 +9,12 @@ async function executeHttpNode(engine, node, inputData, executed) {
 
     let processedBody = body;
 
-    console.log('HTTP Node Debug:', {
-        inputData: inputData,
-        originalBody: body,
-        useTemplate: useTemplate
-    });
+
 
     // Process templates first on the string body
     if (useTemplate && inputData) {
         processedBody = sypnexAPI.getAppWindow().flowEditorUtils.processTemplates(processedBody, inputData);
-        console.log('HTTP Node Template Processing:', {
-            originalBody: body,
-            processedBody: processedBody,
-            inputData: inputData
-        });
+
     }
 
     // Then parse as JSON if it's a string and looks like JSON
@@ -189,14 +181,7 @@ async function executeVfsSaveNode(engine, node, inputData, executed) {
         let data = inputData.data;
         let success = false;
 
-        console.log('VFS Save Debug:', {
-            filePath: filePath,
-            format: format,
-            overwrite: overwrite,
-            append: append,
-            dataType: typeof data,
-            data: data
-        });
+
 
         if (format === 'json') {
             // For JSON format with append mode, we need to handle it specially
@@ -276,23 +261,18 @@ async function executeVfsDirectoryListNode(engine, node, inputData, executed) {
     const includeDirectories = node.config.include_directories.value === 'true';
     const recursive = node.config.recursive.value === 'true';
 
-    // Debug logging
-    console.log('VFS Directory List Debug:', {
-        configValue: node.config.directory_path.value,
-        inputData: inputData,
-        initialDirectoryPath: directoryPath
-    });
+
 
     // Use input path if provided, otherwise use config
     if (inputData && inputData.directory_path) {
         directoryPath = inputData.directory_path;
-        console.log('Using input directory path:', directoryPath);
+
     }
 
     // Ensure directoryPath is a string and not empty
     if (typeof directoryPath !== 'string' || !directoryPath) {
         directoryPath = '/';
-        console.log('Reset directory path to root:', directoryPath);
+
     }
 
     // Process template variables in directory path
@@ -310,7 +290,7 @@ async function executeVfsDirectoryListNode(engine, node, inputData, executed) {
         directoryPath = directoryPath.replaceAll(template, value);
     }
 
-    console.log('Final directory path before API call:', directoryPath);
+
 
     try {
         // Use the existing sypnexAPI.listVirtualFiles method
@@ -372,13 +352,9 @@ async function executeVfsDirectoryListNode(engine, node, inputData, executed) {
                 const itemExt = item.name.split('.').pop()?.toLowerCase();
                 return extensions.includes(itemExt);
             });
-            console.log('Extension filtering applied:', {
-                extensions: extensions,
-                beforeFilter: allItems.length,
-                afterFilter: filteredItems.length
-            });
+
         } else {
-            console.log('No extension filtering - returning all items');
+            
         }
 
         // Separate files and directories
@@ -395,13 +371,7 @@ async function executeVfsDirectoryListNode(engine, node, inputData, executed) {
         // If includeDirectories is false, return only files
         const finalFileList = includeDirectories ? filteredItems : files;
 
-        console.log('Processing results:', {
-            totalFilteredItems: filteredItems.length,
-            filesCount: files.length,
-            directoriesCount: directories.length,
-            includeDirectories: includeDirectories,
-            finalFileListCount: finalFileList.length
-        });
+
 
         // Store results for config panel display
         node.lastDirectoryPath = directoryPath;

@@ -1,6 +1,6 @@
 // Video Player App JavaScript
 
-console.log('Video Player app loading...');
+
 
 class VideoPlayer {
     constructor() {
@@ -13,7 +13,7 @@ class VideoPlayer {
         this.initEventListeners();
         this.checkForAppIntent();
         
-        console.log('Video Player initialized');
+
     }
     
     initElements() {
@@ -135,7 +135,7 @@ class VideoPlayer {
             this.elements.fileSize.textContent = this.formatFileSize(blob.size);
             
             this.currentFile = filePath;
-            console.log('Video loaded:', fileName);
+
         } catch (error) {
             console.error('Error loading video:', error);
             this.showError('Failed to load video file');
@@ -196,7 +196,7 @@ class VideoPlayer {
         
         if (this.elements.video.paused) {
             this.elements.video.play().catch(error => {
-                console.log('Play interrupted:', error.message);
+
                 // Don't show error to user, this is normal browser behavior
             });
             this.elements.playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
@@ -321,11 +321,11 @@ class VideoPlayer {
             stopPropagation: false
         });
         
-        console.log('Media Player: Registered keyboard shortcuts');
+
     }
     
     onVideoLoaded() {
-        console.log('Video metadata loaded');
+
         this.updateProgress();
         this.elements.playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
         
@@ -390,7 +390,7 @@ class VideoPlayer {
 
 // Initialize when DOM is ready
 function initApp() {
-    console.log('Video Player app initialized');
+
     
     // Check if SypnexAPI is available
     if (typeof sypnexAPI === 'undefined' || !sypnexAPI) {

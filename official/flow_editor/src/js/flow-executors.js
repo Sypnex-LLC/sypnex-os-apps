@@ -263,12 +263,6 @@ async function executeForEachNode(engine, node, inputData, executed) {
         throw new Error('For Each node requires an array input');
     }
 
-    console.log('For Each Debug:', {
-        arrayLength: array.length,
-        arrayPreview: array.slice(0, 3),
-        stopOnError: stopOnError,
-        iterationDelay: iterationDelay
-    });
 
     // Initialize iteration state if not exists
     if (!node.forEachState) {
@@ -291,7 +285,6 @@ async function executeForEachNode(engine, node, inputData, executed) {
         node.forEachState.interval = setInterval(async () => {
             // Skip if previous iteration is still running
             if (node.forEachState.isExecutingIteration) {
-                console.log('For Each: Skipping iteration - previous still running');
                 return;
             }
             
@@ -300,7 +293,6 @@ async function executeForEachNode(engine, node, inputData, executed) {
                 const currentItem = node.forEachState.array[node.forEachState.currentIndex];
                 const currentIndex = node.forEachState.currentIndex;
                 
-                console.log(`For Each iteration ${currentIndex + 1}/${node.forEachState.array.length}:`, currentItem);
 
                 // Clear buffer for multi-input nodes at start of each iteration
                 if (sypnexAPI.getAppWindow().globalNodeInputBuffer) {
@@ -340,7 +332,6 @@ async function executeForEachNode(engine, node, inputData, executed) {
                     for (const nodeId of nodesToClear) {
                         if (sypnexAPI.getAppWindow().globalNodeInputBuffer.has(nodeId)) {
                             sypnexAPI.getAppWindow().globalNodeInputBuffer.delete(nodeId);
-                            console.log(`🧹 Cleared buffer for downstream node ${nodeId} at start of iteration ${currentIndex + 1}`);
                         }
                     }
                 }
@@ -482,7 +473,7 @@ async function executeForEachNode(engine, node, inputData, executed) {
                     clearInterval(node.forEachState.interval);
                     node.forEachState.isIterating = false;
                     node.forEachState.interval = null;
-                    console.log('For Each completed all items');
+
                     
                     // Ensure all connected nodes show final completed status
                     const connectedNodes = [];
@@ -529,7 +520,7 @@ async function executeForEachNode(engine, node, inputData, executed) {
 async function executeDelayNode(engine, node, inputData, executed) {
     const delayMs = parseInt(node.config.delay_ms?.value || node.config.delay_ms || 1000);
     
-    console.log(`Delay node starting ${delayMs}ms delay`);
+
     
     // Get the input data to pass through after delay
     let dataToPassThrough = inputData.data;
@@ -545,7 +536,6 @@ async function executeDelayNode(engine, node, inputData, executed) {
     // Wait for the specified delay
     await new Promise(resolve => {
         setTimeout(() => {
-            console.log(`Delay node completed after ${delayMs}ms`);
             resolve();
         }, delayMs);
     });

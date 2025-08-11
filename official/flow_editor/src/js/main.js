@@ -352,7 +352,7 @@ function setupKeyboardShortcuts() {
         stopPropagation: false
     });
     
-    console.log('Flow Editor: Registered keyboard shortcuts via SypnexAPI');
+
 }
 
 // Initialize when DOM is ready

@@ -1,6 +1,6 @@
 // Image Viewer App JavaScript
 
-console.log('Image Viewer app loading...');
+
 
 class ImageViewer {
     constructor() {
@@ -96,7 +96,7 @@ class ImageViewer {
     
     async loadImage(filePath) {
         try {
-            console.log('Loading image:', filePath);
+
             
             // Get the image as a blob
             const blob = await sypnexAPI.readVirtualFileBlob(filePath);
@@ -295,7 +295,7 @@ class ImageViewer {
 
 // Initialize when DOM is ready
 function initApp() {
-    console.log('Image Viewer app initialized');
+
     
     // Check if SypnexAPI is available
     if (typeof sypnexAPI === 'undefined' || !sypnexAPI) {
@@ -303,7 +303,7 @@ function initApp() {
         return;
     }
 
-    console.log('SypnexAPI available:', sypnexAPI);
+
     
     // Initialize the image viewer
     const imageViewer = new ImageViewer();

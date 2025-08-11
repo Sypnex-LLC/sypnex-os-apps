@@ -435,14 +435,7 @@ async function executeStringNode(engine, node, inputData, executed) {
     let textA = inputData.text || inputData.data || '';
     let textB = inputData.text_b || configTextB || '';
 
-    // Debug logging for input synchronization
-    console.log('🔗 String Node Input Debug:', {
-        inputData: inputData,
-        textA: textA,
-        textB: textB,
-        configTextB: configTextB,
-        operation: operation
-    });
+
 
     // Convert to strings
     if (typeof textA !== 'string') textA = String(textA);
@@ -624,7 +617,6 @@ async function executeNodeReferenceNode(engine, node, inputData, executed) {
             }
         }
 
-        console.log(`Node Reference: Successfully retrieved data from ${sourceNodeId}.${outputPortId}:`, referencedData);
 
         return {
             data: referencedData,
@@ -689,7 +681,6 @@ async function executeRandomNode(engine, node, inputData, executed) {
         node.lastRange = `${minValue} - ${maxValue}`;
         node.lastOutputType = outputType;
 
-        console.log(`Random: Generated ${randomValue} (${outputType}) in range ${minValue}-${maxValue}`);
 
         return {
             number: randomValue,
