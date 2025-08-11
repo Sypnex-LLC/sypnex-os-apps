@@ -99,8 +99,8 @@ function updateConnection(connection) {
     }
     
     // Get actual node dimensions from computed styles
-    const fromStyles = window.getComputedStyle(fromNode);
-    const toStyles = window.getComputedStyle(toNode);
+    const fromStyles = sypnexAPI.getAppWindow().getComputedStyle(fromNode);
+    const toStyles = sypnexAPI.getAppWindow().getComputedStyle(toNode);
     
     const fromWidth = parseFloat(fromStyles.width) || 200;
     const fromHeight = parseFloat(fromStyles.height) || 80;

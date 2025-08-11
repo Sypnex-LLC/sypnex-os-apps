@@ -309,7 +309,7 @@ function initApp() {
     const imageViewer = new ImageViewer();
     
     // Make it globally accessible for debugging
-    window.imageViewer = imageViewer;
+    sypnexAPI.getAppWindow().imageViewer = imageViewer;
 }
 
 // Initialize when DOM is ready

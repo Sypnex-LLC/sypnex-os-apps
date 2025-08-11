@@ -17,7 +17,7 @@ function setupEventHandlers() {
 
     
     // Window events
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    sypnexAPI.getAppWindow().addEventListener('beforeunload', handleBeforeUnload);
 }
 
 

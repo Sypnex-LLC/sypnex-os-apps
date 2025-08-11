@@ -150,7 +150,7 @@ async function initFlowEditor() {
     
     // Handle window resize to update connections with debouncing
     let resizeTimeout;
-    window.addEventListener('resize', () => {
+    sypnexAPI.getAppWindow().addEventListener('resize', () => {
         // Add no-transitions class during resize to prevent flashing
         document.body.classList.add('no-transitions');
         
@@ -167,9 +167,9 @@ async function initFlowEditor() {
     });
     
     // Handle app cleanup when window is unloaded
-    window.addEventListener('beforeunload', cleanupFlowEditor);
-    window.addEventListener('pagehide', cleanupFlowEditor);
-    window.addEventListener('unload', cleanupFlowEditor);
+    sypnexAPI.getAppWindow().addEventListener('beforeunload', cleanupFlowEditor);
+    sypnexAPI.getAppWindow().addEventListener('pagehide', cleanupFlowEditor);
+    sypnexAPI.getAppWindow().addEventListener('unload', cleanupFlowEditor);
     
     // Flow Editor loaded successfully (no notification needed)
     

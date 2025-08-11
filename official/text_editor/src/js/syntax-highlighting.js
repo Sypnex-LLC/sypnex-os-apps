@@ -87,12 +87,12 @@ function createHighlightedEditor() {
     highlightedBackdrop.style.width = '100%';
     highlightedBackdrop.style.height = '100%';
     highlightedBackdrop.style.pointerEvents = 'none';
-    highlightedBackdrop.style.fontFamily = window.getComputedStyle(textarea).fontFamily;
-    highlightedBackdrop.style.fontSize = window.getComputedStyle(textarea).fontSize;
-    highlightedBackdrop.style.lineHeight = window.getComputedStyle(textarea).lineHeight;
-    highlightedBackdrop.style.padding = window.getComputedStyle(textarea).padding;
+    highlightedBackdrop.style.fontFamily = sypnexAPI.getAppWindow().getComputedStyle(textarea).fontFamily;
+    highlightedBackdrop.style.fontSize = sypnexAPI.getAppWindow().getComputedStyle(textarea).fontSize;
+    highlightedBackdrop.style.lineHeight = sypnexAPI.getAppWindow().getComputedStyle(textarea).lineHeight;
+    highlightedBackdrop.style.padding = sypnexAPI.getAppWindow().getComputedStyle(textarea).padding;
     highlightedBackdrop.style.margin = '0';
-    highlightedBackdrop.style.border = window.getComputedStyle(textarea).border;
+    highlightedBackdrop.style.border = sypnexAPI.getAppWindow().getComputedStyle(textarea).border;
     highlightedBackdrop.style.whiteSpace = 'pre-wrap';
     highlightedBackdrop.style.wordWrap = 'break-word';
     highlightedBackdrop.style.overflow = 'hidden';
