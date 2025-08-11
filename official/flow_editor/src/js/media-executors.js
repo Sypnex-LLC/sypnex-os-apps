@@ -23,7 +23,7 @@ async function executeImageNode(engine, node, inputData, executed) {
         } else if (imageData.match(/^[A-Za-z0-9+/]*={0,2}$/)) {
             // Looks like base64 data, convert to data URL
             // Try to detect image type from the data
-            const imageType = window.flowEditorUtils.detectImageTypeFromBase64(imageData);
+            const imageType = sypnexAPI.getAppWindow().flowEditorUtils.detectImageTypeFromBase64(imageData);
             imageUrl = `data:${imageType};base64,${imageData}`;
         } else {
             // Assume it's a regular URL
@@ -153,7 +153,7 @@ async function executeAudioNode(engine, node, inputData, executed) {
 }
 
 // Export to global scope
-window.mediaExecutors = {
+sypnexAPI.getAppWindow().mediaExecutors = {
     executeImageNode,
     executeAudioNode
 };

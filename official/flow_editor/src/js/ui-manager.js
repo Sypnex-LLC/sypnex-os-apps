@@ -70,9 +70,9 @@ function setupEventHandlers() {
     // Note: delete-selected, clear-canvas, reset-view, and add-tag are now handled by hamburger menu
     
     // Zoom controls
-    document.getElementById('zoom-in')?.addEventListener('click', window.canvasManager.zoomIn);
-    document.getElementById('zoom-out')?.addEventListener('click', window.canvasManager.zoomOut);
-    document.getElementById('zoom-fit')?.addEventListener('click', window.canvasManager.zoomToFit);
+    document.getElementById('zoom-in')?.addEventListener('click', sypnexAPI.getAppWindow().canvasManager.zoomIn);
+    document.getElementById('zoom-out')?.addEventListener('click', sypnexAPI.getAppWindow().canvasManager.zoomOut);
+    document.getElementById('zoom-fit')?.addEventListener('click', sypnexAPI.getAppWindow().canvasManager.zoomToFit);
     
     // Note: File operations (save, save-as, load) are now handled by hamburger menu
     document.getElementById('clear-output')?.addEventListener('click', clearOutput);
@@ -131,14 +131,14 @@ function setupEventHandlers() {
     }
     
     // Canvas events
-    flowEditor.canvas.addEventListener('click', window.canvasManager.handleCanvasClick);
-    flowEditor.canvas.addEventListener('mousedown', window.canvasManager.startCanvasPan);
-    flowEditor.canvas.addEventListener('wheel', window.canvasManager.handleMouseWheel, { passive: false });
+    flowEditor.canvas.addEventListener('click', sypnexAPI.getAppWindow().canvasManager.handleCanvasClick);
+    flowEditor.canvas.addEventListener('mousedown', sypnexAPI.getAppWindow().canvasManager.startCanvasPan);
+    flowEditor.canvas.addEventListener('wheel', sypnexAPI.getAppWindow().canvasManager.handleMouseWheel, { passive: false });
     
     // Document-level mouse events for smooth dragging and panning
-    document.addEventListener('mousedown', window.canvasManager.handleDocumentMouseDown);
-    document.addEventListener('mousemove', window.canvasManager.handleDocumentMouseMove);
-    document.addEventListener('mouseup', window.canvasManager.handleDocumentMouseUp);
+    document.addEventListener('mousedown', sypnexAPI.getAppWindow().canvasManager.handleDocumentMouseDown);
+    document.addEventListener('mousemove', sypnexAPI.getAppWindow().canvasManager.handleDocumentMouseMove);
+    document.addEventListener('mouseup', sypnexAPI.getAppWindow().canvasManager.handleDocumentMouseUp);
     
 
 }
@@ -242,28 +242,28 @@ function setupHamburgerMenu() {
         // Execute ONLY the requested actions: save, save-as, load, delete, clear-all, reset-view, add-tag
         switch (action) {
             case 'save-flow':
-                if (window.fileManager && window.fileManager.saveFlow) {
-                    window.fileManager.saveFlow();
+                if (sypnexAPI.getAppWindow().fileManager && sypnexAPI.getAppWindow().fileManager.saveFlow) {
+                    sypnexAPI.getAppWindow().fileManager.saveFlow();
                 }
                 break;
             case 'save-flow-as':
-                if (window.fileManager && window.fileManager.saveFlowAs) {
-                    window.fileManager.saveFlowAs();
+                if (sypnexAPI.getAppWindow().fileManager && sypnexAPI.getAppWindow().fileManager.saveFlowAs) {
+                    sypnexAPI.getAppWindow().fileManager.saveFlowAs();
                 }
                 break;
             case 'load-flow':
-                if (window.fileManager && window.fileManager.loadFlow) {
-                    window.fileManager.loadFlow();
+                if (sypnexAPI.getAppWindow().fileManager && sypnexAPI.getAppWindow().fileManager.loadFlow) {
+                    sypnexAPI.getAppWindow().fileManager.loadFlow();
                 }
                 break;
             case 'add-tag':
-                if (window.tagManager && window.tagManager.addTag) {
-                    window.tagManager.addTag();
+                if (sypnexAPI.getAppWindow().tagManager && sypnexAPI.getAppWindow().tagManager.addTag) {
+                    sypnexAPI.getAppWindow().tagManager.addTag();
                 }
                 break;
             case 'reset-view':
-                if (window.canvasManager && window.canvasManager.resetCanvasPan) {
-                    window.canvasManager.resetCanvasPan();
+                if (sypnexAPI.getAppWindow().canvasManager && sypnexAPI.getAppWindow().canvasManager.resetCanvasPan) {
+                    sypnexAPI.getAppWindow().canvasManager.resetCanvasPan();
                 }
                 break;
             case 'delete-selected':
@@ -281,7 +281,7 @@ function setupHamburgerMenu() {
 }
 
 // Example: ui-manager.js
-window.uiManager = {
+sypnexAPI.getAppWindow().uiManager = {
     populateToolbox,
     setupEventHandlers,
     toggleConfigPanel,

@@ -380,7 +380,7 @@ function showConnectionTooltip(connectionId, message) {
     document.addEventListener('mousemove', tooltipMouseMoveHandler);
     
     // Store the handler reference for cleanup
-    window.flowEditorTooltipHandler = tooltipMouseMoveHandler;
+    sypnexAPI.getAppWindow().flowEditorTooltipHandler = tooltipMouseMoveHandler;
     
     // Show the tooltip after a small delay to prevent flickering
     setTimeout(() => {
@@ -408,9 +408,9 @@ function hideConnectionTooltip() {
     const tooltip = document.getElementById('connection-tooltip');
     if (tooltip) {
         // Remove the specific event listener we added
-        if (window.flowEditorTooltipHandler) {
-            document.removeEventListener('mousemove', window.flowEditorTooltipHandler);
-            window.flowEditorTooltipHandler = null;
+        if (sypnexAPI.getAppWindow().flowEditorTooltipHandler) {
+            document.removeEventListener('mousemove', sypnexAPI.getAppWindow().flowEditorTooltipHandler);
+            sypnexAPI.getAppWindow().flowEditorTooltipHandler = null;
         }
         
         // Hide and remove the tooltip
@@ -471,8 +471,8 @@ function clearCanvasSilent() {
         flowEditor.tags.clear();
         
         // Update tag panel to reflect cleared tags
-        if (typeof window.tagManager.updateTagPanel === 'function') {
-            window.tagManager.updateTagPanel();
+        if (typeof sypnexAPI.getAppWindow().tagManager.updateTagPanel === 'function') {
+            sypnexAPI.getAppWindow().tagManager.updateTagPanel();
         }
         
         // Reset counters
@@ -489,13 +489,13 @@ function clearCanvasSilent() {
         // Reset zoom level
         flowEditor.zoomLevel = 1.0;
         
-        if (typeof window.canvasManager.updateCanvasTransform === 'function') {
-            window.canvasManager.updateCanvasTransform();
+        if (typeof sypnexAPI.getAppWindow().canvasManager.updateCanvasTransform === 'function') {
+            sypnexAPI.getAppWindow().canvasManager.updateCanvasTransform();
         }
         
         // Update filename display
-        if (typeof window.fileManager.updateFilenameDisplay === 'function') {
-            window.fileManager.updateFilenameDisplay();
+        if (typeof sypnexAPI.getAppWindow().fileManager.updateFilenameDisplay === 'function') {
+            sypnexAPI.getAppWindow().fileManager.updateFilenameDisplay();
         }
         
         // Clear config panel

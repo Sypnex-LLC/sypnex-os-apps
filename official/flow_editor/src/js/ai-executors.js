@@ -123,7 +123,7 @@ async function executeTerminalNode(engine, node, inputData, executed) {
 }
 
 // Export to global scope
-window.aiExecutors = {
+sypnexAPI.getAppWindow().aiExecutors = {
     executeLlmChatNode,
     executeTerminalNode
 };

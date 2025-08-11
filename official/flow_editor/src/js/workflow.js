@@ -104,7 +104,7 @@ async function executeWorkflow(startNodes) {
     const nodeInputBuffer = new Map(); // Track inputs for multi-input nodes
     
     // Store globally so For Each can access it
-    window.globalNodeInputBuffer = nodeInputBuffer;
+    sypnexAPI.getAppWindow().globalNodeInputBuffer = nodeInputBuffer;
     
     for (const startNode of startNodes) {
         const result = await executeNode(startNode, {}, executed, nodeInputBuffer);
@@ -310,14 +310,14 @@ async function executeNodeSmart(node, inputPort, inputValue, executed, nodeInput
 function getConnectedInputPorts(nodeId) {
     let connections = null;
     
-    // Debug: Log what's available on flowEditor (try both window.flowEditor and flowEditor)
+    // Debug: Log what's available on flowEditor (try both sypnexAPI.getAppWindow().flowEditor and flowEditor)
     
     // Try to access flowEditor directly (not via window)
     let editor = null;
     if (typeof flowEditor !== 'undefined' && flowEditor) {
         editor = flowEditor;
-    } else if (window.flowEditor) {
-        editor = window.flowEditor;
+    } else if (sypnexAPI.getAppWindow().flowEditor) {
+        editor = sypnexAPI.getAppWindow().flowEditor;
     } else {
         return [];
     }

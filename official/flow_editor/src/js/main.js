@@ -101,16 +101,16 @@ async function initFlowEditor() {
     flowEditor.canvas.appendChild(markerSvg);
     
     // Initialize canvas transform for panning
-    window.canvasManager.updateCanvasTransform();
+    sypnexAPI.getAppWindow().canvasManager.updateCanvasTransform();
     
     // Load nodes from VFS
     await nodeRegistry.loadNodesFromVFS();
     
     // Populate toolbox with loaded nodes
-    window.uiManager.populateToolbox();
+    sypnexAPI.getAppWindow().uiManager.populateToolbox();
     
     // Set up event handlers
-    window.uiManager.setupEventHandlers();
+    sypnexAPI.getAppWindow().uiManager.setupEventHandlers();
     
     // Set up keyboard shortcuts using new SypnexAPI
     setupKeyboardShortcuts();
@@ -174,7 +174,7 @@ async function initFlowEditor() {
     // Flow Editor loaded successfully (no notification needed)
     
     // Update filename display
-    window.fileManager.updateFilenameDisplay();
+    sypnexAPI.getAppWindow().fileManager.updateFilenameDisplay();
     
 }
 
@@ -199,14 +199,14 @@ function cleanupFlowEditor() {
     });
     
     // Remove global event listeners
-    if (window.flowEditorTooltipHandler) {
-        document.removeEventListener('mousemove', window.flowEditorTooltipHandler);
-        window.flowEditorTooltipHandler = null;
+    if (sypnexAPI.getAppWindow().flowEditorTooltipHandler) {
+        document.removeEventListener('mousemove', sypnexAPI.getAppWindow().flowEditorTooltipHandler);
+        sypnexAPI.getAppWindow().flowEditorTooltipHandler = null;
     }
     
     // Clear any other global references
-    if (window.flowEditorTooltipHandler) {
-        delete window.flowEditorTooltipHandler;
+    if (sypnexAPI.getAppWindow().flowEditorTooltipHandler) {
+        delete sypnexAPI.getAppWindow().flowEditorTooltipHandler;
     }
     
     // Reset visual state flags
@@ -236,8 +236,8 @@ function addNode(type) {
     const nodeId = `node_${++flowEditor.nodeCounter}`;
     
     // Calculate position relative to current viewport center
-    const center = window.flowEditorUtils ? 
-        window.flowEditorUtils.getViewportCenterInCanvas() :
+    const center = sypnexAPI.getAppWindow().flowEditorUtils ? 
+        sypnexAPI.getAppWindow().flowEditorUtils.getViewportCenterInCanvas() :
         { x: 5000, y: 5000 }; // Fallback to canvas center
     
     // Add some random offset around the center
@@ -306,46 +306,46 @@ function setupKeyboardShortcuts() {
             }
         },
         'ctrl+s': () => {
-            window.fileManager.saveFlow();
+            sypnexAPI.getAppWindow().fileManager.saveFlow();
         },
         'cmd+s': () => {
-            window.fileManager.saveFlow();
+            sypnexAPI.getAppWindow().fileManager.saveFlow();
         },
         'ctrl+shift+s': () => {
-            window.fileManager.saveFlowAs();
+            sypnexAPI.getAppWindow().fileManager.saveFlowAs();
         },
         'cmd+shift+s': () => {
-            window.fileManager.saveFlowAs();
+            sypnexAPI.getAppWindow().fileManager.saveFlowAs();
         },
         'ctrl+o': () => {
-            window.fileManager.loadFlow();
+            sypnexAPI.getAppWindow().fileManager.loadFlow();
         },
         'cmd+o': () => {
-            window.fileManager.loadFlow();
+            sypnexAPI.getAppWindow().fileManager.loadFlow();
         },
         'ctrl+=': () => {
-            window.canvasManager.zoomIn();
+            sypnexAPI.getAppWindow().canvasManager.zoomIn();
         },
         'cmd+=': () => {
-            window.canvasManager.zoomIn();
+            sypnexAPI.getAppWindow().canvasManager.zoomIn();
         },
         'ctrl+-': () => {
-            window.canvasManager.zoomOut();
+            sypnexAPI.getAppWindow().canvasManager.zoomOut();
         },
         'cmd+-': () => {
-            window.canvasManager.zoomOut();
+            sypnexAPI.getAppWindow().canvasManager.zoomOut();
         },
         'ctrl+0': () => {
-            window.canvasManager.resetCanvasPan();
+            sypnexAPI.getAppWindow().canvasManager.resetCanvasPan();
         },
         'cmd+0': () => {
-            window.canvasManager.resetCanvasPan();
+            sypnexAPI.getAppWindow().canvasManager.resetCanvasPan();
         },
         'ctrl+shift+f': () => {
-            window.canvasManager.zoomToFit();
+            sypnexAPI.getAppWindow().canvasManager.zoomToFit();
         },
         'cmd+shift+f': () => {
-            window.canvasManager.zoomToFit();
+            sypnexAPI.getAppWindow().canvasManager.zoomToFit();
         }
     }, {
         preventDefault: true,

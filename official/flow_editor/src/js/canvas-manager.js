@@ -493,7 +493,7 @@ function handleDocumentMouseUp(e) {
 
 
 // Example: canvas-manager.js
-window.canvasManager = {
+sypnexAPI.getAppWindow().canvasManager = {
     updateCanvasTransform,
     startCanvasPan,
     updateCanvasPan,

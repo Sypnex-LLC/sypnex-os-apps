@@ -182,14 +182,14 @@ function centerViewportOnCanvas(canvasX, canvasY) {
     flowEditor.panOffset.y = viewportCenterY - (canvasY * flowEditor.zoomLevel);
     
     // Update the transform
-    if (window.canvasManager && window.canvasManager.updateCanvasTransform) {
-        window.canvasManager.updateCanvasTransform();
+    if (sypnexAPI.getAppWindow().canvasManager && sypnexAPI.getAppWindow().canvasManager.updateCanvasTransform) {
+        sypnexAPI.getAppWindow().canvasManager.updateCanvasTransform();
     }
 }
 
 // Export utilities for use in other modules
 // Canvas-specific utilities only - scaling utilities are now in sypnexAPI.scaling
-window.flowEditorUtils = {
+sypnexAPI.getAppWindow().flowEditorUtils = {
     // Canvas-specific coordinate transformations
     viewportToCanvasCoords,
     canvasToViewportCoords,
@@ -477,8 +477,8 @@ function updateInputMapping(nodeId, inputPort, selectedOutputPort) {
             showNodeConfig(nodeId);
         }
         // Auto-save the workflow to persist the mapping change
-        if (window.fileManager.saveFlow) {
-            window.fileManager.saveFlow();
+        if (sypnexAPI.getAppWindow().fileManager.saveFlow) {
+            sypnexAPI.getAppWindow().fileManager.saveFlow();
         }
     }
 }
@@ -509,5 +509,5 @@ function updateOutputMapping(nodeId, outputPort, targetNodeId, selectedOutputPor
         }, 10);
     }
     // Auto-save
-    if (window.fileManager.saveFlow) window.fileManager.saveFlow();
+    if (sypnexAPI.getAppWindow().fileManager.saveFlow) sypnexAPI.getAppWindow().fileManager.saveFlow();
 }

@@ -240,7 +240,7 @@ async function loadFlow() {
             
             // Reset pan offset to center of large canvas for new workflow
             flowEditor.panOffset = { x: -5000, y: -5000 };
-            window.canvasManager.updateCanvasTransform();
+            sypnexAPI.getAppWindow().canvasManager.updateCanvasTransform();
             
             // Reset node counter to avoid ID conflicts
             flowEditor.nodeCounter = 0;
@@ -305,7 +305,7 @@ async function loadFlow() {
                     }
                     
                     flowEditor.tags.set(tagData.id, tag);
-                    window.tagManager.createTagElement(tag);
+                    sypnexAPI.getAppWindow().tagManager.createTagElement(tag);
                 });
             }
             
@@ -327,14 +327,14 @@ async function loadFlow() {
                 flowEditor.panOffset.x = -centerX + containerRect.width / 2;
                 flowEditor.panOffset.y = -centerY + containerRect.height / 2;
                 
-                window.canvasManager.updateCanvasTransform();
+                sypnexAPI.getAppWindow().canvasManager.updateCanvasTransform();
             }
             
             // Final connection redraw after all positioning is complete
             redrawAllConnections();
             
             // Update tag panel
-            window.tagManager.updateTagPanel();
+            sypnexAPI.getAppWindow().tagManager.updateTagPanel();
             
             // Update current file path
             flowEditor.currentFilePath = filePath;
@@ -367,7 +367,7 @@ function updateFilenameDisplay() {
 
 
 // Export to global scope
-window.fileManager = {
+sypnexAPI.getAppWindow().fileManager = {
     saveFlow,
     saveFlowAs,
     loadFlow,

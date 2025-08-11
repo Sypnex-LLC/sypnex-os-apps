@@ -17,7 +17,7 @@ async function executeHttpNode(engine, node, inputData, executed) {
 
     // Process templates first on the string body
     if (useTemplate && inputData) {
-        processedBody = window.flowEditorUtils.processTemplates(processedBody, inputData);
+        processedBody = sypnexAPI.getAppWindow().flowEditorUtils.processTemplates(processedBody, inputData);
         console.log('HTTP Node Template Processing:', {
             originalBody: body,
             processedBody: processedBody,
@@ -436,7 +436,7 @@ async function executeVfsDirectoryListNode(engine, node, inputData, executed) {
 }
 
 // Export to global scope
-window.httpExecutors = {
+sypnexAPI.getAppWindow().httpExecutors = {
     executeHttpNode,
     executeVfsLoadNode,
     executeVfsSaveNode,

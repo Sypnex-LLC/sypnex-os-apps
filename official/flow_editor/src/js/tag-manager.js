@@ -18,8 +18,8 @@ async function addTag() {
 
     // Calculate position at current viewport center
     // Get center position in canvas coordinates
-    const center = window.flowEditorUtils ? 
-        window.flowEditorUtils.getViewportCenterInCanvas() :
+    const center = sypnexAPI.getAppWindow().flowEditorUtils ? 
+        sypnexAPI.getAppWindow().flowEditorUtils.getViewportCenterInCanvas() :
         { x: 5000, y: 5000 }; // Fallback to canvas center
 
     const tag = {
@@ -130,8 +130,8 @@ function jumpToTag(tagId) {
     flowEditor.canvas.style.transition = 'transform 0.5s ease-out';
 
     // Use utility function to center viewport on tag coordinates
-    if (window.flowEditorUtils && window.flowEditorUtils.centerViewportOnCanvas) {
-        window.flowEditorUtils.centerViewportOnCanvas(tag.x, tag.y);
+    if (sypnexAPI.getAppWindow().flowEditorUtils && sypnexAPI.getAppWindow().flowEditorUtils.centerViewportOnCanvas) {
+        sypnexAPI.getAppWindow().flowEditorUtils.centerViewportOnCanvas(tag.x, tag.y);
     } else {
         // Fallback method
         const container = flowEditor.canvas.parentElement;
@@ -143,7 +143,7 @@ function jumpToTag(tagId) {
         flowEditor.panOffset.x = viewportCenterX - (tag.x * flowEditor.zoomLevel);
         flowEditor.panOffset.y = viewportCenterY - (tag.y * flowEditor.zoomLevel);
         
-        window.canvasManager.updateCanvasTransform();
+        sypnexAPI.getAppWindow().canvasManager.updateCanvasTransform();
     }
 
     // Remove transition after animation completes
@@ -223,7 +223,7 @@ async function deleteTag(tagId) {
 }
 
 // Example: tag-manager.js
-window.tagManager = {
+sypnexAPI.getAppWindow().tagManager = {
     addTag,
     createTagElement,
     startDraggingTag,

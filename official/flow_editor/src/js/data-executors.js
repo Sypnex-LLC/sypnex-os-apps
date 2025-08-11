@@ -39,7 +39,7 @@ async function executeJsonExtractNode(engine, node, inputData, executed) {
         }
 
         // Extract value using dot notation
-        extractedValue = window.flowEditorUtils.extractNestedValue(jsonData, fieldPath);
+        extractedValue = sypnexAPI.getAppWindow().flowEditorUtils.extractNestedValue(jsonData, fieldPath);
 
         // Use default value if extraction failed
         if (extractedValue === null || extractedValue === undefined) {
@@ -275,14 +275,14 @@ async function executeArrayNode(engine, node, inputData, executed) {
         switch (operation) {
             case 'map':
                 if (fieldPath) {
-                    result = array.map(item => window.flowEditorUtils.extractNestedValue(item, fieldPath));
+                    result = array.map(item => sypnexAPI.getAppWindow().flowEditorUtils.extractNestedValue(item, fieldPath));
                 } else {
                     result = array.slice(); // Return copy of array
                 }
                 break;
             case 'filter':
                 result = array.filter(item => {
-                    let value = fieldPath ? window.flowEditorUtils.extractNestedValue(item, fieldPath) : item;
+                    let value = fieldPath ? sypnexAPI.getAppWindow().flowEditorUtils.extractNestedValue(item, fieldPath) : item;
                     return performFilterOperation(value, filterValue, filterOperator);
                 });
                 break;
@@ -292,7 +292,7 @@ async function executeArrayNode(engine, node, inputData, executed) {
             case 'join':
                 result = array.map(item => {
                     if (fieldPath) {
-                        return window.flowEditorUtils.extractNestedValue(item, fieldPath);
+                        return sypnexAPI.getAppWindow().flowEditorUtils.extractNestedValue(item, fieldPath);
                     }
                     return typeof item === 'object' ? JSON.stringify(item) : String(item);
                 }).join(joinSeparator);
@@ -320,8 +320,8 @@ async function executeArrayNode(engine, node, inputData, executed) {
                 break;
             case 'sort':
                 result = array.slice().sort((a, b) => {
-                    let valueA = fieldPath ? window.flowEditorUtils.extractNestedValue(a, fieldPath) : a;
-                    let valueB = fieldPath ? window.flowEditorUtils.extractNestedValue(b, fieldPath) : b;
+                    let valueA = fieldPath ? sypnexAPI.getAppWindow().flowEditorUtils.extractNestedValue(a, fieldPath) : a;
+                    let valueB = fieldPath ? sypnexAPI.getAppWindow().flowEditorUtils.extractNestedValue(b, fieldPath) : b;
                     return valueA < valueB ? -1 : valueA > valueB ? 1 : 0;
                 });
                 break;
@@ -329,7 +329,7 @@ async function executeArrayNode(engine, node, inputData, executed) {
                 if (fieldPath) {
                     const seen = new Set();
                     result = array.filter(item => {
-                        const value = window.flowEditorUtils.extractNestedValue(item, fieldPath);
+                        const value = sypnexAPI.getAppWindow().flowEditorUtils.extractNestedValue(item, fieldPath);
                         if (seen.has(value)) return false;
                         seen.add(value);
                         return true;
@@ -713,7 +713,7 @@ async function executeRandomNode(engine, node, inputData, executed) {
 }
 
 // Export to global scope
-window.dataExecutors = {
+sypnexAPI.getAppWindow().dataExecutors = {
     executeTextNode,
     executeJsonExtractNode,
     executeRandomQuoteNode,

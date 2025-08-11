@@ -437,7 +437,7 @@ async function showNodeConfig(nodeId) {
                     flowEditor.connections.set(newConnectionId, newConnection);
                     drawConnection(newConnection);
                     // Auto-save
-                    if (window.saveFlow) window.saveFlow();
+                    if (sypnexAPI.getAppWindow().saveFlow) sypnexAPI.getAppWindow().saveFlow();
                 }
             });
         });

@@ -303,7 +303,7 @@ async function executeForEachNode(engine, node, inputData, executed) {
                 console.log(`For Each iteration ${currentIndex + 1}/${node.forEachState.array.length}:`, currentItem);
 
                 // Clear buffer for multi-input nodes at start of each iteration
-                if (window.globalNodeInputBuffer) {
+                if (sypnexAPI.getAppWindow().globalNodeInputBuffer) {
                     // Clear any downstream multi-input node buffers to ensure fresh state for this iteration
                     // But be more selective - only clear nodes that aren't immediate children
                     const immediateChildIds = [];
@@ -338,8 +338,8 @@ async function executeForEachNode(engine, node, inputData, executed) {
                     const nodesToClear = allDownstreamIds.filter(id => !immediateChildIds.includes(id));
                     
                     for (const nodeId of nodesToClear) {
-                        if (window.globalNodeInputBuffer.has(nodeId)) {
-                            window.globalNodeInputBuffer.delete(nodeId);
+                        if (sypnexAPI.getAppWindow().globalNodeInputBuffer.has(nodeId)) {
+                            sypnexAPI.getAppWindow().globalNodeInputBuffer.delete(nodeId);
                             console.log(`🧹 Cleared buffer for downstream node ${nodeId} at start of iteration ${currentIndex + 1}`);
                         }
                     }
@@ -377,8 +377,8 @@ async function executeForEachNode(engine, node, inputData, executed) {
                     const iterationInputBuffer = new Map();
                     
                     // Copy any existing buffer data from global buffer that might be needed
-                    if (window.globalNodeInputBuffer) {
-                        for (const [nodeId, bufferData] of window.globalNodeInputBuffer.entries()) {
+                    if (sypnexAPI.getAppWindow().globalNodeInputBuffer) {
+                        for (const [nodeId, bufferData] of sypnexAPI.getAppWindow().globalNodeInputBuffer.entries()) {
                             iterationInputBuffer.set(nodeId, {
                                 receivedInputs: { ...bufferData.receivedInputs },
                                 connectedPorts: [...bufferData.connectedPorts]
@@ -560,8 +560,8 @@ async function executeDelayNode(engine, node, inputData, executed) {
     };
 }
 
-// Export to global scope
-window.flowExecutors = {
+// Export to global scope using getAppWindow for automatic cleanup
+sypnexAPI.getAppWindow().flowExecutors = {
     executeTimerNode,
     executeDisplayNode,
     executeRepeaterNode,
