@@ -1,10 +1,12 @@
 {
-  "id": "video_player",
-  "name": "Video Player",
-  "description": "A simple video player for all video formats",
+  "id": "media_player",
+  "name": "Media Player",
+  "description": "A simple media player",
   "icon": "fas fa-play-circle",
   "keywords": [
     "video_player",
+    "audio_player",
+    "media_player",
     "video",
     "player",
     "media",
