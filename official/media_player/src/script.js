@@ -61,7 +61,7 @@ class VideoPlayer {
         this.elements.video.addEventListener('error', (e) => this.onVideoError(e));
         
         // Keyboard shortcuts (disabled to prevent global key conflicts)
-        // document.addEventListener('keydown', (e) => this.handleKeyPress(e));
+        //document.xaddEventListener('keydown', (e) => this.handleKeyPress(e));
         
         // Fullscreen change events
         document.addEventListener('fullscreenchange', () => this.onFullscreenChange());
