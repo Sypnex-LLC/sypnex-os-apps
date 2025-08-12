@@ -7,6 +7,7 @@ async function executeLlmChatNode(engine, node, inputData, executed) {
     const maxTokens = parseInt(node.config.max_tokens.value);
     const systemPrompt = node.config.system_prompt.value;
     const includeContext = node.config.include_context.value === 'true';
+    const apiKey = node.config.api_key.value;
 
     // Accept prompt from either 'prompt' or 'text' input
     let prompt = inputData.prompt;
@@ -39,48 +40,49 @@ async function executeLlmChatNode(engine, node, inputData, executed) {
             messages.push({ role: 'user', content: prompt });
         }
 
-        const response = await sypnexAPI.proxyHTTP({
-            url: `${endpoint}/chat/completions`,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: {
-                model: model,
-                messages: messages,
-                temperature: temperature,
-                max_tokens: maxTokens
-            }
+        // Use the new LLM API for universal provider support
+        const response = await sypnexAPI.llmComplete({
+            provider: 'openai',
+            endpoint: `${endpoint}/chat/completions`,
+            model: model,
+            messages: messages,
+            temperature: temperature,
+            maxTokens: maxTokens,
+            stream: false,
+            apiKey: apiKey
         });
 
         // Handle proxy response format
-        if (!response || response.status < 200 || response.status >= 300) {
-            throw new Error(`Proxy request failed: ${response?.status || 'Unknown error'}`);
-        }
+        // if (!response || response.status < 200 || response.status >= 300) {
+        //     throw new Error(`Proxy request failed: ${response?.status || 'Unknown error'}`);
+        // }
 
         if (response.error) {
             throw new Error(`LLM request failed: ${response.error}`);
         }
 
-        // Parse the JSON response content from proxy
-        const data = JSON.parse(response.content);
+        // // Parse the JSON response content from proxy
+        // const data = JSON.parse(response.content);
 
-        if (data.error) {
-            throw new Error(data.error.message || 'LLM API error');
-        }
+        // if (data.error) {
+        //     throw new Error(data.error.message || 'LLM API error');
+        // }
 
-        const responseText = data.choices[0]?.message?.content || '';
+        //console.log(response);
+        const responseText = response.content || '';
+
+        //const responseText = data.choices[0]?.message?.content || '';
 
         // Store for display in config panel
         node.lastResponse = responseText;
-        node.lastUsage = data.usage;
-        node.lastModel = model;
+        node.lastUsage = response.usage;
+        node.lastModel = response.model;
 
         return {
             response: responseText,
-            tokens_used: data.usage?.total_tokens || 0,
-            model_used: model,
-            full_response: data
+            tokens_used: response.usage?.total_tokens || 0,
+            model_used: response.model,
+            full_response: response
         };
     } catch (error) {
         console.error('LLM Chat error:', error);
