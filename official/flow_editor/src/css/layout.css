@@ -220,7 +220,7 @@
     -webkit-transform-style: preserve-3d;
     /* Prevent visual artifacts during zoom */
     image-rendering: auto;
-    -webkit-font-smoothing: subpixel-antialiased;
+    /* Removed -webkit-font-smoothing: subpixel-antialiased; - causes text blur */
     /* Improve background pattern scaling */
     background-attachment: local;
 }

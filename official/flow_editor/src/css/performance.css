@@ -17,20 +17,15 @@
     contain: layout style paint;
 }
 
-/* Optimize for hardware acceleration */
+/* Optimize for hardware acceleration - but avoid nodes to prevent text blur */
 .flow-canvas,
-.flow-node,
 .flow-connection {
     transform: translateZ(0);
 }
 
-/* Prevent font smoothing issues at different zoom levels */
-.flow-node,
-.flow-node * {
-    -webkit-font-smoothing: subpixel-antialiased;
-    -moz-osx-font-smoothing: auto;
-    text-rendering: optimizeSpeed;
-}
+/* Removed hardware acceleration from nodes - causes text blur */
+
+/* Use browser default font rendering - removed overrides that cause blur */
 
 /* Reduce paint complexity during zoom */
 .flow-node:not(:hover):not(.selected) {

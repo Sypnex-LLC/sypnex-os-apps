@@ -18,8 +18,7 @@
     -webkit-backface-visibility: hidden;
     /* Improve rendering quality at different zoom levels */
     image-rendering: auto;
-    -webkit-font-smoothing: subpixel-antialiased;
-    transform-style: preserve-3d;
+    /* Removed -webkit-font-smoothing and transform-style: preserve-3d - causes text blur */
     /* Do NOT use 'contain' property as it hides the ports which are positioned outside */
 }
 
@@ -30,7 +29,7 @@
 
 .flow-node:hover {
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    transform: translateY(-1px) translateZ(0); /* Force hardware acceleration */
+    transform: translateY(-1px); /* Removed translateZ(0) - causes text blur */
 }
 
 .flow-node.selected {
