@@ -37,7 +37,7 @@
   ],
   "additional_files": [
     {
-      "vfs_path": "/nodes/nodes-pack.json",
+      "vfs_path": "/apps/installed/flow_editor/nodes-pack.json",
       "source_file": "node-definitions/nodes-pack.json"
     }
   ],

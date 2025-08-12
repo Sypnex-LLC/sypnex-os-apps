@@ -13,7 +13,7 @@ class NodeRegistry {
         try {
             
             // Load the packed nodes file directly
-            const packFilePath = '/nodes/nodes-pack.json';
+            const packFilePath = '/apps/installed/flow_editor/nodes-pack.json';
             
             const content = await sypnexAPI.readVirtualFileText(packFilePath);
             const packData = JSON.parse(content);
