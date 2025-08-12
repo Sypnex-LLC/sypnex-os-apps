@@ -1,0 +1,242 @@
+/* Calculator App Styles */
+
+/* Add your custom styles below */
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+}
+
+.calculator-container {
+    display: flex;
+    flex-direction: column;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 20px;
+    gap: 20px;
+}
+
+/* Display Styles */
+.calculator-display {
+    background: var(--surface-secondary, #2a2a2a);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: right;
+    border: 1px solid var(--border-color, #444);
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.display-expression {
+    font-size: 14px;
+    color: var(--text-secondary, #888);
+    margin-bottom: 5px;
+    min-height: 20px;
+    opacity: 0.8;
+}
+
+.display-result {
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--text-primary, #fff);
+    min-height: 40px;
+    word-break: break-all;
+}
+
+/* Button Grid */
+.calculator-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.calc-btn {
+    height: 60px;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+}
+
+/* Number buttons */
+.number-btn {
+    background: var(--surface-secondary, #3a3a3a);
+    color: var(--text-primary, #fff);
+    border: 1px solid var(--border-color, #555);
+}
+
+.number-btn:hover {
+    background: var(--surface-hover, #4a4a4a);
+    transform: translateY(-1px);
+}
+
+.number-btn:active {
+    transform: translateY(0);
+    background: var(--surface-active, #5a5a5a);
+}
+
+/* Operator buttons */
+.operator-btn {
+    background: var(--accent-primary, #007acc);
+    color: white;
+    border: 1px solid var(--accent-primary, #007acc);
+}
+
+.operator-btn:hover {
+    background: var(--accent-hover, #0099ff);
+    transform: translateY(-1px);
+}
+
+.operator-btn.active {
+    background: var(--accent-active, #0066cc);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+}
+
+/* Function buttons */
+.function-btn {
+    background: var(--surface-tertiary, #4a4a4a);
+    color: var(--text-primary, #fff);
+    border: 1px solid var(--border-color, #666);
+}
+
+.function-btn:hover {
+    background: var(--surface-hover, #5a5a5a);
+    transform: translateY(-1px);
+}
+
+/* Equals button */
+.equals-btn {
+    background: var(--success-primary, #28a745);
+    color: white;
+    border: 1px solid var(--success-primary, #28a745);
+    font-weight: 600;
+}
+
+.equals-btn:hover {
+    background: var(--success-hover, #34ce57);
+    transform: translateY(-1px);
+}
+
+/* History Panel */
+.calculator-history {
+    background: var(--surface-secondary, #2a2a2a);
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid var(--border-color, #444);
+    max-height: 200px;
+    display: flex;
+    flex-direction: column;
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color, #444);
+}
+
+.history-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: var(--text-primary, #fff);
+}
+
+.history-list {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 150px;
+}
+
+.history-item {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border-color, #333);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.history-item:hover {
+    background: var(--surface-hover, #3a3a3a);
+    border-radius: 4px;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+.history-item:last-child {
+    border-bottom: none;
+}
+
+.history-expression {
+    font-size: 12px;
+    color: var(--text-secondary, #888);
+    margin-bottom: 2px;
+}
+
+.history-result {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary, #fff);
+}
+
+/* Header Controls */
+.header-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.app-btn.small {
+    padding: 4px 8px;
+    font-size: 12px;
+    height: auto;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .calculator-container {
+        padding: 10px;
+        max-width: 100%;
+    }
+    
+    .calc-btn {
+        height: 50px;
+        font-size: 16px;
+    }
+    
+    .display-result {
+        font-size: 24px;
+    }
+    
+    .header-controls {
+        flex-direction: column;
+        gap: 5px;
+    }
+}
+
+/* Error state */
+.display-error {
+    color: var(--error-primary, #dc3545) !important;
+}
+
+/* Animation for button presses */
+@keyframes buttonPress {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.95); }
+    100% { transform: scale(1); }
+}
+
+.calc-btn.pressed {
+    animation: buttonPress 0.1s ease;
+}
