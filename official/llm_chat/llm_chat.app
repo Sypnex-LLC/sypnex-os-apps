@@ -11,17 +11,23 @@
     {
       "key": "TTS_ENDPOINT",
       "value": "test value",
-      "label": "tts endpoint"
+      "label": "TTS Endpoint (don't use)"
     },
       {
       "key": "OLLAMA_ENDPOINT",
       "value": "test value",
-      "label": "ollama endpoint"
+      "label": "OPENAI Endpoint"
     },
-          {
+    {
       "key": "OLLAMA_MODEL",
       "value": "test value",
-      "label": "ollama model"
+      "label": "OPENAI Model"
+    },
+    {
+      "key": "API_KEY",
+      "value": "none",
+      "label": "API Key",
+      "encrypt": "true"
     }
   ]
 }

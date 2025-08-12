@@ -12,6 +12,7 @@ let currentAudio = null;
 const OLLAMA_ENDPOINT = "{{OLLAMA_ENDPOINT}}"; //http://127.0.0.1:11434/v1";
 const TTS_ENDPOINT = "{{TTS_ENDPOINT}}";//http://192.168.0.77:5568/read"; // Example TTS endpoint
 const MODEL_NAME = "{{OLLAMA_MODEL}}"; // HammerAI/mn-mag-mell-r1:latest
+const API_KEY = "{{API_KEY}}";
 
 // Conversation history
 let conversationHistory = [];
@@ -124,38 +125,19 @@ async function sendMessage() {
     sendButton.disabled = true;
 
     try {
-        // Use OS proxy to bypass CORS
-        const proxyRequest = {
-            url: `${OLLAMA_ENDPOINT}/chat/completions`,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: {
-                model: MODEL_NAME,
-                messages: conversationHistory,
-                temperature: 0.7,
-                stream: false
-            },
-            timeout: 30
-        };
+        // Use the new LLM API for universal provider support
+        const response = await sypnexAPI.llmComplete({
+            provider: 'openai',
+            endpoint: `${OLLAMA_ENDPOINT}/chat/completions`,
+            model: MODEL_NAME,
+            messages: conversationHistory,
+            temperature: 0.7,
+            maxTokens: 1000,
+            stream: false,
+            apiKey: API_KEY
+        });
 
-        const proxyResponse = await sypnexAPI.proxyHTTP(proxyRequest);
-
-        if (!proxyResponse || proxyResponse.status < 200 || proxyResponse.status >= 300) {
-            throw new Error(`Proxy request failed: ${proxyResponse?.status || 'Unknown error'}`);
-        }
-
-        const proxyData = proxyResponse;
-
-        if (proxyData.error) {
-            throw new Error(`LLM request failed: ${proxyData.error}`);
-        }
-
-        // Parse the response content
-        const data = JSON.parse(proxyData.content);
-
-        const aiResponse = data.choices[0].message.content;
+        const aiResponse = response.content;
         
         // Add to conversation history
         conversationHistory.push({"role": "assistant", "content": aiResponse});
