@@ -109,6 +109,13 @@ cd devtools
 # Create a new app with proper structure
 python sypnex.py create my_awesome_app
 
+# Or use a specific template with example functionality
+python sypnex.py create my_calculator --template=basic     # UI components & settings
+python sypnex.py create my_editor --template=file         # File operations
+python sypnex.py create my_tool --template=keybinds       # Keyboard shortcuts
+python sypnex.py create my_dashboard --template=menu      # Navigation menu
+python sypnex.py create my_api_client --template=network  # HTTP requests
+
 # Creates:
 # my_awesome_app/
 # ├── my_awesome_app.app    # App metadata
