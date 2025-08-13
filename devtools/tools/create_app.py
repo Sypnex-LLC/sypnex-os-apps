@@ -6,10 +6,11 @@ Create App Module - Quickly create new user apps with proper structure
 import os
 import sys
 import json
+import shutil
 from pathlib import Path
 
-def create_app(app_name, output_dir=None):
-    """Create a new user app with the given name"""
+def create_app(app_name, output_dir=None, template="basic"):
+    """Create a new user app with the given name and template"""
     
     # Validate app name
     if not app_name or not app_name.strip():
@@ -25,6 +26,16 @@ def create_app(app_name, output_dir=None):
         if char in app_name:
             print(f"❌ Error: App name cannot contain '{char}'")
             return False
+    
+    # Validate template
+    templates_dir = Path(__file__).parent.parent.parent / "templates"
+    template_path = templates_dir / template
+    
+    if not template_path.exists():
+        available_templates = [d.name for d in templates_dir.iterdir() if d.is_dir()]
+        print(f"❌ Error: Template '{template}' not found")
+        print(f"Available templates: {', '.join(available_templates)}")
+        return False
     
     # Define paths - use provided output directory or default to script parent
     if output_dir:
@@ -47,92 +58,25 @@ def create_app(app_name, output_dir=None):
         app_dir.mkdir(parents=True, exist_ok=False)
         print(f"✅ Created app directory: {app_dir}")
         
-        # Create src directory
-        src_dir.mkdir(parents=True, exist_ok=False)
-        print(f"✅ Created src directory: {src_dir}")
+        # Copy template files
+        print(f"📋 Using template: {template}")
         
-        # Create index.html
-        index_html_content = f"""<div class="app-container">
-    <div class="app-header">
-        <h2><i class="fas fa-star"></i> {app_name.title()}</h2>
-        <p>Hello {app_name.title()}!</p>
-    </div>
-
-    <div class="app-content">
-        <p>Welcome to your new {app_name.title()} app!</p>
-    </div>
-</div>"""
+        # Copy the entire template directory structure
+        shutil.copytree(template_path, app_dir, dirs_exist_ok=True)
         
-        (src_dir / "index.html").write_text(index_html_content, encoding="utf-8")
-        print(f"✅ Created index.html")
+        # Rename template .app file to match new app name
+        old_app_file = app_dir / f"{template}.app"
+        new_app_file = app_dir / f"{app_name}.app"
+        if old_app_file.exists():
+            old_app_file.rename(new_app_file)
         
-        # Create style.css
-        style_css_content = f"""/* {app_name.title()} App Styles */
-
-/* Add your custom styles below */
-"""
-        
-        (src_dir / "style.css").write_text(style_css_content, encoding="utf-8")
-        print(f"✅ Created style.css")
-        
-        # Create script.js
-        script_js_content = f"""// {app_name.title()} App JavaScript
-
-console.log('{app_name.title()} app loading...');
-
-// Initialize when DOM is ready
-function initApp() {{
-    console.log('{app_name.title()} app initialized');
-    
-    // Check if SypnexAPI is available (local variable in sandboxed environment)
-    if (typeof sypnexAPI === 'undefined' || !sypnexAPI) {{
-        console.warn('SypnexAPI not available - running in standalone mode');
-        return;
-    }}
-
-    console.log('SypnexAPI available:', sypnexAPI);
-    console.log('App ID:', sypnexAPI.getAppId());
-    console.log('Initialized:', sypnexAPI.isInitialized());
-    
-    // Example: Use SypnexAPI for OS integration
-    // sypnexAPI.showNotification('Hello from {app_name}!');
-    // sypnexAPI.openApp('terminal');
-}}
-
-// Initialize when DOM is ready
-if (document.readyState === 'loading') {{
-    document.addEventListener('DOMContentLoaded', initApp);
-}} else {{
-    // DOM is already loaded
-    initApp();
-}}
-
-// Add your custom JavaScript below
-"""
-        
-        (src_dir / "script.js").write_text(script_js_content, encoding="utf-8")
-        print(f"✅ Created script.js")
-        
-        # Create .app file
-        app_config = {
-            "id": app_name,
-            "name": app_name.title() + " App",
-            "description": "A " + app_name.title() + " application",
-            "icon": "fas fa-star",
-            "keywords": [app_name.lower(), "app", "user"],
-            "author": "Developer",
-            "version": "1.0.0",
-            "type": "user_app",
-            "settings": []
-        }
-        
-        with open(app_file, "w", encoding="utf-8") as f:
-            json.dump(app_config, f, indent=2)
-        print(f"✅ Created {app_name}.app")
+        # Replace template placeholders in all files
+        _replace_template_placeholders(app_dir, template, app_name)
         
         # Success message
         print(f"\n🎉 Successfully created '{app_name}' app!")
         print(f"📁 Location: {app_dir}")
+        print(f"📋 Template: {template}")
         print(f"📝 Files created:")
         print(f"   - {app_name}.app (app configuration)")
         print(f"   - src/index.html (main HTML file)")
@@ -150,7 +94,32 @@ if (document.readyState === 'loading') {{
         print(f"❌ Error creating app: {e}")
         # Clean up on error
         if app_dir.exists():
-            import shutil
             shutil.rmtree(app_dir)
             print(f"🧹 Cleaned up partial app directory")
         return False 
+
+
+def _replace_template_placeholders(app_dir, template_name, app_name):
+    """Replace template placeholders in .app file only"""
+    
+    # Only process the .app file - leave all other files unchanged
+    app_file = app_dir / f"{app_name}.app"
+    
+    if app_file.exists():
+        try:
+            # Read and parse the JSON
+            with open(app_file, 'r', encoding='utf-8') as f:
+                app_config = json.load(f)
+            
+            # Update only the necessary fields
+            app_config["id"] = app_name
+            app_config["name"] = app_name.title() + " App"
+            app_config["description"] = f"A {app_name.title()} application"
+            app_config["keywords"] = [app_name.lower(), "app", "user"]
+            
+            # Write back the updated JSON
+            with open(app_file, 'w', encoding='utf-8') as f:
+                json.dump(app_config, f, indent=2)
+                
+        except Exception as e:
+            print(f"⚠️ Warning: Could not update {app_file}: {e}")

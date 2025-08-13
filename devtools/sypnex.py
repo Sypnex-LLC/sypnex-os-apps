@@ -48,7 +48,7 @@ def show_config():
         print("   2. Get JWT token from System Settings > Developer Mode")
         print("   3. Set SYPNEX_DEV_TOKEN in .env file")
 
-def create_app(app_name, output_dir=None):
+def create_app(app_name, output_dir=None, template="basic"):
     """Create a new app"""
     try:
         from tools.create_app import create_app as create_app_func
@@ -58,15 +58,15 @@ def create_app(app_name, output_dir=None):
             original_cwd = os.getcwd()
             os.chdir(output_dir)
         
-        # Call create_app function directly
-        success = create_app_func(app_name, output_dir)
+        # Call create_app function directly with template
+        success = create_app_func(app_name, output_dir, template)
         
         # Change back to original directory if we changed it
         if output_dir:
             os.chdir(original_cwd)
         
         if success:
-            print(f"✅ App '{app_name}' created successfully!")
+            print(f"✅ App '{app_name}' created successfully using template '{template}'!")
         else:
             print(f"❌ Failed to create app '{app_name}'")
     except Exception as e:
@@ -178,6 +178,9 @@ def main():
         epilog="""
 Examples:
   python sypnex.py create my_awesome_app
+  python sypnex.py create my_calculator --template=basic
+  python sypnex.py create my_editor --template=file
+  python sypnex.py create my_dashboard --template=menu
   python sypnex.py deploy app flow_editor
   python sypnex.py deploy app my_app --server https://remote.com/
   python sypnex.py deploy vfs script.py
@@ -192,6 +195,7 @@ Examples:
     create_parser = subparsers.add_parser('create', help='Create a new app')
     create_parser.add_argument('app_name', help='Name of the app to create')
     create_parser.add_argument('--output', help='Directory to create the app in (default: current directory)')
+    create_parser.add_argument('--template', default='basic', help='Template to use (default: basic). Available: empty, basic, file, keybinds, menu, network')
     
     # Deploy command
     deploy_parser = subparsers.add_parser('deploy', help='Deploy apps or files')
@@ -223,7 +227,7 @@ Examples:
         return
     
     if args.command == 'create':
-        create_app(args.app_name, args.output)
+        create_app(args.app_name, args.output, args.template)
     
     elif args.command == 'deploy':
         if not args.deploy_type:
