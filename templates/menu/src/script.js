@@ -25,7 +25,7 @@ function initApp() {
 
 
 function setupMenu(){
-        const menuActions = windowElement.querySelector('.template-menu');
+        const menuActions = document.querySelector('.template-menu');
             if (menuActions) {
                 const menuItems = [
                     {

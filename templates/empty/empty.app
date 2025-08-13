@@ -1,7 +1,7 @@
 {
   "id": "empty",
   "name": "Empty App",
-  "description": "A Empty application",
+  "description": "An Empty application",
   "icon": "fas fa-star",
   "keywords": [
     "empty",
