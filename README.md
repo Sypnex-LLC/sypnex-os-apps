@@ -23,14 +23,12 @@ Official collection of applications and development tools for [Sypnex OS](https:
 ### Core Applications
 - **🏪 App Store** - Browse, install, and manage Sypnex OS applications
 - **📝 Text Editor** - Feature-rich code editor with syntax highlighting and terminal integration
-- **🔄 Flow Editor** - Visual workflow builder with node-based programming interface
 - **� LLM Chat** - AI chat interface for interacting with language models
 
 ### Development Tools
 - **📦 Pack App** - Package development apps for distribution
 - **🚀 Dev Deploy** - Quick deployment tool for development iterations
 - **🔧 Create App** - Scaffold new applications with proper structure
-- **📊 Enhanced Workflow Runner** - Execute and manage complex workflows
 
 ## 🚀 Quick Start
 
@@ -146,15 +144,6 @@ app_name/
 **👉 [Full App Structure Guide](USER_APP_DEVELOPMENT_GUIDE.md#app-structure)**
 
 ## 🎯 Featured Applications
-
-### 🔄 Flow Editor
-A powerful visual workflow builder that demonstrates advanced Sypnex OS capabilities:
-- Node-based visual programming interface
-- Real-time workflow execution with live output streaming
-- AI integration with local LLM models
-- API integrations and data processing pipelines
-
-**[📖 Flow Editor Documentation](flow_editor/FLOW_EDITOR_README.md)**
 
 ### 📝 Text Editor
 Feature-rich code editor with integrated development tools:

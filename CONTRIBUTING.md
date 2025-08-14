@@ -88,7 +88,7 @@ We welcome new ideas. When suggesting features:
    - Games and entertainment apps
 
 2. **Existing App Improvements**
-   - Enhanced features for Flow Editor, Text Editor, App Store
+   - Enhanced features for Text Editor, App Store
    - Performance optimizations
    - UI/UX improvements
    - Bug fixes and stability improvements

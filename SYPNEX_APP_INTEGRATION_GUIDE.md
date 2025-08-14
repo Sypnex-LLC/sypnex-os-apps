@@ -393,7 +393,7 @@ const appWindow = sypnexAPI.getAppWindow();
 For apps with complex scaling needs, use the SypnexAPI scaling library:
 
 ```javascript
-// Used by Flow Editor for complex canvas scaling
+// Used by for complex canvas scaling
 const scalingManager = sypnexAPI.createScalingManager(canvasElement);
 ```
 

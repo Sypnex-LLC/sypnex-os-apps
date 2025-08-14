@@ -1055,15 +1055,6 @@ console.log('Counter App script loaded');
 
 ## 🎯 Featured Applications
 
-### Flow Editor
-A powerful visual workflow builder that allows you to:
-- Create node-based workflows
-- Connect data between different services
-- Execute complex automation tasks
-- Integrate with AI models and APIs
-
-Learn more: [Flow Editor README](flow_editor/FLOW_EDITOR_README.md)
-
 ### Text Editor
 A feature-rich code editor with:
 - Syntax highlighting for multiple languages
