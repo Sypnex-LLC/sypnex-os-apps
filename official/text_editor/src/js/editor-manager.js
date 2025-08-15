@@ -62,11 +62,6 @@ function initializeEditor() {
     
     // Enable syntax highlighting if needed
     enableSyntaxHighlighting();
-    
-    // Start auto-save if enabled
-    if (textEditor.settings.autoSaveInterval > 0) {
-        startAutoSave();
-    }
 }
 
 
@@ -119,26 +114,4 @@ function clearEditor() {
     
     // Focus the textarea (not the backdrop)
     focusEditor();
-}
-
-// Start auto-save
-function startAutoSave() {
-    if (textEditor.autoSaveInterval) {
-        clearInterval(textEditor.autoSaveInterval);
-    }
-    
-    textEditor.autoSaveInterval = setInterval(() => {
-        if (textEditor.isModified && textEditor.filePath && textEditor.filePath !== '/untitled.txt') {
-            saveFile();
-        }
-    }, textEditor.settings.autoSaveInterval * 1000);
-    
-}
-
-// Stop auto-save
-function stopAutoSave() {
-    if (textEditor.autoSaveInterval) {
-        clearInterval(textEditor.autoSaveInterval);
-        textEditor.autoSaveInterval = null;
-    }
 }

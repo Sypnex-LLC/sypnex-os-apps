@@ -19,13 +19,6 @@
     ],
     "settings": [
         {
-            "key": "AUTO_SAVE_INTERVAL",
-            "name": "Auto Save Interval (s)",
-            "type": "number",
-            "value": 30,
-            "description": "Auto save content every N seconds (0 = disabled)"
-        },
-        {
             "key": "FONT_SIZE",
             "name": "Font Size",
             "type": "number",

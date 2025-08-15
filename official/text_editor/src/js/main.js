@@ -7,7 +7,6 @@ let textEditor = {
     filePath: null,
     originalContent: '',
     isModified: false,
-    autoSaveInterval: null,
     wordWrapEnabled: false,
     lineNumbersEnabled: true,
     settings: {},
