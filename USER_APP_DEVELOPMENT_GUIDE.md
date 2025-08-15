@@ -97,6 +97,8 @@ python sypnex.py deploy app my_app
 python sypnex.py pack my_app
 ```
 
+**🎨 Ready for advanced integration?** Check out the [App Integration Guide](SYPNEX_APP_INTEGRATION_GUIDE.md) for UI patterns, file operations, and advanced features.
+
 ## 🛠️ Development Tools
 
 **[Unified CLI](devtools/README.md)** - Single interface for all development tasks

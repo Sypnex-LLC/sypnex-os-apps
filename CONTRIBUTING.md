@@ -79,38 +79,6 @@ We welcome new ideas. When suggesting features:
 
 ### 🔧 Code Contributions
 
-#### Areas Where We Need Help
-1. **New Applications**
-   - Productivity tools and utilities
-   - Developer tools and IDE features
-   - Creative applications (image/audio/video editors)
-   - Educational and learning applications
-   - Games and entertainment apps
-
-2. **Existing App Improvements**
-   - Enhanced features for Text Editor, App Store
-   - Performance optimizations
-   - UI/UX improvements
-   - Bug fixes and stability improvements
-
-3. **Development Tools**
-   - Enhanced app scaffolding and templates
-   - Better development workflow automation
-   - Improved packaging and deployment tools
-   - Debugging utilities
-
-4. **Documentation**
-   - App development tutorials and guides
-   - API usage examples
-   - Best practices documentation
-   - Video tutorials and walkthroughs
-
-5. **Testing**
-   - App testing in different scenarios
-   - Cross-browser compatibility testing
-   - Performance testing
-   - User experience testing
-
 #### Development Workflow
 
 1. **Create a branch** for your feature:
@@ -196,51 +164,20 @@ We welcome new ideas. When suggesting features:
 
 ## 🧪 Testing
 
-### Manual Testing
-- Navigate to devtools: `cd devtools`
-- Test your app in Sypnex OS environment using `python sypnex.py deploy app "C:\your_projects\your_app"`
-- Verify all app functionality works as expected
-- Check for console errors or warnings
-- Test app settings and configuration
-- Test on different screen sizes and window configurations
-- Verify proper cleanup when app is closed
-
-### App-Specific Testing
-- Test all interactive elements (buttons, forms, etc.)
-- Verify SypnexAPI integration works correctly
-- Test app persistence (settings, state saving)
-- Check app performance and responsiveness
-- Test error handling for various scenarios
-
-### Development Tools Testing
-- Test scaffolding tools create proper app structure
-- Verify deployment tools work with different app types
-- Test packaging creates valid distributable files
+- Deploy and test your app: `python sypnex.py deploy app "C:\your_projects\your_app"`
+- Verify all functionality works in Sypnex OS
+- Check for console errors and proper SypnexAPI integration
+- Test app settings, state saving, and different window sizes
 
 ## 📖 Documentation
 
-When contributing features or fixes:
-- Update relevant documentation files
-- Add inline code comments for complex logic
-- Update API documentation if you modify endpoints
-- Consider adding examples for new features
-
-## 🤝 Community Guidelines
-
-### Be Collaborative
-- Help newcomers get started
-- Share knowledge and resources
-- Provide constructive feedback
-- Ask questions when you need help
+Update relevant documentation and add comments for complex logic when contributing.
 
 ## 🆘 Getting Help
 
-If you're stuck or have questions:
-- **App Development Help**: Read the [Complete Development Guide](USER_APP_DEVELOPMENT_GUIDE.md)
-- **General Questions**: [GitHub Discussions](https://github.com/Sypnex-LLC/sypnex-os/discussions) (main OS repository)
-- **App-Specific Issues**: Create GitHub Issues in this repository
-- **VS Code Extension Help**: Check the [extension repository](https://github.com/Sypnex-LLC/sypnex-os-vscode-extension)
-- **Core OS Issues**: Create issues in the [main OS repository](https://github.com/Sypnex-LLC/sypnex-os)
+- **App Development**: Read the [Complete Development Guide](USER_APP_DEVELOPMENT_GUIDE.md)
+- **Questions**: [GitHub Discussions](https://github.com/Sypnex-LLC/sypnex-os/discussions) or create issues
+- **VS Code Extension**: Check the [extension repository](https://github.com/Sypnex-LLC/sypnex-os-vscode-extension)
 
 ## 📝 License
 

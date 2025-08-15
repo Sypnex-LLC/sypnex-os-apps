@@ -1,11 +1,12 @@
 # SypnexOS App Integration Guide
 
-This guide provides essential patterns and best practices for building apps that integrate seamlessly with the SypnexOS ecosystem. It covers UI consistency, SypnexAPI usage, and common development patterns to ensure your app feels native to the platform.
+This guide covers advanced integration patterns, UI consistency, and best practices for building apps that feel native to the SypnexOS ecosystem.
+
+> **🚀 New to Sypnex OS development?** Start with the [User App Development Guide](USER_APP_DEVELOPMENT_GUIDE.md) for complete setup and getting started instructions.
 
 ## Table of Contents
 
-- [Core Principles](#core-principles)
-- [Getting Started](#getting-started)
+- [Core Integration Principles](#core-integration-principles)
 - [UI Components & Styling](#ui-components--styling)
 - [File Operations](#file-operations)
 - [User Interface Patterns](#user-interface-patterns)
@@ -16,78 +17,13 @@ This guide provides essential patterns and best practices for building apps that
 
 ---
 
-## Core Principles
+## Core Integration Principles
 
 ### System Integration
 - **SypnexAPI is globally available** - No need to instantiate it in your app
 - **Inherit system styles** - Your app should look consistent with the overall OS
 - **Window management is handled** - Minimize, maximize, and close functionality is provided automatically
 - **Avoid recreating system components** - Use existing styles and components whenever possible
-
-### App Structure Requirements
-- All apps must be wrapped in the `app-container` class
-- No inline JavaScript or CSS in `index.html`
-- Use event listeners instead of `onclick` attributes
-- Check DOM ready state before initialization
-
----
-
-## Getting Started
-
-### App Initialization
-Always check if the DOM is loaded before initializing your app:
-
-```javascript
-// Initialize when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initYourApp);
-} else {
-    // DOM is already loaded
-    initYourApp();
-}
-```
-
-### Basic App Structure
-```html
-<div class="app-container">
-    <!-- Optional: Add app header for buttons, controls, and navigation -->
-    <div class="app-header">
-        <div class="header-content">
-            <div class="header-text">
-                <h2><i class="fas fa-your-icon"></i> Your App Name</h2>
-                <p>App description or subtitle</p>
-            </div>
-            <div class="header-controls">
-                <!-- Place buttons, search bars, and controls here -->
-                <button id="refresh-btn" class="btn btn-primary">
-                    <i class="fas fa-sync-alt"></i> Refresh
-                </button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Your main app content here -->
-    <div class="app-content">
-        <!-- App body content -->
-    </div>
-</div>
-```
-
-**Note**: The `app-header` provides a consistent area for placing buttons, search controls, and navigation elements at the top of your app.
-
-### Event Handling
-Use event listeners instead of inline event handlers:
-
-```javascript
-// ❌ Don't use onclick in HTML
-// <button onclick="saveFile()">Save</button>
-
-// ✅ Use event listeners
-const saveFileBtn = document.getElementById('save-file');
-saveFileBtn?.addEventListener('click', saveFile);
-```
-
----
 
 ## UI Components & Styling
 
