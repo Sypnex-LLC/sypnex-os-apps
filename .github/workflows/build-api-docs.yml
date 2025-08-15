@@ -31,6 +31,23 @@ jobs:
       run: |
         npx jsdoc sypnex-api.js -d docs -t node_modules/clean-jsdoc-theme
         
+    - name: Create redirect index.html
+      run: |
+        cat > index.html << 'EOF'
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="utf-8">
+            <title>SYPNEX OS API Documentation</title>
+            <meta http-equiv="refresh" content="0; url=docs/">
+            <link rel="canonical" href="docs/">
+        </head>
+        <body>
+            <p><a href="docs/">Redirecting to API Documentation...</a></p>
+        </body>
+        </html>
+        EOF
+        
     - name: Configure git
       run: |
         git config --local user.email "action@github.com"
@@ -38,6 +55,6 @@ jobs:
         
     - name: Commit and push documentation
       run: |
-        git add docs/
+        git add docs/ index.html
         git commit -m "Update API documentation" || exit 0
         git push
