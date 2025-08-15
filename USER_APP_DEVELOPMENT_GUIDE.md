@@ -4,8 +4,6 @@
 
 > **🛠️ Development Tools**: For streamlined development, use our [unified CLI](devtools/README.md) which provides a single interface for all development tasks with **100% decoupled** project structure - create apps anywhere!
 
-> **🎯 Key Innovation**: Our development CLI is completely decoupled from project structure. You can create, deploy, and manage apps from any location on your system - no assumptions about where your files should be!
-
 ## 🚀 Quick Start
 
 Create your first app in 3 simple steps (anywhere on your system!):
