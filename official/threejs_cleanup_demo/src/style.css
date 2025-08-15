@@ -1,0 +1,87 @@
+/* Three.js Cleanup Demo Styles */
+
+.app-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.app-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+.info-panel {
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.status-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.status-value {
+    font-weight: bold;
+    color: #4CAF50;
+}
+
+.cleanup-info {
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(255, 152, 0, 0.2);
+    border-radius: 4px;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.controls-panel {
+    margin-bottom: 10px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.canvas-container {
+    flex: 1;
+    position: relative;
+    background: #1a1a1a;
+    border-radius: 8px;
+    overflow: hidden;
+    min-height: 300px;
+}
+
+.canvas-container canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Button styling adjustments */
+.app-btn {
+    min-width: 100px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .controls-panel {
+        flex-direction: column;
+    }
+    
+    .app-btn {
+        min-width: auto;
+    }
+}

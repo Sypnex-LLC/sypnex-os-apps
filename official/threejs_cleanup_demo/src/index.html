@@ -1,0 +1,34 @@
+<div class="app-container">
+    <div class="app-header">
+        <h2><i class="fas fa-cube"></i> Three.js Cleanup Demo</h2>
+        <p>Demonstrates proper cleanup of animation loops and WebGL resources</p>
+    </div>
+
+    <div class="app-content">
+        <div id="info-panel" class="info-panel">
+            <div class="status-row">
+                <span>Status:</span> <span id="status" class="status-value">Loading...</span>
+            </div>
+            <div class="status-row">
+                <span>FPS:</span> <span id="fps" class="status-value">0</span>
+            </div>
+            <div class="status-row">
+                <span>Frame:</span> <span id="frame-count" class="status-value">0</span>
+            </div>
+            <div class="cleanup-info">
+                💡 <strong>Close this app to see cleanup in action!</strong><br>
+                Check the browser console for cleanup messages.
+            </div>
+        </div>
+        
+        <div id="controls-panel" class="controls-panel">
+            <button id="play-pause" class="app-btn primary">⏸️ Pause</button>
+            <button id="reset" class="app-btn secondary">🔄 Reset</button>
+            <button id="color-change" class="app-btn secondary">🎨 Random Color</button>
+        </div>
+        
+        <div id="canvas-container" class="canvas-container">
+            <!-- Three.js canvas will be inserted here -->
+        </div>
+    </div>
+</div>

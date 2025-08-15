@@ -430,13 +430,136 @@ function initMyApp() {
     }
 }
 
-// Clean up when app is closed
-window.addEventListener('beforeunload', () => {
-    // Cleanup code
-});
-
 console.log('My App script loaded');
 ```
+
+### App Cleanup & Lifecycle Management
+
+SYPNEX OS automatically cleans up timers, event listeners, and other resources when your app closes. However, for complex apps (like Three.js games, media players, etc.), you may need custom cleanup logic.
+
+#### 🔧 Automatic Cleanup (No action needed)
+- ✅ `setTimeout` and `setInterval` timers
+- ✅ Event listeners (`addEventListener`)
+- ✅ Keyboard shortcuts
+- ✅ Window properties
+- ✅ WebSocket connections
+- ✅ DOM elements
+
+#### 🎯 Custom Cleanup Hook
+For custom cleanup (game loops, WebGL contexts, etc.), use `sypnexAPI.onBeforeClose()`:
+
+```javascript
+function initMyApp() {
+    // Your app initialization
+    setupThreeJsScene();
+    startGameLoop();
+    
+    // Register cleanup functions
+    sypnexAPI.onBeforeClose(() => {
+        // Stop game loop
+        gameRunning = false;
+        if (animationId) {
+            cancelAnimationFrame(animationId);
+        }
+        
+        // Dispose Three.js resources
+        if (renderer) {
+            renderer.dispose();
+            renderer.domElement = null;
+        }
+        
+        if (scene) {
+            scene.clear();
+        }
+        
+        console.log('Three.js app cleaned up');
+    }, 'Three.js cleanup');
+    
+    // You can register multiple cleanup functions
+    sypnexAPI.onBeforeClose(() => {
+        // Save user progress
+        sypnexAPI.setAppStorage('lastLevel', currentLevel);
+        sypnexAPI.setAppStorage('playerScore', score);
+    }, 'Save game state');
+}
+
+// Example: Three.js game loop with proper cleanup
+let animationId;
+let gameRunning = true;
+
+function gameLoop() {
+    if (!gameRunning) return;
+    
+    // Update game logic
+    updateGame();
+    
+    // Render scene
+    renderer.render(scene, camera);
+    
+    // Continue loop
+    animationId = requestAnimationFrame(gameLoop);
+}
+
+function startGameLoop() {
+    gameRunning = true;
+    gameLoop();
+}
+```
+
+#### 📋 Common Cleanup Patterns
+
+**For Animation/Game Loops:**
+```javascript
+sypnexAPI.onBeforeClose(() => {
+    gameRunning = false;
+    if (animationId) {
+        cancelAnimationFrame(animationId);
+    }
+}, 'Stop animation loop');
+```
+
+**For Media/Audio:**
+```javascript
+sypnexAPI.onBeforeClose(() => {
+    if (audioContext) {
+        audioContext.close();
+    }
+    if (videoElement) {
+        videoElement.pause();
+        videoElement.src = '';
+    }
+}, 'Stop media playback');
+```
+
+**For WebWorkers:**
+```javascript
+sypnexAPI.onBeforeClose(() => {
+    if (worker) {
+        worker.terminate();
+    }
+}, 'Terminate web worker');
+```
+
+**For External Libraries:**
+```javascript
+sypnexAPI.onBeforeClose(() => {
+    // Dispose Chart.js instances
+    if (chart) {
+        chart.destroy();
+    }
+    
+    // Cleanup map instances
+    if (map) {
+        map.remove();
+    }
+}, 'Cleanup external libraries');
+```
+
+#### ⚠️ Important Notes
+- Cleanup hooks run automatically when the user closes your app
+- Always check if resources exist before trying to clean them up
+- Use descriptive names for your cleanup hooks for easier debugging
+- The OS handles most cleanup automatically - only add custom hooks when needed
 
 ### SypnexAPI Access
 
