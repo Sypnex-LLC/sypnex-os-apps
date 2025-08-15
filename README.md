@@ -10,6 +10,8 @@ Official collection of applications and development tools for [Sypnex OS](https:
 
 **👉 [Complete User App Development Guide](USER_APP_DEVELOPMENT_GUIDE.md)** - Comprehensive guide for creating apps on Sypnex OS
 
+**📚 [**API Documentation**](https://sypnex-llc.github.io/sypnex-os-apps/docs/)** - Searchable documentation for all 100+ SypnexAPI methods
+
 **Key Resources:**
 - **[VS Code Extension](https://github.com/Sypnex-LLC/sypnex-os-vscode-extension)** - IntelliSense support for SypnexAPI (100+ methods)
 - **[Core OS Repository](https://github.com/Sypnex-LLC/sypnex-os)** - Main Sypnex OS codebase
