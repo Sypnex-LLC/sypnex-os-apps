@@ -1,8 +1,24 @@
 // Create new file
-function createNewFile() {
+async function createNewFile() {
     if (textEditor.isModified) {
-        if (confirm('You have unsaved changes. Create new file anyway?')) {
-            clearEditor();
+        try {
+            const confirmed = await sypnexAPI.showConfirmation(
+                'Unsaved Changes',
+                'You have unsaved changes that will be lost.',
+                'Are you sure you want to create a new file?',
+                'Create New File',
+                'warning'
+            );
+            
+            if (confirmed) {
+                clearEditor();
+            }
+        } catch (error) {
+            console.error('Error showing confirmation:', error);
+            // Fallback to native confirm if SypnexAPI fails
+            if (confirm('You have unsaved changes. Create new file anyway?')) {
+                clearEditor();
+            }
         }
     } else {
         clearEditor();
@@ -11,6 +27,29 @@ function createNewFile() {
 
 // Load file from VFS
 async function loadFile() {
+    // Check for unsaved changes first
+    if (textEditor.isModified) {
+        try {
+            const confirmed = await sypnexAPI.showConfirmation(
+                'Unsaved Changes',
+                'You have unsaved changes that will be lost.',
+                'Are you sure you want to load a new file?',
+                'Load File',
+                'warning'
+            );
+            
+            if (!confirmed) {
+                return; // User cancelled
+            }
+        } catch (error) {
+            console.error('Error showing confirmation:', error);
+            // Fallback to native confirm if SypnexAPI fails
+            if (!confirm('You have unsaved changes. Load new file anyway?')) {
+                return;
+            }
+        }
+    }
+
     try {
         const filePath = await sypnexAPI.showFileExplorer({
             mode: 'open',
