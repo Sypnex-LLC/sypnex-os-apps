@@ -1,0 +1,43 @@
+name: Build API Documentation
+
+on:
+  workflow_dispatch:  # Allows manual triggering from GitHub UI
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout sypnex-os-apps repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Download sypnex-api.js from VS Code extension repo
+      run: |
+        curl -o sypnex-api.js https://raw.githubusercontent.com/Sypnex-LLC/sypnex-os-vscode-extension/master/sypnex-api.js
+        
+    - name: Install JSDoc and clean-jsdoc-theme
+      run: |
+        npm install -g jsdoc
+        npm install clean-jsdoc-theme
+        
+    - name: Generate API documentation
+      run: |
+        npx jsdoc sypnex-api.js -d docs -t node_modules/clean-jsdoc-theme
+        
+    - name: Configure git
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        
+    - name: Commit and push documentation
+      run: |
+        git add docs/
+        git commit -m "Update API documentation" || exit 0
+        git push
