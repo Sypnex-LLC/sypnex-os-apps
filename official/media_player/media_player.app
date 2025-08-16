@@ -1,5 +1,5 @@
 {
-  "id": "media_player",
+  "id": "06fae13f-e72f-4656-8e20-7111a226625c",
   "name": "Media Player",
   "description": "A simple media player",
   "icon": "fas fa-play-circle",

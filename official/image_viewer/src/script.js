@@ -261,12 +261,12 @@ class ImageViewer {
             }
             
             // Read intent from user preferences (where it's stored)
-            const intentData = await sypnexAPI.getPreference('image_viewer', '_pending_intent', null);
+            const intentData = await sypnexAPI.getPreference(sypnexAPI.getAppId(), '_pending_intent', null);
             
             if (intentData && intentData.action === 'open_file') {
                 
                 // Clear the intent immediately after reading it, regardless of success/failure
-                await sypnexAPI.setPreference('image_viewer', '_pending_intent', null);
+                await sypnexAPI.setPreference(sypnexAPI.getAppId(), '_pending_intent', null);
                 
                 const fileData = intentData.data;
                 if (fileData && fileData.filePath) {

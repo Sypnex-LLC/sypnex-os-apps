@@ -7,6 +7,7 @@ import os
 import sys
 import json
 import shutil
+import uuid
 from pathlib import Path
 
 def create_app(app_name, output_dir=None, template="basic"):
@@ -111,8 +112,11 @@ def _replace_template_placeholders(app_dir, template_name, app_name):
             with open(app_file, 'r', encoding='utf-8') as f:
                 app_config = json.load(f)
             
+            # Generate a unique GUID for the app ID
+            app_guid = str(uuid.uuid4())
+            
             # Update only the necessary fields
-            app_config["id"] = app_name
+            app_config["id"] = app_guid  # Use GUID instead of app_name
             app_config["name"] = app_name.title() + " App"
             app_config["description"] = f"A {app_name.title()} application"
             app_config["keywords"] = [app_name.lower(), "app", "user"]
@@ -120,6 +124,8 @@ def _replace_template_placeholders(app_dir, template_name, app_name):
             # Write back the updated JSON
             with open(app_file, 'w', encoding='utf-8') as f:
                 json.dump(app_config, f, indent=2)
+                
+            print(f"🆔 Generated app ID: {app_guid}")
                 
         except Exception as e:
             print(f"⚠️ Warning: Could not update {app_file}: {e}")

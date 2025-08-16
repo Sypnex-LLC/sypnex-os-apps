@@ -1,5 +1,5 @@
 {
-  "id": "calculator",
+  "id": "ad40ffa9-39e4-4322-ac48-46dead3fb2f4",
   "name": "Calculator",
   "description": "A simple calculator app for basic mathematical operations",
   "icon": "fas fa-calculator",

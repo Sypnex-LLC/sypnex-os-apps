@@ -1,5 +1,5 @@
 {
-  "id": "app_store",
+  "id": "d41f664d-e510-4dd1-86f5-8ba835db016f",
   "name": "App Store",
   "description": "Simple app store to browse and install available user applications",
   "icon": "fas fa-store",

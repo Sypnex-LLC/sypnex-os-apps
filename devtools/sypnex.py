@@ -83,26 +83,50 @@ def deploy_app(app_path, server_url=None):
         # Use provided server or default from config
         target_server = server_url or config.server_url
         
-        # Extract app name and directory from path
-        if os.path.isdir(app_path):
-            app_dir = os.path.dirname(app_path)
-            app_name = os.path.basename(app_path)
+        # Convert to absolute path
+        if os.path.isabs(app_path):
+            source_dir = app_path
         else:
-            # Assume it's just the app name in current directory
-            app_dir = "."
-            app_name = app_path
+            source_dir = os.path.abspath(app_path)
         
-        print(f"🚀 Deploying app '{app_name}' from '{app_dir}' to {target_server}")
+        # Verify the directory exists
+        if not os.path.isdir(source_dir):
+            print(f"❌ Error: Directory not found: {source_dir}")
+            return False
+        
+        # Find any .app file to get the ID (ignore _packaged files)
+        import glob
+        import json
+        all_app_files = glob.glob(os.path.join(source_dir, "*.app"))
+        app_files = [f for f in all_app_files if "_packaged" not in os.path.basename(f)]
+        if not app_files:
+            print(f"❌ Error: No .app file found in {source_dir}")
+            return False
+        
+        app_file = app_files[0]
+        try:
+            with open(app_file, 'r', encoding='utf-8') as f:
+                app_metadata = json.load(f)
+        except Exception as e:
+            print(f"❌ Error reading app metadata from {app_file}: {e}")
+            return False
+        
+        app_id = app_metadata.get('id')
+        if not app_id:
+            print(f"❌ No 'id' field found in {app_file}")
+            return False
+        
+        print(f"🚀 Deploying app '{app_id}' from '{source_dir}' to {target_server}")
         
         # Validate config before deployment
         if not config.validate_config():
             return False
         
-        success = dev_deploy(app_name, app_dir, target_server)
+        success = dev_deploy(app_id, source_dir, target_server)
         if success:
-            print(f"✅ App '{app_name}' deployed successfully!")
+            print(f"✅ App '{app_id}' deployed successfully!")
         else:
-            print(f"❌ Failed to deploy app '{app_name}'")
+            print(f"❌ Failed to deploy app '{app_id}'")
         return success
         
     except Exception as e:
@@ -140,35 +164,55 @@ def pack_app(app_path):
     try:
         from tools.pack_app import pack_app
         
-        # Extract app name and directory from path
-        if os.path.isdir(app_path):
-            app_dir = os.path.dirname(app_path)
-            app_name = os.path.basename(app_path)
+        # Convert to absolute path
+        if os.path.isabs(app_path):
+            source_dir = app_path
         else:
-            # Assume it's just the app name in current directory
-            app_dir = "."
-            app_name = app_path
+            source_dir = os.path.abspath(app_path)
         
-        # Change to the directory where the app is located
-        original_cwd = os.getcwd()
-        os.chdir(app_dir)
+        # Verify the directory exists
+        if not os.path.isdir(source_dir):
+            print(f"❌ Error: Directory not found: {source_dir}")
+            return False
         
-        # Call pack_app function directly
-        success = pack_app(app_name, ".")
+        # Find any .app file to get the ID for naming (ignore _packaged files)
+        import glob
+        import json
+        all_app_files = glob.glob(os.path.join(source_dir, "*.app"))
+        app_files = [f for f in all_app_files if "_packaged" not in os.path.basename(f)]
+        if not app_files:
+            print(f"❌ Error: No .app file found in {source_dir}")
+            return False
         
-        # Change back to original directory
-        os.chdir(original_cwd)
+        app_file = app_files[0]
+        try:
+            with open(app_file, 'r', encoding='utf-8') as f:
+                app_metadata = json.load(f)
+        except Exception as e:
+            print(f"❌ Error reading app metadata from {app_file}: {e}")
+            return False
+        
+        app_id = app_metadata.get('id')
+        if not app_id:
+            print(f"❌ No 'id' field found in {app_file}")
+            return False
+        
+        # Create output file in the same directory as the source
+        output_file = os.path.join(source_dir, f"{app_id}_packaged.app")
+        
+        # Call pack_app function with full paths
+        success = pack_app(source_dir, output_file)
         
         if success:
-            print(f"✅ App '{app_name}' packaged successfully!")
+            print(f"✅ App '{app_id}' packaged successfully!")
         else:
-            print(f"❌ Failed to package app '{app_name}'")
-            return
+            print(f"❌ Failed to package app '{app_id}'")
+        
+        return success
+        
     except Exception as e:
-        # Make sure to change back to original directory even on error
-        if 'original_cwd' in locals():
-            os.chdir(original_cwd)
         print(f"❌ Error packaging app: {e}")
+        return False
 
 def main():
     """Main CLI entry point"""

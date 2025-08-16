@@ -118,41 +118,52 @@ def minify_js(js_content):
     return js_content;  # Placeholder for JS minification logic
 
 
-def pack_app(app_name, source_dir="."):
-    """Pack an existing user app into a distributable format"""
+def pack_app(source_dir, output_file):
+    """Pack an existing user app into a distributable format - ID-driven approach"""
     
-    # Validate app name
-    if not app_name or not app_name.strip():
-        print("❌ Error: App name is required")
-        print("Usage: python pack_app.py <app_name>")
+    import glob
+    
+    # Find ANY .app file in the source directory (but ignore _packaged.app files)
+    print(f"🔍 Looking for .app file in: {source_dir}")
+    all_app_files = glob.glob(os.path.join(source_dir, "*.app"))
+    
+    # Filter out any file that contains "_packaged" to be extra safe
+    app_files = [f for f in all_app_files if "_packaged" not in os.path.basename(f)]
+    
+    print(f"🔍 Debug: Found {len(all_app_files)} total .app files: {[os.path.basename(f) for f in all_app_files]}")
+    print(f"🔍 Debug: After filtering: {len(app_files)} files: {[os.path.basename(f) for f in app_files]}")
+    
+    if not app_files:
+        print(f"❌ Error: No .app file found in {source_dir}")
+        if all_app_files:
+            print(f"   (Found {len(all_app_files)} _packaged.app files, but ignoring them)")
         return False
     
-    app_name = app_name.strip()
+    if len(app_files) > 1:
+        print(f"⚠️  Multiple .app files found: {[os.path.basename(f) for f in app_files]}")
+        print(f"   Using: {os.path.basename(app_files[0])}")
     
-    # Define paths
-    app_dir = os.path.join(source_dir, app_name)
-    app_file = os.path.join(app_dir, f"{app_name}.app")
-    
-    # Check if app exists
-    if not os.path.exists(app_dir):
-        print(f"❌ Error: App '{app_name}' not found at {app_dir}")
-        return False
-    
-    if not os.path.exists(app_file):
-        print(f"❌ Error: App metadata file '{app_name}.app' not found")
-        return False
+    app_file = app_files[0]
+    print(f"📄 Found app file: {os.path.basename(app_file)}")
     
     try:
-        # Load the original .app metadata file
+        # Load the .app metadata file to get the real ID
         with open(app_file, 'r', encoding='utf-8') as f:
             app_metadata = json.load(f)
         
-        print(f"📦 Packing app: {app_metadata.get('name', app_name)}")
-        print(f"📁 Source directory: {app_dir}")
+        # Get the ID from inside the file - this is our source of truth
+        app_id = app_metadata.get('id', '')
+        if not app_id:
+            print(f"❌ Error: No 'id' field found in {os.path.basename(app_file)}")
+            return False
+        
+        print(f"🆔 App ID from file: {app_id}")
+        print(f"📦 Packing app: {app_metadata.get('name', app_id)}")
+        print(f"📁 Source directory: {source_dir}")
         
         # Auto-pack if needed (for user apps with src/ directory)
         if app_metadata.get('type') != 'terminal_app':
-            packed_html_file = auto_pack_app(app_name, app_dir)
+            packed_html_file = auto_pack_app(app_id, source_dir)  # Use app_id instead of app_name
             if packed_html_file:
                 print(f"✅ Auto-packed HTML file: {packed_html_file}")
         
@@ -164,16 +175,14 @@ def pack_app(app_name, source_dir="."):
                 'format_version': '1.0',
                 'created_at': datetime.now().isoformat(),
                 'packaged_by': 'Sypnex OS App Packager',
-                'source_directory': app_dir
+                'source_directory': source_dir
             }
         }
         
-        # Add the original .app file (base64 encoded)
+        # Add the original .app file (base64 encoded) - use app_id for naming
         with open(app_file, 'rb') as f:
-            package['files'][f"{app_name}.app"] = base64.b64encode(f.read()).decode('utf-8')
-        print(f"✅ Added {app_name}.app")
-        
-        # Handle additional files (VFS files)
+            package['files'][f"{app_id}.app"] = base64.b64encode(f.read()).decode('utf-8')
+        print(f"✅ Added {app_id}.app")        # Handle additional files (VFS files)
         additional_files = app_metadata.get('additional_files', [])
         if additional_files:
             print(f"📁 Processing {len(additional_files)} additional files...")
@@ -188,7 +197,7 @@ def pack_app(app_name, source_dir="."):
                     continue
                 
                 # Build full path to source file (relative to app's src directory for now)
-                src_dir = os.path.join(app_dir, 'src')
+                src_dir = os.path.join(source_dir, 'src')
                 source_path = os.path.join(src_dir, source_file)
                 
                 if not os.path.exists(source_path):
@@ -214,44 +223,43 @@ def pack_app(app_name, source_dir="."):
                     print(f"❌ Error processing additional file {source_file}: {e}")
                     continue
         
-        # Add app files based on type
+        # Add app files based on type - use app_id for naming
         if app_metadata.get('type') == 'terminal_app':
-            # Terminal app - add Python file
-            python_file = os.path.join(app_dir, f"{app_name}.py")
+            # Terminal app - add Python file using app_id naming
+            python_file = os.path.join(source_dir, f"{app_id}.py")
             if os.path.exists(python_file):
                 with open(python_file, 'rb') as f:
-                    package['files'][f"{app_name}.py"] = base64.b64encode(f.read()).decode('utf-8')
-                print(f"✅ Added {app_name}.py")
+                    package['files'][f"{app_id}.py"] = base64.b64encode(f.read()).decode('utf-8')
+                print(f"✅ Added {app_id}.py")
             else:
-                print(f"⚠️  Warning: Python file {app_name}.py not found")
+                print(f"⚠️  Warning: Python file {app_id}.py not found")
         else:
-            # User app - add HTML file (packed or original)
-            html_file = os.path.join(app_dir, f"{app_name}.html")
+            # User app - add HTML file (packed or original) using app_id naming
+            html_file = os.path.join(source_dir, f"{app_id}.html")
             intermediate_html_created = False
             
             if os.path.exists(html_file):
                 with open(html_file, 'rb') as f:
-                    package['files'][f"{app_name}.html"] = base64.b64encode(f.read()).decode('utf-8')
-                print(f"✅ Added {app_name}.html")
+                    package['files'][f"{app_id}.html"] = base64.b64encode(f.read()).decode('utf-8')
+                print(f"✅ Added {app_id}.html")
                 
                 # Check if this was an intermediate file created by auto-packing
                 if packed_html_file and packed_html_file == html_file:
                     intermediate_html_created = True
             else:
-                print(f"⚠️  Warning: HTML file {app_name}.html not found")
+                print(f"⚠️  Warning: HTML file {app_id}.html not found")
         
-        # Create output file
-        output_file = f"{app_name}_packaged.app"
+        # Use the provided output file path
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(package, f, indent=2)
         
         # Generate SHA256 checksum
         checksum = generate_checksum(output_file)
-        checksum_file = f"{app_name}_packaged.sha256"
+        checksum_file = output_file + '.sha256'
         
         # Write checksum file
         with open(checksum_file, 'w', encoding='utf-8') as f:
-            f.write(f"{checksum}  {output_file}\n")
+            f.write(f"{checksum}  {os.path.basename(output_file)}\n")
         
         # Clean up intermediate HTML file if it was auto-created
         if packed_html_file and intermediate_html_created:
@@ -265,7 +273,7 @@ def pack_app(app_name, source_dir="."):
         package_size = os.path.getsize(output_file)
         package_size_kb = package_size / 1024
         
-        print(f"\n🎉 Successfully packaged '{app_name}'!")
+        print(f"\n🎉 Successfully packaged '{app_id}'!")
         print(f"📦 Package file: {output_file}")
         print(f"🔐 Checksum file: {checksum_file}")
         print(f"📊 Package size: {package_size_kb:.1f} KB")
@@ -317,12 +325,16 @@ def auto_pack_app(app_id, app_path):
         if src_files and html_mtime > max(src_files):
             return html_file  # Already up to date
     
-    # Read app metadata to get script and style order
-    app_file = os.path.join(app_path, f"{app_id}.app")
+    # Find any .app file to read metadata (ignore _packaged.app files)
+    import glob
+    all_app_files = glob.glob(os.path.join(app_path, "*.app"))
+    app_files = [f for f in all_app_files if "_packaged" not in os.path.basename(f)]
     script_order = ['script.js']  # Default fallback
     style_order = ['style.css']   # Default fallback
+    app_metadata = None  # Initialize to None
     
-    if os.path.exists(app_file):
+    if app_files:
+        app_file = app_files[0]  # Use the first .app file found
         try:
             with open(app_file, 'r', encoding='utf-8') as f:
                 app_metadata = json.load(f)
@@ -334,6 +346,10 @@ def auto_pack_app(app_id, app_path):
             print(f"⚠️  Warning: Could not read .app file for script/style order: {e}")
             print(f"   Using default script order: {script_order}")
             print(f"   Using default style order: {style_order}")
+    else:
+        print(f"⚠️  Warning: No .app file found in {app_path}")
+        print(f"   Using default script order: {script_order}")
+        print(f"   Using default style order: {style_order}")
     
     # Read source files
     index_html_path = os.path.join(src_dir, 'index.html')
@@ -378,7 +394,7 @@ def auto_pack_app(app_id, app_path):
         combined_style = '\n\n'.join([sep + style for sep, style in zip(style_separators, all_styles)])
         
         # Minify the combined CSS
-        minified_style = minify_css(combined_style, app_metadata.get('id', 'unknown_app'))
+        minified_style = minify_css(combined_style, app_id)
         merged += f'\n<style>{minified_style}</style>'
         print(f"📦 Packed and minified {len(all_styles)} styles in order")
     else:
@@ -421,7 +437,7 @@ def auto_pack_app(app_id, app_path):
     
     # Minify the final HTML document
     minified_html = minify_html(merged)
-    scoped_html = scope_app_styles(minified_html, app_metadata.get('id', 'unknown_app'))
+    scoped_html = scope_app_styles(minified_html, app_id)
     
     with open(html_file, 'w', encoding='utf-8') as f:
         f.write(scoped_html)

@@ -1,5 +1,5 @@
 {
-    "id": "text_editor",
+    "id": "410e8a66-925c-4698-8768-ead77107060e",
     "name": "Text Editor",
     "description": "A simple text editor for creating and editing text files in the virtual file system",
     "icon": "fas fa-edit",
